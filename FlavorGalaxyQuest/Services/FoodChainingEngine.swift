@@ -38,11 +38,12 @@ struct FoodChainingEngine {
             return .brand
         }
 
-        if !diffs.texture && !diffs.aroma && (diffs.flavor || diffs.temperature) {
+        if !diffs.texture && !diffs.flavor && !diffs.aroma {
             return .visual
         }
 
-        if diffs.texture && !diffs.flavor && areTexturesAdjacent(safeFood.texture, candidate.texture) {
+        if diffs.texture && !diffs.flavor && !diffs.temperature && !diffs.aroma {
+            guard areTexturesAdjacent(safeFood.texture, candidate.texture) else { return .flavor }
             return .texture
         }
 
@@ -85,6 +86,16 @@ struct FoodChainingEngine {
             candidate.allergens.isDisjoint(with: excludedAllergens)
         }
 
+        let calendar = Calendar.current
+        let latestActiveBridge = bridgeHistory
+            .filter { $0.status == .active || $0.status == .completed }
+            .sorted { $0.startDate > $1.startDate }
+            .first
+        let daysAtCurrentBridge: Int = {
+            guard let bridge = latestActiveBridge else { return 0 }
+            return max(calendar.dateComponents([.day], from: bridge.startDate, to: Date()).day ?? 0, 0)
+        }()
+
         var suggestions: [BridgeSuggestion] = []
 
         for safeFood in safeFoods {
@@ -99,16 +110,20 @@ struct FoodChainingEngine {
                 let distToTarget = sensoryDistance(from: candidate, to: targetFood)
 
                 guard distToTarget < currentDist else { continue }
-                guard distFromSafe <= 2 else { continue }
 
-                if distFromSafe == 1 {
-                    let diffs = attributeDifferences(from: safeFood, to: candidate)
-                    if diffs.texture && !areTexturesAdjacent(safeFood.texture, candidate.texture) {
-                        continue
-                    }
+                let diffs = attributeDifferences(from: safeFood, to: candidate)
+                let diffCount = [diffs.texture, diffs.flavor, diffs.temperature, diffs.aroma].filter { $0 }.count
+
+                guard diffCount <= 1 else { continue }
+
+                if diffs.texture && !areTexturesAdjacent(safeFood.texture, candidate.texture) {
+                    continue
                 }
 
                 let bridgeType = classifyBridge(from: safeFood, to: candidate, target: targetFood)
+
+                guard daysAtCurrentBridge >= bridgeType.exposureDaysNeeded else { continue }
+
                 let reason = generateReason(
                     bridgeType: bridgeType,
                     safeFood: safeFood,
