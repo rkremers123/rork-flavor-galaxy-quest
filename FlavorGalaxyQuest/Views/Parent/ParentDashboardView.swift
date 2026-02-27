@@ -1,10 +1,15 @@
 import SwiftUI
+import UIKit
 
 struct ParentDashboardView: View {
     let viewModel: AppViewModel
     @State private var selectedTab: ParentTab = .overview
     @State private var showResetConfirmation: Bool = false
     @State private var showEducationSection: Bool = false
+    @State private var showPaywall: Bool = false
+    @State private var showShareSheet: Bool = false
+    @State private var pdfData: Data?
+    @State private var showUpgradePrompt: Bool = false
 
     var body: some View {
         NavigationStack {
@@ -16,6 +21,7 @@ struct ParentDashboardView: View {
                     overviewTab.tag(ParentTab.overview)
                     foodLibraryTab.tag(ParentTab.foodLibrary)
                     analyticsTab.tag(ParentTab.analytics)
+                    recommendationsTab.tag(ParentTab.recommendations)
                     settingsTab.tag(ParentTab.settings)
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
@@ -36,6 +42,23 @@ struct ParentDashboardView: View {
             } message: {
                 Text("This will erase all progress, profiles, and settings. This cannot be undone.")
             }
+            .sheet(isPresented: $showPaywall) {
+                PaywallView(subscription: viewModel.subscription) {
+                    viewModel.subscription.startFreeTrial()
+                }
+            }
+            .sheet(isPresented: $showShareSheet) {
+                if let data = pdfData {
+                    ShareSheetView(activityItems: [data])
+                }
+            }
+            .onChange(of: selectedTab) { _, newTab in
+                if (newTab == .analytics || newTab == .recommendations) && !viewModel.subscription.hasAccess {
+                    if viewModel.sensoryProfile.totalFoodsConsumed >= 5 {
+                        showUpgradePrompt = true
+                    }
+                }
+            }
         }
     }
 
@@ -51,6 +74,10 @@ struct ParentDashboardView: View {
                                 .font(.caption)
                             Text(tab.label)
                                 .font(.subheadline.weight(.medium))
+                            if tab.isPremium && !viewModel.subscription.hasAccess {
+                                Image(systemName: "lock.fill")
+                                    .font(.system(size: 8))
+                            }
                         }
                         .foregroundStyle(selectedTab == tab ? .white : .secondary)
                         .padding(.horizontal, 14)
@@ -76,10 +103,54 @@ struct ParentDashboardView: View {
                 whyThisWorksSection
                 starJarSection
                 bridgeSuggestionsSection
+
+                if !viewModel.subscription.hasAccess && viewModel.sensoryProfile.totalFoodsConsumed >= 5 {
+                    upgradePromptCard
+                }
+
                 recentActivitySection
             }
             .padding(16)
         }
+    }
+
+    private var upgradePromptCard: some View {
+        VStack(spacing: 12) {
+            HStack(spacing: 10) {
+                Image(systemName: "brain.head.profile.fill")
+                    .font(.title3)
+                    .foregroundStyle(.purple)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("\(viewModel.profile.explorerDisplayName)'s sensory profile is ready!")
+                        .font(.subheadline.weight(.semibold))
+                    Text("Unlock personalized recommendations & analytics")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                Spacer()
+            }
+
+            Button {
+                showPaywall = true
+            } label: {
+                Text("Start 7-Day Free Trial")
+                    .font(.subheadline.weight(.semibold))
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 10)
+                    .background(
+                        LinearGradient(
+                            colors: [.blue, .purple],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                    )
+                    .foregroundStyle(.white)
+                    .clipShape(.rect(cornerRadius: 10))
+            }
+        }
+        .padding(16)
+        .background(Color(.secondarySystemGroupedBackground))
+        .clipShape(.rect(cornerRadius: 14))
     }
 
     private var targetFoodProgressSection: some View {
@@ -362,7 +433,8 @@ struct ParentDashboardView: View {
             } else {
                 VStack(spacing: 0) {
                     ForEach(Array(recentQuests)) { quest in
-                        if let food = FoodDatabase.food(byId: quest.foodId) {
+                        let food = FoodDatabase.food(byId: quest.foodId) ?? viewModel.customFoodItems.first { $0.id == quest.foodId }
+                        if let food {
                             HStack(spacing: 12) {
                                 Text(food.emoji)
                                     .font(.title3)
@@ -463,187 +535,105 @@ struct ParentDashboardView: View {
     }
 
     private var analyticsTab: some View {
-        ScrollView {
-            VStack(spacing: 20) {
-                braveryMapSection
-                comfortInsightsSection
-                bridgeHistorySection
-            }
-            .padding(16)
-        }
-    }
-
-    private var braveryMapSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Bravery Map")
-                .font(.headline)
-
-            Text("Comfort level across sensory zones")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-
-            let levels = viewModel.sensoryComfortLevels()
-            let maxLevel = max(levels.values.max() ?? 1, 1)
-
-            VStack(spacing: 12) {
-                ForEach(SensoryStep.allCases, id: \.self) { step in
-                    let level = levels[step] ?? 0
-                    HStack(spacing: 12) {
-                        Image(systemName: step.icon)
-                            .font(.callout)
-                            .frame(width: 24)
-                            .foregroundStyle(SpaceTheme.planetColor(hex: step.color))
-
-                        Text(step.label)
-                            .font(.subheadline)
-                            .frame(width: 50, alignment: .leading)
-
-                        GeometryReader { geo in
-                            ZStack(alignment: .leading) {
-                                Capsule()
-                                    .fill(Color(.tertiarySystemFill))
-                                    .frame(height: 8)
-
-                                Capsule()
-                                    .fill(SpaceTheme.planetColor(hex: step.color))
-                                    .frame(
-                                        width: geo.size.width * CGFloat(level) / CGFloat(maxLevel),
-                                        height: 8
-                                    )
-                            }
-                        }
-                        .frame(height: 8)
-
-                        Text("\(level)")
-                            .font(.caption.weight(.bold))
-                            .foregroundStyle(.secondary)
-                            .frame(width: 24)
+        Group {
+            if viewModel.subscription.hasAccess {
+                SensoryProfileDashboardView(
+                    sensoryProfile: viewModel.sensoryProfile,
+                    insights: viewModel.sensoryInsights,
+                    onExportPDF: {
+                        pdfData = viewModel.exportTherapistPDF()
+                        showShareSheet = true
                     }
-                }
-            }
-            .padding(16)
-            .background(Color(.secondarySystemGroupedBackground))
-            .clipShape(.rect(cornerRadius: 14))
-        }
-    }
-
-    private var comfortInsightsSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Sensory Insights")
-                .font(.headline)
-
-            let percentages = viewModel.comfortPercentages()
-            let sorted = percentages.sorted { $0.value > $1.value }
-
-            if let easiest = sorted.first, let hardest = sorted.last, easiest.key != hardest.key {
-                VStack(alignment: .leading, spacing: 10) {
-                    HStack(spacing: 8) {
-                        Image(systemName: "arrow.up.circle.fill")
-                            .foregroundStyle(.green)
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text("Easiest: \(easiest.key.label)")
-                                .font(.subheadline.weight(.medium))
-                            Text("\(Int(easiest.value))% comfort")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-
-                    HStack(spacing: 8) {
-                        Image(systemName: "arrow.down.circle.fill")
-                            .foregroundStyle(.orange)
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text("Hardest: \(hardest.key.label)")
-                                .font(.subheadline.weight(.medium))
-                            Text("\(Int(hardest.value))% comfort")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-
-                    if hardest.key == .taste || hardest.key == .lick {
-                        HStack(spacing: 8) {
-                            Image(systemName: "lightbulb.fill")
-                                .foregroundStyle(.yellow)
-                            Text("Focus on touch & smell to build confidence before \(hardest.key.label.lowercased()).")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-                }
-                .padding(16)
-                .background(Color(.secondarySystemGroupedBackground))
-                .clipShape(.rect(cornerRadius: 14))
+                )
             } else {
-                VStack(spacing: 8) {
-                    Image(systemName: "chart.bar")
-                        .font(.title2)
-                        .foregroundStyle(.secondary)
-                    Text("Complete more quests to unlock insights")
+                paywallGateView(
+                    icon: "chart.bar.fill",
+                    title: "Sensory Analytics",
+                    description: "See \(viewModel.profile.explorerDisplayName)'s texture, flavor & temperature profile with visual charts, success zones, and personalized insights."
+                )
+            }
+        }
+    }
+
+    private var recommendationsTab: some View {
+        Group {
+            if viewModel.subscription.hasAccess {
+                SmartRecommendationsView(
+                    recommendations: viewModel.foodRecommendations,
+                    childName: viewModel.profile.explorerDisplayName,
+                    onStartQuest: { _ in },
+                    onRefresh: { viewModel.refreshRecommendations() }
+                )
+            } else {
+                paywallGateView(
+                    icon: "sparkles",
+                    title: "Smart Recommendations",
+                    description: "Get personalized food suggestions scored by match quality, bridge potential, and confidence level."
+                )
+            }
+        }
+    }
+
+    private func paywallGateView(icon: String, title: String, description: String) -> some View {
+        VStack(spacing: 24) {
+            Spacer()
+
+            VStack(spacing: 16) {
+                ZStack {
+                    Circle()
+                        .fill(
+                            LinearGradient(
+                                colors: [.purple.opacity(0.3), .blue.opacity(0.2)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .frame(width: 80, height: 80)
+                    Image(systemName: icon)
+                        .font(.largeTitle)
+                        .foregroundStyle(.purple)
+                }
+
+                Text(title)
+                    .font(.title3.bold())
+
+                Text(description)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 32)
+            }
+
+            Button {
+                showPaywall = true
+            } label: {
+                HStack(spacing: 8) {
+                    Image(systemName: "lock.open.fill")
                         .font(.subheadline)
-                        .foregroundStyle(.secondary)
+                    Text("Unlock with Free Trial")
+                        .font(.subheadline.weight(.semibold))
                 }
                 .frame(maxWidth: .infinity)
-                .padding(24)
-                .background(Color(.secondarySystemGroupedBackground))
+                .padding(.vertical, 14)
+                .background(
+                    LinearGradient(
+                        colors: [.blue, .purple],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                )
+                .foregroundStyle(.white)
                 .clipShape(.rect(cornerRadius: 14))
+                .padding(.horizontal, 40)
             }
-        }
-    }
 
-    private var bridgeHistorySection: some View {
-        Group {
-            if !viewModel.profile.bridgeRecords.isEmpty {
-                VStack(alignment: .leading, spacing: 12) {
-                    Text("Bridge History")
-                        .font(.headline)
-
-                    VStack(spacing: 0) {
-                        ForEach(viewModel.profile.bridgeRecords) { record in
-                            if let food = FoodDatabase.food(byId: record.bridgeFoodId) {
-                                HStack(spacing: 12) {
-                                    Text(food.emoji)
-                                        .font(.title3)
-
-                                    VStack(alignment: .leading, spacing: 2) {
-                                        Text(food.name)
-                                            .font(.subheadline.weight(.medium))
-                                        Text("\(record.bridgeType.label) · \(record.exposureCount) exposures")
-                                            .font(.caption)
-                                            .foregroundStyle(.secondary)
-                                    }
-
-                                    Spacer()
-
-                                    statusBadge(record.status)
-                                }
-                                .padding(.horizontal, 16)
-                                .padding(.vertical, 10)
-                            }
-                        }
-                    }
-                    .background(Color(.secondarySystemGroupedBackground))
-                    .clipShape(.rect(cornerRadius: 14))
-                }
+            if viewModel.sensoryProfile.totalFoodsConsumed < 3 {
+                Text("Complete at least 3 food quests to generate your profile")
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
             }
-        }
-    }
 
-    private func statusBadge(_ status: BridgeStatus) -> some View {
-        Text(status.rawValue.capitalized)
-            .font(.system(.caption2, weight: .bold))
-            .foregroundStyle(statusColor(status))
-            .padding(.horizontal, 8)
-            .padding(.vertical, 3)
-            .background(Capsule().fill(statusColor(status).opacity(0.12)))
-    }
-
-    private func statusColor(_ status: BridgeStatus) -> Color {
-        switch status {
-        case .active: .blue
-        case .completed: .green
-        case .failed: .orange
-        case .skipped: .secondary
+            Spacer()
         }
     }
 
@@ -652,6 +642,7 @@ struct ParentDashboardView: View {
             VStack(spacing: 16) {
                 starJarSettingsSection
                 allergenSection
+                subscriptionSection
                 profileSection
                 dangerZoneSection
             }
@@ -745,6 +736,47 @@ struct ParentDashboardView: View {
                     }
                 }
             }
+        }
+    }
+
+    private var subscriptionSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Subscription")
+                .font(.headline)
+
+            VStack(spacing: 12) {
+                HStack {
+                    Text("Plan")
+                        .font(.subheadline)
+                    Spacer()
+                    Text(viewModel.subscription.hasAccess ? "Premium" : "Free")
+                        .font(.subheadline.weight(.medium))
+                        .foregroundStyle(viewModel.subscription.hasAccess ? .green : .secondary)
+                }
+
+                if !viewModel.subscription.hasAccess {
+                    Button {
+                        showPaywall = true
+                    } label: {
+                        Text("Upgrade to Premium")
+                            .font(.subheadline.weight(.semibold))
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 10)
+                            .background(Color.blue.opacity(0.12))
+                            .foregroundStyle(.blue)
+                            .clipShape(.rect(cornerRadius: 10))
+                    }
+                }
+
+                Button("Restore Purchases") {
+                    viewModel.subscription.restorePurchases()
+                }
+                .font(.caption.weight(.medium))
+                .foregroundStyle(.secondary)
+            }
+            .padding(16)
+            .background(Color(.secondarySystemGroupedBackground))
+            .clipShape(.rect(cornerRadius: 14))
         }
     }
 
@@ -896,13 +928,14 @@ struct ParentDashboardView: View {
 }
 
 enum ParentTab: CaseIterable {
-    case overview, foodLibrary, analytics, settings
+    case overview, foodLibrary, analytics, recommendations, settings
 
     var label: String {
         switch self {
         case .overview: "Overview"
-        case .foodLibrary: "Food Library"
+        case .foodLibrary: "Foods"
         case .analytics: "Analytics"
+        case .recommendations: "Suggest"
         case .settings: "Settings"
         }
     }
@@ -912,8 +945,13 @@ enum ParentTab: CaseIterable {
         case .overview: "chart.bar.fill"
         case .foodLibrary: "books.vertical.fill"
         case .analytics: "brain.head.profile.fill"
+        case .recommendations: "sparkles"
         case .settings: "gearshape.fill"
         }
+    }
+
+    var isPremium: Bool {
+        self == .analytics || self == .recommendations
     }
 }
 
@@ -941,4 +979,14 @@ struct StatCard: View {
         .background(Color(.secondarySystemGroupedBackground))
         .clipShape(.rect(cornerRadius: 14))
     }
+}
+
+struct ShareSheetView: UIViewControllerRepresentable {
+    let activityItems: [Any]
+
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
+    }
+
+    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
 }

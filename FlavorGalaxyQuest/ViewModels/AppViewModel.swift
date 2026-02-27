@@ -21,6 +21,11 @@ class AppViewModel {
     var pendingVerification: PendingVerification?
     var customFoodItems: [FoodItem] = []
 
+    var sensoryProfile: SensoryProfile = .empty
+    var foodRecommendations: [FoodRecommendation] = []
+    var sensoryInsights: [String] = []
+    let subscription = SubscriptionManager.shared
+
     struct PendingVerification {
         let foodId: UUID
         let step: SensoryStep
@@ -46,6 +51,7 @@ class AppViewModel {
             mode = .explorer
             StreakService.updateStreak(profile: profile)
             refreshBridgeSuggestions()
+            refreshSensoryProfile()
         }
     }
 
@@ -53,6 +59,7 @@ class AppViewModel {
         PersistenceService.hasOnboarded = true
         resolveTargetFoodId()
         refreshBridgeSuggestions()
+        refreshSensoryProfile()
         saveProfile()
         withAnimation(.spring(duration: 0.6)) {
             mode = .explorer
@@ -60,6 +67,7 @@ class AppViewModel {
     }
 
     func switchToParentMode() {
+        refreshSensoryProfile()
         withAnimation(.spring(duration: 0.5)) {
             mode = .parentDashboard
         }
@@ -111,6 +119,10 @@ class AppViewModel {
         StreakService.recordDailyAction(profile: profile)
         updateBridgeExposure(foodId: foodId)
         saveProfile()
+
+        if step == .taste || step == .lick {
+            refreshSensoryProfile()
+        }
     }
 
     func verifyTasteStep(foodId: UUID, verification: TasteVerification) {
@@ -212,6 +224,34 @@ class AppViewModel {
         }
     }
 
+    func refreshSensoryProfile() {
+        let allFoods = FoodDatabase.allFoods + customFoodItems
+        sensoryProfile = SensoryProfileCalculator.calculateProfile(
+            profile: profile,
+            allFoods: allFoods
+        )
+        sensoryInsights = SensoryProfileCalculator.generateInsights(profile: sensoryProfile)
+        refreshRecommendations()
+    }
+
+    func refreshRecommendations() {
+        let allFoods = FoodDatabase.allFoods + customFoodItems
+        foodRecommendations = RecommendationEngine.generateRecommendations(
+            sensoryProfile: sensoryProfile,
+            allFoods: allFoods,
+            excludedAllergens: profile.excludedAllergens
+        )
+    }
+
+    func exportTherapistPDF() -> Data {
+        let allFoods = FoodDatabase.allFoods + customFoodItems
+        return TherapistExportService.generatePDFData(
+            profile: profile,
+            sensoryProfile: sensoryProfile,
+            allFoods: allFoods
+        )
+    }
+
     func startBridge(_ suggestion: BridgeSuggestion) {
         let record = BridgeRecordModel(
             safeFoodId: suggestion.fromSafeFood.id,
@@ -270,6 +310,9 @@ class AppViewModel {
         modelContext.insert(newProfile)
         profile = newProfile
         bridgeSuggestions = []
+        sensoryProfile = .empty
+        foodRecommendations = []
+        sensoryInsights = []
         mode = .onboarding
     }
 
