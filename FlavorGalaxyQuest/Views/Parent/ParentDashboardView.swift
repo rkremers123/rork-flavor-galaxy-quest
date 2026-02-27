@@ -4,6 +4,7 @@ struct ParentDashboardView: View {
     let viewModel: AppViewModel
     @State private var selectedTab: ParentTab = .overview
     @State private var showResetConfirmation: Bool = false
+    @State private var showEducationSection: Bool = false
 
     var body: some View {
         NavigationStack {
@@ -74,6 +75,7 @@ struct ParentDashboardView: View {
                 targetFoodProgressSection
                 streakSection
                 statsGrid
+                whyThisWorksSection
                 starJarSection
                 bridgeSuggestionsSection
                 recentActivitySection
@@ -782,6 +784,95 @@ struct ParentDashboardView: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
+    }
+
+    private var whyThisWorksSection: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Button {
+                withAnimation(.spring(duration: 0.3)) {
+                    showEducationSection.toggle()
+                }
+            } label: {
+                HStack(spacing: 10) {
+                    Image(systemName: "book.fill")
+                        .font(.callout)
+                        .foregroundStyle(.blue)
+                    Text("Why This Works")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(.primary)
+                    Spacer()
+                    Image(systemName: showEducationSection ? "chevron.up" : "chevron.down")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                }
+                .padding(16)
+            }
+
+            if showEducationSection {
+                VStack(alignment: .leading, spacing: 16) {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("Why We Don't Ask Them to Eat Yet")
+                            .font(.subheadline.weight(.semibold))
+                        Text("Your child's nervous system needs time to adjust. Forcing eating creates shame, which makes progress harder.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Instead, we celebrate every sensory win:")
+                            .font(.caption.weight(.medium))
+
+                        VStack(alignment: .leading, spacing: 8) {
+                            educationTimelineRow("eye.fill", .cyan, "LOOK", "Day 1–3", "\"I can see it without fear\"")
+                            educationTimelineRow("hand.raised.fill", .blue, "TOUCH", "Day 3–7", "\"I can handle the texture\"")
+                            educationTimelineRow("nose.fill", .purple, "SMELL", "Day 5–10", "\"I'm getting used to the aroma\"")
+                            educationTimelineRow("mouth.fill", .orange, "LICK", "Day 7–14", "\"My mouth says it's safe\"")
+                            educationTimelineRow("fork.knife", .green, "TASTE", "Day 10–21", "\"I tried it!\"")
+                            educationTimelineRow("checkmark.circle.fill", .green, "SWALLOW", "Day 14+", "\"I can eat it\"")
+                        }
+                    }
+
+                    VStack(spacing: 4) {
+                        Text("This usually takes 3–4 weeks. Not days.")
+                            .font(.caption.weight(.semibold))
+                        Text("Your patience = their progress.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(12)
+                    .background(Color.green.opacity(0.08))
+                    .clipShape(.rect(cornerRadius: 8))
+                }
+                .padding(.horizontal, 16)
+                .padding(.bottom, 16)
+            }
+        }
+        .background(Color(.secondarySystemGroupedBackground))
+        .clipShape(.rect(cornerRadius: 14))
+    }
+
+    private func educationTimelineRow(_ icon: String, _ color: Color, _ step: String, _ timeline: String, _ description: String) -> some View {
+        HStack(spacing: 10) {
+            Image(systemName: icon)
+                .font(.caption)
+                .foregroundStyle(color)
+                .frame(width: 20)
+
+            Text(step)
+                .font(.caption.weight(.bold))
+                .frame(width: 56, alignment: .leading)
+
+            Text(timeline)
+                .font(.caption2.weight(.medium))
+                .foregroundStyle(.secondary)
+                .frame(width: 52, alignment: .leading)
+
+            Text(description)
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+        }
     }
 
     private var dangerZoneSection: some View {

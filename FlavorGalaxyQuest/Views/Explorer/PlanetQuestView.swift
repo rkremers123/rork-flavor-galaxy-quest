@@ -9,6 +9,7 @@ struct PlanetQuestView: View {
     @State private var celebrateTrigger: Int = 0
     @State private var showShield: Bool = false
     @State private var showVerification: Bool = false
+    @State private var showEducationModal: Bool = false
 
     private var progress: QuestProgress {
         viewModel.questProgress(for: food.id)
@@ -33,6 +34,15 @@ struct PlanetQuestView: View {
             if showCompletion {
                 questCompletionOverlay
             }
+        }
+        .onAppear {
+            if !UserDefaults.standard.bool(forKey: "hasSeenSensoryEducation") {
+                showEducationModal = true
+                UserDefaults.standard.set(true, forKey: "hasSeenSensoryEducation")
+            }
+        }
+        .sheet(isPresented: $showEducationModal) {
+            SensoryEducationModal()
         }
         .sheet(isPresented: $showVerification) {
             ParentVerificationSheet(
@@ -134,9 +144,21 @@ struct PlanetQuestView: View {
 
     private var sensoryWheel: some View {
         VStack(spacing: 16) {
-            Text("Sensory Missions")
-                .font(.system(.headline, design: .rounded, weight: .bold))
-                .foregroundStyle(.white)
+            HStack {
+                Text("Sensory Missions")
+                    .font(.system(.headline, design: .rounded, weight: .bold))
+                    .foregroundStyle(.white)
+
+                Spacer()
+
+                Button {
+                    showEducationModal = true
+                } label: {
+                    Image(systemName: "info.circle")
+                        .font(.title3)
+                        .foregroundStyle(.white.opacity(0.5))
+                }
+            }
 
             HStack(spacing: 12) {
                 ForEach(SensoryStep.allCases, id: \.self) { step in
