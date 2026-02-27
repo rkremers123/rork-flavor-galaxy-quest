@@ -250,7 +250,7 @@ struct OnboardingView: View {
             Button {
                 viewModel.profile.targetFoodName = targetFoodName
                 if !rewardName.isEmpty {
-                    viewModel.profile.starJar.rewardName = rewardName
+                    viewModel.profile.starJarRewardName = rewardName
                 }
                 viewModel.completeOnboarding()
             } label: {

@@ -67,8 +67,6 @@ struct ParentDashboardView: View {
         .scrollIndicators(.hidden)
     }
 
-    // MARK: - Overview Tab
-
     private var overviewTab: some View {
         ScrollView {
             VStack(spacing: 16) {
@@ -100,7 +98,7 @@ struct ParentDashboardView: View {
                         VStack(alignment: .leading, spacing: 4) {
                             Text(target.name)
                                 .font(.headline)
-                            Text("\(Int(progress.progressFraction * 100))% Complete")
+                            Text("\(Int((progress?.progressFraction ?? 0) * 100))% Complete")
                                 .font(.subheadline)
                                 .foregroundStyle(.secondary)
                         }
@@ -110,8 +108,8 @@ struct ParentDashboardView: View {
 
                     HStack(spacing: 8) {
                         ForEach(SensoryStep.allCases, id: \.self) { step in
-                            let completed = progress.completedSteps.contains(step)
-                            let skipped = progress.skippedSteps.contains(step)
+                            let completed = progress?.completedSteps.contains(step) ?? false
+                            let skipped = progress?.skippedSteps.contains(step) ?? false
 
                             VStack(spacing: 4) {
                                 Image(systemName: completed ? "checkmark.circle.fill" : skipped ? "arrow.uturn.right.circle" : "circle")
@@ -261,10 +259,10 @@ struct ParentDashboardView: View {
                 HStack {
                     Image(systemName: "star.fill")
                         .foregroundStyle(.yellow)
-                    Text(viewModel.profile.starJar.rewardName)
+                    Text(viewModel.profile.starJarRewardName)
                         .font(.subheadline.weight(.medium))
                     Spacer()
-                    if viewModel.profile.starJar.rewardUnlocked {
+                    if viewModel.profile.starJarRewardUnlocked {
                         Text("UNLOCKED!")
                             .font(.caption.bold())
                             .foregroundStyle(.green)
@@ -276,9 +274,9 @@ struct ParentDashboardView: View {
                 }
 
                 ProgressView(value: viewModel.starJarProgress)
-                    .tint(viewModel.profile.starJar.rewardUnlocked ? .green : .yellow)
+                    .tint(viewModel.profile.starJarRewardUnlocked ? .green : .yellow)
 
-                Text("\(viewModel.profile.totalStarDust) / \(viewModel.profile.starJar.targetStarDust) Star Dust")
+                Text("\(viewModel.profile.totalStarDust) / \(viewModel.profile.starJarTargetStarDust) Star Dust")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -343,7 +341,7 @@ struct ParentDashboardView: View {
             Text("Recent Activity")
                 .font(.headline)
 
-            let recentQuests = viewModel.profile.questProgress.values
+            let recentQuests = viewModel.profile.questProgressItems
                 .filter { $0.lastAttemptDate != nil }
                 .sorted { ($0.lastAttemptDate ?? .distantPast) > ($1.lastAttemptDate ?? .distantPast) }
                 .prefix(5)
@@ -363,7 +361,7 @@ struct ParentDashboardView: View {
                 .clipShape(.rect(cornerRadius: 14))
             } else {
                 VStack(spacing: 0) {
-                    ForEach(Array(recentQuests), id: \.foodId) { quest in
+                    ForEach(Array(recentQuests)) { quest in
                         if let food = FoodDatabase.food(byId: quest.foodId) {
                             HStack(spacing: 12) {
                                 Text(food.emoji)
@@ -372,7 +370,7 @@ struct ParentDashboardView: View {
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text(food.name)
                                         .font(.subheadline.weight(.medium))
-                                    Text("\(quest.completedSteps.count)/\(SensoryStep.allCases.count) steps")
+                                    Text("\(quest.completedStepValues.count)/\(SensoryStep.allCases.count) steps")
                                         .font(.caption)
                                         .foregroundStyle(.secondary)
                                 }
@@ -397,8 +395,6 @@ struct ParentDashboardView: View {
             }
         }
     }
-
-    // MARK: - Food Library Tab
 
     private var foodLibraryTab: some View {
         ScrollView {
@@ -444,11 +440,11 @@ struct ParentDashboardView: View {
 
                                     Spacer()
 
-                                    if progress.isComplete {
+                                    if progress?.isComplete ?? false {
                                         Image(systemName: "checkmark.circle.fill")
                                             .foregroundStyle(.green)
-                                    } else if !progress.completedSteps.isEmpty {
-                                        Text("\(progress.completedSteps.count)/5")
+                                    } else if !(progress?.completedStepValues.isEmpty ?? true) {
+                                        Text("\(progress?.completedStepValues.count ?? 0)/5")
                                             .font(.caption.weight(.bold))
                                             .foregroundStyle(.secondary)
                                     }
@@ -465,8 +461,6 @@ struct ParentDashboardView: View {
             .padding(16)
         }
     }
-
-    // MARK: - Analytics Tab
 
     private var analyticsTab: some View {
         ScrollView {
@@ -653,8 +647,6 @@ struct ParentDashboardView: View {
         }
     }
 
-    // MARK: - Settings Tab
-
     private var settingsTab: some View {
         ScrollView {
             VStack(spacing: 16) {
@@ -678,9 +670,9 @@ struct ParentDashboardView: View {
                         .font(.subheadline)
                     Spacer()
                     TextField("Reward name", text: Binding(
-                        get: { viewModel.profile.starJar.rewardName },
+                        get: { viewModel.profile.starJarRewardName },
                         set: {
-                            viewModel.profile.starJar.rewardName = $0
+                            viewModel.profile.starJarRewardName = $0
                             viewModel.saveProfile()
                         }
                     ))
@@ -694,12 +686,12 @@ struct ParentDashboardView: View {
                         .font(.subheadline)
                     Spacer()
                     Stepper(
-                        "\(viewModel.profile.starJar.targetStarDust)",
+                        "\(viewModel.profile.starJarTargetStarDust)",
                         value: Binding(
-                            get: { viewModel.profile.starJar.targetStarDust },
+                            get: { viewModel.profile.starJarTargetStarDust },
                             set: {
-                                viewModel.profile.starJar.targetStarDust = $0
-                                viewModel.profile.starJar.rewardUnlocked = false
+                                viewModel.profile.starJarTargetStarDust = $0
+                                viewModel.profile.starJarRewardUnlocked = false
                                 viewModel.saveProfile()
                             }
                         ),

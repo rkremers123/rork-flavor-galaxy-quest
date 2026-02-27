@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 
 enum AppMode {
     case onboarding
@@ -10,7 +11,7 @@ enum AppMode {
 @MainActor
 class AppViewModel {
     var mode: AppMode = .onboarding
-    var profile: ChildProfile = ChildProfile()
+    var profile: ChildProfileModel
     var showParentGate: Bool = false
     var isTransitioning: Bool = false
     var bridgeSuggestions: [BridgeSuggestion] = []
@@ -22,21 +23,32 @@ class AppViewModel {
         let step: SensoryStep
     }
 
-    init() {
-        if PersistenceService.hasOnboarded, let saved = PersistenceService.loadProfile() {
-            profile = saved
+    private let modelContext: ModelContext
+
+    init(modelContext: ModelContext) {
+        self.modelContext = modelContext
+
+        let descriptor = FetchDescriptor<ChildProfileModel>()
+        if let existing = try? modelContext.fetch(descriptor).first {
+            self.profile = existing
+        } else {
+            let newProfile = ChildProfileModel()
+            modelContext.insert(newProfile)
+            self.profile = newProfile
+        }
+
+        if PersistenceService.hasOnboarded {
             mode = .explorer
-            StreakService.updateStreak(profile: &profile, interactions: profile.interactions)
+            StreakService.updateStreak(profile: profile)
             refreshBridgeSuggestions()
-            saveProfile()
         }
     }
 
     func completeOnboarding() {
         PersistenceService.hasOnboarded = true
         resolveTargetFoodId()
-        saveProfile()
         refreshBridgeSuggestions()
+        saveProfile()
         withAnimation(.spring(duration: 0.6)) {
             mode = .explorer
         }
@@ -59,14 +71,16 @@ class AppViewModel {
     }
 
     func completeStep(_ step: SensoryStep, for foodId: UUID) {
-        var progress = profile.questProgress[foodId] ?? QuestProgress(foodId: foodId)
+        let progress = getOrCreateQuestProgress(for: foodId)
 
         if step.isHighStakes {
             pendingVerification = PendingVerification(foodId: foodId, step: step)
         }
 
         if !progress.completedSteps.contains(step) {
-            progress.completedSteps.append(step)
+            var steps = progress.completedSteps
+            steps.append(step)
+            progress.completedSteps = steps
             progress.starDustEarned += step.starDustReward
             profile.totalStarDust += step.starDustReward
 
@@ -76,76 +90,78 @@ class AppViewModel {
 
         progress.lastAttemptDate = Date()
         progress.stepStartTime = nil
-        profile.questProgress[foodId] = progress
 
-        let interaction = SensoryInteraction(
+        let interaction = SensoryInteractionModel(
             foodId: foodId,
             sensoryStep: step,
             completed: true,
             parentVerified: !step.isHighStakes
         )
+        modelContext.insert(interaction)
         profile.interactions.append(interaction)
 
-        StreakService.recordDailyAction(profile: &profile)
+        StreakService.recordDailyAction(profile: profile)
         updateBridgeExposure(foodId: foodId)
-        PersistenceService.saveQuestState(progress, for: foodId)
         saveProfile()
     }
 
     func verifyTasteStep(foodId: UUID, verification: TasteVerification) {
-        if let index = profile.interactions.lastIndex(where: { $0.foodId == foodId && $0.sensoryStep == .taste || $0.sensoryStep == .lick }) {
-            profile.interactions[index].parentVerified = true
-            profile.interactions[index].tasteVerification = verification
+        if let interaction = profile.interactions
+            .sorted(by: { $0.timestamp > $1.timestamp })
+            .first(where: { $0.foodId == foodId && ($0.sensoryStep == .taste || $0.sensoryStep == .lick) }) {
+            interaction.parentVerified = true
+            interaction.tasteVerification = verification
         }
         pendingVerification = nil
         saveProfile()
     }
 
     func skipStep(_ step: SensoryStep, for foodId: UUID) {
-        var progress = profile.questProgress[foodId] ?? QuestProgress(foodId: foodId)
+        let progress = getOrCreateQuestProgress(for: foodId)
         if !progress.skippedSteps.contains(step) {
-            progress.skippedSteps.append(step)
+            var steps = progress.skippedSteps
+            steps.append(step)
+            progress.skippedSteps = steps
         }
         progress.lastAttemptDate = Date()
-        profile.questProgress[foodId] = progress
 
-        let interaction = SensoryInteraction(
+        let interaction = SensoryInteractionModel(
             foodId: foodId,
             sensoryStep: step,
             completed: false
         )
+        modelContext.insert(interaction)
         profile.interactions.append(interaction)
 
         saveProfile()
     }
 
     func startStep(for foodId: UUID) {
-        var progress = profile.questProgress[foodId] ?? QuestProgress(foodId: foodId)
+        let progress = getOrCreateQuestProgress(for: foodId)
         progress.stepStartTime = Date()
-        profile.questProgress[foodId] = progress
     }
 
-    func questProgress(for foodId: UUID) -> QuestProgress {
-        profile.questProgress[foodId] ?? QuestProgress(foodId: foodId)
+    func questProgress(for foodId: UUID) -> QuestProgressModel? {
+        profile.questProgressItems.first { $0.foodId == foodId }
     }
 
     var exploredFoodsCount: Int {
-        profile.questProgress.values.filter { !$0.completedSteps.isEmpty }.count
+        profile.questProgressItems.filter { !$0.completedStepValues.isEmpty }.count
     }
 
     var completedQuestsCount: Int {
-        profile.questProgress.values.filter { $0.isComplete }.count
+        profile.questProgressItems.filter { $0.isComplete }.count
     }
 
     var starJarProgress: Double {
-        guard profile.starJar.targetStarDust > 0 else { return 0 }
-        return min(Double(profile.totalStarDust) / Double(profile.starJar.targetStarDust), 1.0)
+        guard profile.starJarTargetStarDust > 0 else { return 0 }
+        return min(Double(profile.totalStarDust) / Double(profile.starJarTargetStarDust), 1.0)
     }
 
     func sensoryComfortLevels() -> [SensoryStep: Int] {
         var levels: [SensoryStep: Int] = [:]
         for step in SensoryStep.allCases {
-            let completed = profile.questProgress.values.filter { $0.completedSteps.contains(step) }.count
+            let completed = profile.questProgressItems.filter { $0.completedSteps.contains(step) }.count
             levels[step] = completed
         }
         return levels
@@ -189,21 +205,22 @@ class AppViewModel {
     }
 
     func startBridge(_ suggestion: BridgeSuggestion) {
-        let record = BridgeRecord(
+        let record = BridgeRecordModel(
             safeFoodId: suggestion.fromSafeFood.id,
             bridgeFoodId: suggestion.bridgeFood.id,
             targetFoodId: suggestion.targetFood.id,
             bridgeType: suggestion.bridgeType
         )
+        modelContext.insert(record)
         profile.bridgeRecords.append(record)
         refreshBridgeSuggestions()
         saveProfile()
     }
 
     func completeBridge(_ bridgeId: UUID) {
-        if let index = profile.bridgeRecords.firstIndex(where: { $0.id == bridgeId }) {
-            profile.bridgeRecords[index].status = .completed
-            let bridgeFoodId = profile.bridgeRecords[index].bridgeFoodId
+        if let record = profile.bridgeRecords.first(where: { $0.recordId == bridgeId }) {
+            record.status = .completed
+            let bridgeFoodId = record.bridgeFoodId
             if !profile.safeFoodIds.contains(bridgeFoodId) {
                 profile.safeFoodIds.append(bridgeFoodId)
             }
@@ -213,15 +230,15 @@ class AppViewModel {
     }
 
     func failBridge(_ bridgeId: UUID) {
-        if let index = profile.bridgeRecords.firstIndex(where: { $0.id == bridgeId }) {
-            profile.bridgeRecords[index].status = .failed
+        if let record = profile.bridgeRecords.first(where: { $0.recordId == bridgeId }) {
+            record.status = .failed
         }
         refreshBridgeSuggestions()
         saveProfile()
     }
 
     func resumeStreak() {
-        StreakService.resumeStreak(profile: &profile)
+        StreakService.resumeStreak(profile: profile)
         saveProfile()
     }
 
@@ -230,12 +247,20 @@ class AppViewModel {
     }
 
     func saveProfile() {
-        PersistenceService.saveProfile(profile)
+        try? modelContext.save()
     }
 
     func resetApp() {
-        PersistenceService.resetAll()
-        profile = ChildProfile()
+        PersistenceService.resetOnboarding()
+        try? modelContext.delete(model: QuestProgressModel.self)
+        try? modelContext.delete(model: SensoryInteractionModel.self)
+        try? modelContext.delete(model: BridgeRecordModel.self)
+        try? modelContext.delete(model: ChildProfileModel.self)
+        try? modelContext.save()
+
+        let newProfile = ChildProfileModel()
+        modelContext.insert(newProfile)
+        profile = newProfile
         bridgeSuggestions = []
         mode = .onboarding
     }
@@ -246,19 +271,29 @@ class AppViewModel {
         }
     }
 
+    private func getOrCreateQuestProgress(for foodId: UUID) -> QuestProgressModel {
+        if let existing = profile.questProgressItems.first(where: { $0.foodId == foodId }) {
+            return existing
+        }
+        let new = QuestProgressModel(foodId: foodId)
+        modelContext.insert(new)
+        profile.questProgressItems.append(new)
+        return new
+    }
+
     private func updateBridgeExposure(foodId: UUID) {
-        for i in profile.bridgeRecords.indices {
-            if profile.bridgeRecords[i].bridgeFoodId == foodId && profile.bridgeRecords[i].status == .active {
-                profile.bridgeRecords[i].exposureCount += 1
-                profile.bridgeRecords[i].lastExposureDate = Date()
+        for record in profile.bridgeRecords {
+            if record.bridgeFoodId == foodId && record.status == .active {
+                record.exposureCount += 1
+                record.lastExposureDate = Date()
             }
         }
     }
 
     private func checkStarJarReward() {
-        if profile.totalStarDust >= profile.starJar.targetStarDust && !profile.starJar.rewardUnlocked {
-            profile.starJar.rewardUnlocked = true
-            profile.starJar.rewardUnlockedDate = Date()
+        if profile.totalStarDust >= profile.starJarTargetStarDust && !profile.starJarRewardUnlocked {
+            profile.starJarRewardUnlocked = true
+            profile.starJarRewardUnlockedDate = Date()
             showRewardUnlocked = true
         }
     }
@@ -282,7 +317,7 @@ class AppViewModel {
     var targetFoodProgress: Double {
         guard let targetId = profile.targetFoodId else { return 0 }
         let progress = questProgress(for: targetId)
-        return progress.progressFraction
+        return progress?.progressFraction ?? 0
     }
 
     var targetFood: FoodItem? {

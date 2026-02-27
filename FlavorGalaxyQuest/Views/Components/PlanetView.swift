@@ -2,17 +2,25 @@ import SwiftUI
 
 struct PlanetView: View {
     let food: FoodItem
-    let progress: QuestProgress
+    let progress: QuestProgressModel?
     @State private var rotate: Bool = false
 
+    private var completedSteps: [SensoryStep] {
+        progress?.completedSteps ?? []
+    }
+
     private var planetColor: Color {
-        progress.completedSteps.isEmpty
+        completedSteps.isEmpty
             ? Color.gray.opacity(0.4)
             : SpaceTheme.planetColor(hex: food.planetColorHex)
     }
 
+    private var progressFraction: Double {
+        progress?.progressFraction ?? 0
+    }
+
     private var glowOpacity: Double {
-        progress.isComplete ? 0.6 : progress.progressFraction * 0.4
+        (progress?.isComplete ?? false) ? 0.6 : progressFraction * 0.4
     }
 
     var body: some View {
@@ -56,11 +64,11 @@ struct PlanetView: View {
                     .overlay {
                         Text(food.emoji)
                             .font(.title)
-                            .opacity(progress.completedSteps.isEmpty ? 0.3 : 1.0)
+                            .opacity(completedSteps.isEmpty ? 0.3 : 1.0)
                     }
                     .shadow(color: planetColor.opacity(glowOpacity), radius: 8)
 
-                if progress.isComplete {
+                if progress?.isComplete ?? false {
                     Image(systemName: "checkmark.seal.fill")
                         .font(.caption)
                         .foregroundStyle(SpaceTheme.starGold)
@@ -68,15 +76,15 @@ struct PlanetView: View {
                         .transition(.scale.combined(with: .opacity))
                 }
 
-                if !progress.completedSteps.isEmpty && !progress.isComplete {
-                    ProgressRing(progress: progress.progressFraction)
+                if !completedSteps.isEmpty && !(progress?.isComplete ?? false) {
+                    ProgressRing(progress: progressFraction)
                         .frame(width: 72, height: 72)
                 }
             }
 
             Text(food.name)
                 .font(.system(.caption, design: .rounded, weight: .semibold))
-                .foregroundStyle(progress.completedSteps.isEmpty ? .white.opacity(0.5) : .white)
+                .foregroundStyle(completedSteps.isEmpty ? .white.opacity(0.5) : .white)
                 .lineLimit(1)
         }
     }

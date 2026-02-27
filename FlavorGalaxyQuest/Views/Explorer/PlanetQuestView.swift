@@ -11,8 +11,16 @@ struct PlanetQuestView: View {
     @State private var showVerification: Bool = false
     @State private var showEducationModal: Bool = false
 
-    private var progress: QuestProgress {
+    private var progress: QuestProgressModel? {
         viewModel.questProgress(for: food.id)
+    }
+
+    private var completedSteps: [SensoryStep] {
+        progress?.completedSteps ?? []
+    }
+
+    private var skippedSteps: [SensoryStep] {
+        progress?.skippedSteps ?? []
     }
 
     var body: some View {
@@ -95,7 +103,7 @@ struct PlanetQuestView: View {
         }
     }
 
-    private func bridgeInfoBanner(_ bridge: BridgeRecord) -> some View {
+    private func bridgeInfoBanner(_ bridge: BridgeRecordModel) -> some View {
         HStack(spacing: 8) {
             Image(systemName: bridge.bridgeType.icon)
                 .font(.caption)
@@ -162,9 +170,9 @@ struct PlanetQuestView: View {
 
             HStack(spacing: 12) {
                 ForEach(SensoryStep.allCases, id: \.self) { step in
-                    let isCompleted = progress.completedSteps.contains(step)
+                    let isCompleted = completedSteps.contains(step)
                     let isActive = activeStep == step
-                    let isSkipped = progress.skippedSteps.contains(step)
+                    let isSkipped = skippedSteps.contains(step)
                     let isAvailable = canAttemptStep(step)
 
                     Button {
@@ -245,11 +253,11 @@ struct PlanetQuestView: View {
         VStack(spacing: 16) {
             if let step = activeStep {
                 missionCard(for: step)
-            } else if progress.isComplete {
+            } else if progress?.isComplete ?? false {
                 completedCard
             } else {
                 PaxMascotView(
-                    message: progress.completedSteps.isEmpty
+                    message: completedSteps.isEmpty
                         ? "Explorer! We need to scan Planet \(food.name). Tap a mission to start!"
                         : "Great progress! Keep going, you're doing amazing!",
                     size: 60
@@ -402,7 +410,7 @@ struct PlanetQuestView: View {
         guard let index = allSteps.firstIndex(of: step) else { return false }
         if index == 0 { return true }
         let previousStep = allSteps[index - 1]
-        return progress.completedSteps.contains(previousStep) || progress.skippedSteps.contains(previousStep)
+        return completedSteps.contains(previousStep) || skippedSteps.contains(previousStep)
     }
 
     private func completeCurrentStep(_ step: SensoryStep) {

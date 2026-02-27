@@ -215,14 +215,14 @@ struct GalaxyMapView: View {
                         .fill(SpaceTheme.starGold.opacity(0.15))
                         .frame(width: 44, height: 44)
 
-                    Image(systemName: viewModel.profile.starJar.rewardUnlocked ? "gift.fill" : "star.circle.fill")
+                    Image(systemName: viewModel.profile.starJarRewardUnlocked ? "gift.fill" : "star.circle.fill")
                         .font(.title2)
                         .foregroundStyle(SpaceTheme.starGold)
                         .symbolEffect(.pulse)
                 }
 
                 VStack(alignment: .leading, spacing: 3) {
-                    Text(viewModel.profile.starJar.rewardUnlocked ? "Reward Unlocked!" : "Star Jar")
+                    Text(viewModel.profile.starJarRewardUnlocked ? "Reward Unlocked!" : "Star Jar")
                         .font(.system(.subheadline, design: .rounded, weight: .bold))
                         .foregroundStyle(.white)
 
@@ -235,7 +235,7 @@ struct GalaxyMapView: View {
                             Capsule()
                                 .fill(
                                     LinearGradient(
-                                        colors: viewModel.profile.starJar.rewardUnlocked
+                                        colors: viewModel.profile.starJarRewardUnlocked
                                             ? [SpaceTheme.planetGreen, SpaceTheme.cosmicCyan]
                                             : [SpaceTheme.starGold, SpaceTheme.warningOrange],
                                         startPoint: .leading,
@@ -248,7 +248,7 @@ struct GalaxyMapView: View {
                     .frame(height: 6)
                 }
 
-                Text("\(viewModel.profile.totalStarDust)/\(viewModel.profile.starJar.targetStarDust)")
+                Text("\(viewModel.profile.totalStarDust)/\(viewModel.profile.starJarTargetStarDust)")
                     .font(.system(.caption, design: .rounded, weight: .bold))
                     .foregroundStyle(SpaceTheme.starGold)
             }
@@ -283,7 +283,7 @@ struct GalaxyMapView: View {
                     .font(.system(.headline, design: .rounded))
                     .foregroundStyle(.white.opacity(0.7))
 
-                Text(viewModel.profile.starJar.rewardName)
+                Text(viewModel.profile.starJarRewardName)
                     .font(.system(.title, design: .rounded, weight: .heavy))
                     .foregroundStyle(SpaceTheme.starGold)
 

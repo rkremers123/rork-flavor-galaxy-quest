@@ -1,3 +1,4 @@
+import SwiftData
 import Foundation
 
 nonisolated enum BridgeType: String, Codable, CaseIterable, Sendable, Hashable {
@@ -95,32 +96,40 @@ nonisolated enum BridgeStatus: String, Codable, Sendable {
     case skipped
 }
 
-nonisolated struct BridgeRecord: Codable, Identifiable, Sendable, Hashable {
-    let id: UUID
-    let safeFoodId: UUID
-    let bridgeFoodId: UUID
-    let targetFoodId: UUID
-    let bridgeType: BridgeType
-    let startDate: Date
-    var exposureCount: Int
-    var status: BridgeStatus
+@Model
+class BridgeRecordModel {
+    var recordId: UUID = UUID()
+    var safeFoodId: UUID = UUID()
+    var bridgeFoodId: UUID = UUID()
+    var targetFoodId: UUID = UUID()
+    var bridgeTypeRawValue: String = BridgeType.brand.rawValue
+    var startDate: Date = Date()
+    var exposureCount: Int = 0
+    var statusRawValue: String = BridgeStatus.active.rawValue
     var lastExposureDate: Date?
+    var profile: ChildProfileModel?
 
-    init(
-        safeFoodId: UUID,
-        bridgeFoodId: UUID,
-        targetFoodId: UUID,
-        bridgeType: BridgeType
-    ) {
-        self.id = UUID()
+    init() {}
+
+    init(safeFoodId: UUID, bridgeFoodId: UUID, targetFoodId: UUID, bridgeType: BridgeType) {
+        self.recordId = UUID()
         self.safeFoodId = safeFoodId
         self.bridgeFoodId = bridgeFoodId
         self.targetFoodId = targetFoodId
-        self.bridgeType = bridgeType
+        self.bridgeTypeRawValue = bridgeType.rawValue
         self.startDate = Date()
         self.exposureCount = 0
-        self.status = .active
-        self.lastExposureDate = nil
+        self.statusRawValue = BridgeStatus.active.rawValue
+    }
+
+    var bridgeType: BridgeType {
+        get { BridgeType(rawValue: bridgeTypeRawValue) ?? .brand }
+        set { bridgeTypeRawValue = newValue.rawValue }
+    }
+
+    var status: BridgeStatus {
+        get { BridgeStatus(rawValue: statusRawValue) ?? .active }
+        set { statusRawValue = newValue.rawValue }
     }
 
     var daysActive: Int {

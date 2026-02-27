@@ -1,3 +1,4 @@
+import SwiftData
 import Foundation
 
 nonisolated enum TasteVerification: String, Codable, Sendable {
@@ -7,31 +8,36 @@ nonisolated enum TasteVerification: String, Codable, Sendable {
     case unverified
 }
 
-nonisolated struct SensoryInteraction: Codable, Identifiable, Sendable, Hashable {
-    let id: UUID
-    let foodId: UUID
-    let sensoryStep: SensoryStep
-    let completed: Bool
-    let timestamp: Date
-    var parentVerified: Bool
-    var tasteVerification: TasteVerification?
-    var duration: TimeInterval?
+@Model
+class SensoryInteractionModel {
+    var foodId: UUID = UUID()
+    var sensoryStepRawValue: Int = 0
+    var completed: Bool = false
+    var timestamp: Date = Date()
+    var parentVerified: Bool = false
+    var tasteVerificationRawValue: String?
+    var duration: Double?
+    var profile: ChildProfileModel?
 
-    init(
-        foodId: UUID,
-        sensoryStep: SensoryStep,
-        completed: Bool,
-        parentVerified: Bool = false,
-        tasteVerification: TasteVerification? = nil,
-        duration: TimeInterval? = nil
-    ) {
-        self.id = UUID()
+    init() {}
+
+    init(foodId: UUID, sensoryStep: SensoryStep, completed: Bool, parentVerified: Bool = false, tasteVerification: TasteVerification? = nil, duration: TimeInterval? = nil) {
         self.foodId = foodId
-        self.sensoryStep = sensoryStep
+        self.sensoryStepRawValue = sensoryStep.rawValue
         self.completed = completed
         self.timestamp = Date()
         self.parentVerified = parentVerified
-        self.tasteVerification = tasteVerification
+        self.tasteVerificationRawValue = tasteVerification?.rawValue
         self.duration = duration
+    }
+
+    var sensoryStep: SensoryStep {
+        get { SensoryStep(rawValue: sensoryStepRawValue) ?? .look }
+        set { sensoryStepRawValue = newValue.rawValue }
+    }
+
+    var tasteVerification: TasteVerification? {
+        get { tasteVerificationRawValue.flatMap { TasteVerification(rawValue: $0) } }
+        set { tasteVerificationRawValue = newValue?.rawValue }
     }
 }

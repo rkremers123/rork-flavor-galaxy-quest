@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 
 @main
 struct FlavorGalaxyQuestApp: App {
@@ -6,5 +7,11 @@ struct FlavorGalaxyQuestApp: App {
         WindowGroup {
             ContentView()
         }
+        .modelContainer(for: [
+            ChildProfileModel.self,
+            QuestProgressModel.self,
+            SensoryInteractionModel.self,
+            BridgeRecordModel.self
+        ])
     }
 }

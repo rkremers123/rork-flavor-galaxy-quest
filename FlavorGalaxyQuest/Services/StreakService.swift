@@ -2,10 +2,9 @@ import Foundation
 
 struct StreakService {
 
-    static func updateStreak(profile: inout ChildProfile, interactions: [SensoryInteraction]) {
-        guard let lastInteraction = interactions.sorted(by: { $0.timestamp > $1.timestamp }).first else {
-            return
-        }
+    static func updateStreak(profile: ChildProfileModel) {
+        let sortedInteractions = profile.interactions.sorted { $0.timestamp > $1.timestamp }
+        guard let lastInteraction = sortedInteractions.first else { return }
 
         let calendar = Calendar.current
         let lastDate = calendar.startOfDay(for: lastInteraction.timestamp)
@@ -21,7 +20,7 @@ struct StreakService {
         }
     }
 
-    static func recordDailyAction(profile: inout ChildProfile) {
+    static func recordDailyAction(profile: ChildProfileModel) {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
 
@@ -45,7 +44,7 @@ struct StreakService {
         profile.longestStreak = max(profile.longestStreak, profile.currentStreak)
     }
 
-    static func canResumeStreak(profile: ChildProfile) -> Bool {
+    static func canResumeStreak(profile: ChildProfileModel) -> Bool {
         guard let resumeDate = profile.lastStreakResumeDate else { return true }
         let calendar = Calendar.current
         let resumeMonth = calendar.component(.month, from: resumeDate)
@@ -53,7 +52,7 @@ struct StreakService {
         return resumeMonth != currentMonth
     }
 
-    static func resumeStreak(profile: inout ChildProfile) {
+    static func resumeStreak(profile: ChildProfileModel) {
         guard canResumeStreak(profile: profile) else { return }
         profile.currentStreak = max(profile.currentStreak, 1)
         profile.lastStreakResumeDate = Date()

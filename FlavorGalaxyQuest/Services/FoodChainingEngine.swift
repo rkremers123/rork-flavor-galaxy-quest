@@ -73,7 +73,7 @@ struct FoodChainingEngine {
         targetFood: FoodItem,
         allFoods: [FoodItem],
         excludedAllergens: Set<Allergen>,
-        bridgeHistory: [BridgeRecord],
+        bridgeHistory: [BridgeRecordModel],
         maxSuggestions: Int = 5
     ) -> [BridgeSuggestion] {
         let failedFoodIds = Set(bridgeHistory.filter { $0.status == .failed }.map(\.bridgeFoodId))
@@ -106,7 +106,6 @@ struct FoodChainingEngine {
             for candidate in filteredFoods {
                 guard candidate.id != safeFood.id else { continue }
 
-                let distFromSafe = sensoryDistance(from: safeFood, to: candidate)
                 let distToTarget = sensoryDistance(from: candidate, to: targetFood)
 
                 guard distToTarget < currentDist else { continue }
@@ -165,7 +164,7 @@ struct FoodChainingEngine {
         targetFood: FoodItem,
         allFoods: [FoodItem],
         excludedAllergens: Set<Allergen>,
-        bridgeHistory: [BridgeRecord]
+        bridgeHistory: [BridgeRecordModel]
     ) -> BridgeSuggestion? {
         suggestBridges(
             safeFoods: safeFoods,
