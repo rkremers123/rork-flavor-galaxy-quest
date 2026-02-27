@@ -3,6 +3,7 @@ import SwiftUI
 struct CustomFoodCreationModal: View {
     let initialName: String
     let viewModel: AppViewModel
+    var onFoodCreated: ((FoodItem) -> Void)? = nil
     @Environment(\.dismiss) private var dismiss
     @State private var foodName: String = ""
     @State private var selectedTexture: FoodTexture = .soft
@@ -267,13 +268,16 @@ struct CustomFoodCreationModal: View {
                     }
 
                     Button {
-                        viewModel.createCustomFood(
+                        let createdFood = viewModel.createCustomFood(
                             name: foodName.trimmingCharacters(in: .whitespaces),
                             texture: selectedTexture,
                             flavor: selectedFlavor,
                             temperature: selectedTemperature
                         )
                         dismiss()
+                        if let onFoodCreated {
+                            onFoodCreated(createdFood)
+                        }
                     } label: {
                         HStack(spacing: 6) {
                             Image(systemName: "plus.circle.fill")

@@ -372,11 +372,13 @@ class AppViewModel {
         return FoodDatabase.food(byId: targetId) ?? customFoodItems.first { $0.id == targetId }
     }
 
-    func createCustomFood(name: String, texture: FoodTexture, flavor: FoodFlavor, temperature: FoodTemperature) {
+    @discardableResult
+    func createCustomFood(name: String, texture: FoodTexture, flavor: FoodFlavor, temperature: FoodTemperature) -> FoodItem {
         let custom = CustomFoodModel(name: name, texture: texture, flavor: flavor, temperature: temperature)
         modelContext.insert(custom)
         try? modelContext.save()
         loadCustomFoods()
+        return custom.toFoodItem()
     }
 
     private func loadCustomFoods() {

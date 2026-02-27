@@ -9,9 +9,27 @@ struct GalaxyMapView: View {
     @State private var selectedCategory: FoodCategory? = nil
     @State private var showCosmetics: Bool = false
     @State private var showFoodSearch: Bool = false
+    @State private var searchText: String = ""
+    @State private var showCreateFood: Bool = false
+    @FocusState private var isSearchFocused: Bool
+
+    private var allFoodsForCategory: [FoodItem] {
+        viewModel.allDisplayFoods(for: selectedCategory)
+    }
+
+    private var isSearching: Bool {
+        !searchText.trimmingCharacters(in: .whitespaces).isEmpty
+    }
 
     private var displayedFoods: [FoodItem] {
-        viewModel.allDisplayFoods(for: selectedCategory)
+        if isSearching {
+            return FoodDatabase.search(searchText, in: allFoodsForCategory)
+        }
+        return allFoodsForCategory
+    }
+
+    private var customFoodIds: Set<UUID> {
+        Set(viewModel.customFoodItems.map(\.id))
     }
 
     var body: some View {
@@ -22,6 +40,9 @@ struct GalaxyMapView: View {
                 header
                 categoryFilter
                 planetGrid
+            }
+            .onTapGesture {
+                isSearchFocused = false
             }
 
             if viewModel.showRewardUnlocked {
@@ -48,6 +69,19 @@ struct GalaxyMapView: View {
             FoodSearchView(viewModel: viewModel, selectedFood: $selectedFood)
                 .presentationDetents([.large])
                 .presentationDragIndicator(.visible)
+        }
+        .sheet(isPresented: $showCreateFood) {
+            CustomFoodCreationModal(
+                initialName: searchText,
+                viewModel: viewModel,
+                onFoodCreated: { food in
+                    searchText = ""
+                    isSearchFocused = false
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                        selectedFood = food
+                    }
+                }
+            )
         }
         .onAppear {
             withAnimation(.spring.delay(0.2)) { appeared = true }
@@ -166,37 +200,184 @@ struct GalaxyMapView: View {
                 starJarBanner
                     .padding(.horizontal, 20)
 
-                if let suggestion = viewModel.bridgeSuggestions.first {
+                inlineSearchBar
+                    .padding(.horizontal, 16)
+
+                if isSearching && displayedFoods.count >= 3 {
+                    HStack {
+                        Text("Showing \(displayedFoods.count) results")
+                            .font(.system(.caption, design: .rounded, weight: .medium))
+                            .foregroundStyle(.white.opacity(0.4))
+                        Spacer()
+                    }
+                    .padding(.horizontal, 20)
+                }
+
+                if let suggestion = viewModel.bridgeSuggestions.first, !isSearching {
                     bridgeSuggestionBanner(suggestion)
                         .padding(.horizontal, 20)
                 }
             }
 
-            LazyVGrid(
-                columns: [
-                    GridItem(.flexible(), spacing: 16),
-                    GridItem(.flexible(), spacing: 16),
-                    GridItem(.flexible(), spacing: 16)
-                ],
-                spacing: 20
-            ) {
-                ForEach(Array(displayedFoods.enumerated()), id: \.element.id) { index, food in
-                    let progress = viewModel.questProgress(for: food.id)
-                    Button {
-                        selectedFood = food
-                    } label: {
-                        PlanetView(food: food, progress: progress)
+            if isSearching && displayedFoods.isEmpty {
+                searchEmptyState
+                    .padding(.horizontal, 20)
+            } else {
+                LazyVGrid(
+                    columns: [
+                        GridItem(.flexible(), spacing: 16),
+                        GridItem(.flexible(), spacing: 16),
+                        GridItem(.flexible(), spacing: 16)
+                    ],
+                    spacing: 20
+                ) {
+                    ForEach(Array(displayedFoods.enumerated()), id: \.element.id) { index, food in
+                        let progress = viewModel.questProgress(for: food.id)
+                        Button {
+                            selectedFood = food
+                        } label: {
+                            PlanetView(food: food, progress: progress)
+                                .overlay(alignment: .topTrailing) {
+                                    if customFoodIds.contains(food.id) {
+                                        Text("✦")
+                                            .font(.system(size: 8, weight: .bold))
+                                            .foregroundStyle(SpaceTheme.cosmicCyan)
+                                            .padding(4)
+                                    }
+                                }
+                        }
+                        .opacity(appeared ? 1 : 0)
+                        .offset(y: appeared ? 0 : 20)
+                        .animation(.spring(duration: 0.5).delay(Double(index) * 0.03), value: appeared)
+                        .sensoryFeedback(.impact(flexibility: .soft), trigger: selectedFood?.id == food.id)
                     }
-                    .opacity(appeared ? 1 : 0)
-                    .offset(y: appeared ? 0 : 20)
-                    .animation(.spring(duration: 0.5).delay(Double(index) * 0.03), value: appeared)
-                    .sensoryFeedback(.impact(flexibility: .soft), trigger: selectedFood?.id == food.id)
+                }
+                .padding(.horizontal, 20)
+
+                if isSearching {
+                    inlineCreateFoodButton
+                        .padding(.horizontal, 20)
+                        .padding(.top, 8)
                 }
             }
-            .padding(.horizontal, 20)
-            .padding(.bottom, 100)
+
+            Spacer().frame(height: 100)
         }
         .scrollIndicators(.hidden)
+    }
+
+    private var inlineSearchBar: some View {
+        HStack(spacing: 12) {
+            Image(systemName: "magnifyingglass")
+                .font(.system(size: 16))
+                .foregroundStyle(Color(red: 0.6, green: 0.6, blue: 0.6))
+
+            TextField("", text: $searchText, prompt: Text("Search").foregroundStyle(Color(red: 0.6, green: 0.6, blue: 0.6)))
+                .font(.system(.body, design: .rounded))
+                .foregroundStyle(.white)
+                .autocorrectionDisabled()
+                .textInputAutocapitalization(.never)
+                .focused($isSearchFocused)
+
+            if !searchText.isEmpty {
+                Button {
+                    searchText = ""
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.system(size: 16))
+                        .foregroundStyle(Color(red: 0.8, green: 0.8, blue: 0.8))
+                }
+            }
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
+        .background(
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .fill(Color(red: 0.96, green: 0.96, blue: 0.96).opacity(0.12))
+        )
+    }
+
+    private var searchEmptyState: some View {
+        VStack(spacing: 20) {
+            Spacer().frame(height: 30)
+
+            Image(systemName: "magnifyingglass")
+                .font(.system(size: 36))
+                .foregroundStyle(.white.opacity(0.2))
+
+            Text("No foods found for \"\(searchText)\"")
+                .font(.system(.subheadline, design: .rounded, weight: .medium))
+                .foregroundStyle(.white.opacity(0.5))
+
+            Button {
+                showCreateFood = true
+            } label: {
+                HStack(spacing: 10) {
+                    Image(systemName: "plus.circle.fill")
+                        .font(.title3)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Create \"\(searchText)\"")
+                            .font(.system(.subheadline, design: .rounded, weight: .bold))
+                        Text("Add as a custom food")
+                            .font(.system(.caption, design: .rounded))
+                            .opacity(0.7)
+                    }
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .font(.caption)
+                        .opacity(0.5)
+                }
+                .foregroundStyle(SpaceTheme.deepNavy)
+                .padding(16)
+                .frame(maxWidth: .infinity)
+                .background(
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .fill(SpaceTheme.cosmicCyan)
+                )
+            }
+        }
+    }
+
+    private var inlineCreateFoodButton: some View {
+        Button {
+            showCreateFood = true
+        } label: {
+            HStack(spacing: 12) {
+                ZStack {
+                    Circle()
+                        .fill(SpaceTheme.cosmicCyan.opacity(0.12))
+                        .frame(width: 36, height: 36)
+                    Image(systemName: "plus")
+                        .font(.subheadline.bold())
+                        .foregroundStyle(SpaceTheme.cosmicCyan)
+                }
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Create \"\(searchText)\"")
+                        .font(.system(.caption, design: .rounded, weight: .semibold))
+                        .foregroundStyle(SpaceTheme.cosmicCyan)
+                    Text("Add as a custom food")
+                        .font(.system(.caption2, design: .rounded))
+                        .foregroundStyle(.white.opacity(0.4))
+                }
+
+                Spacer()
+
+                Image(systemName: "chevron.right")
+                    .font(.caption2)
+                    .foregroundStyle(SpaceTheme.cosmicCyan.opacity(0.5))
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 10)
+            .background(
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .fill(.white.opacity(0.03))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12, style: .continuous)
+                            .stroke(SpaceTheme.cosmicCyan.opacity(0.15), lineWidth: 1)
+                    )
+            )
+        }
     }
 
     private func bridgeSuggestionBanner(_ suggestion: BridgeSuggestion) -> some View {

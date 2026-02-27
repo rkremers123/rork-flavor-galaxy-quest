@@ -5,6 +5,7 @@ struct FoodSearchView: View {
     @Binding var selectedFood: FoodItem?
     @State private var searchText: String = ""
     @State private var showCreateFood: Bool = false
+    @State private var pendingCustomFood: FoodItem?
     @Environment(\.dismiss) private var dismiss
 
     private var allFoods: [FoodItem] {
@@ -45,8 +46,18 @@ struct FoodSearchView: View {
             .sheet(isPresented: $showCreateFood) {
                 CustomFoodCreationModal(
                     initialName: searchText,
-                    viewModel: viewModel
+                    viewModel: viewModel,
+                    onFoodCreated: { food in
+                        pendingCustomFood = food
+                    }
                 )
+            }
+            .onChange(of: showCreateFood) { _, isShowing in
+                if !isShowing, let food = pendingCustomFood {
+                    pendingCustomFood = nil
+                    selectedFood = food
+                    dismiss()
+                }
             }
         }
     }
