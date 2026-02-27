@@ -8,6 +8,7 @@ struct PlanetQuestView: View {
     @State private var showCompletion: Bool = false
     @State private var celebrateTrigger: Int = 0
     @State private var showShield: Bool = false
+    @State private var showVerification: Bool = false
 
     private var progress: QuestProgress {
         viewModel.questProgress(for: food.id)
@@ -32,6 +33,18 @@ struct PlanetQuestView: View {
             if showCompletion {
                 questCompletionOverlay
             }
+        }
+        .sheet(isPresented: $showVerification) {
+            ParentVerificationSheet(
+                foodName: food.name,
+                step: activeStep ?? .taste,
+                onVerify: { verification in
+                    viewModel.verifyTasteStep(foodId: food.id, verification: verification)
+                    showVerification = false
+                }
+            )
+            .presentationDetents([.medium])
+            .presentationDragIndicator(.visible)
         }
     }
 
@@ -65,7 +78,45 @@ struct PlanetQuestView: View {
                 infoTag(food.flavor.label, icon: "drop.fill")
                 infoTag(food.aroma.label, icon: "wind")
             }
+
+            if let bridge = viewModel.profile.activeBridges.first(where: { $0.bridgeFoodId == food.id }) {
+                bridgeInfoBanner(bridge)
+            }
         }
+    }
+
+    private func bridgeInfoBanner(_ bridge: BridgeRecord) -> some View {
+        HStack(spacing: 8) {
+            Image(systemName: bridge.bridgeType.icon)
+                .font(.caption)
+                .foregroundStyle(SpaceTheme.cosmicCyan)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(bridge.bridgeType.label)
+                    .font(.system(.caption, design: .rounded, weight: .bold))
+                    .foregroundStyle(SpaceTheme.cosmicCyan)
+                Text("Day \(bridge.daysActive + 1) · \(bridge.exposureCount) exposures")
+                    .font(.system(.caption2, design: .rounded))
+                    .foregroundStyle(.white.opacity(0.5))
+            }
+
+            Spacer()
+
+            if bridge.isReadyForNextBridge {
+                Text("Ready!")
+                    .font(.system(.caption2, design: .rounded, weight: .bold))
+                    .foregroundStyle(SpaceTheme.planetGreen)
+            }
+        }
+        .padding(10)
+        .background(
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .fill(SpaceTheme.cosmicCyan.opacity(0.08))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        .stroke(SpaceTheme.cosmicCyan.opacity(0.15), lineWidth: 1)
+                )
+        )
     }
 
     private func infoTag(_ text: String, icon: String) -> some View {
@@ -99,6 +150,7 @@ struct PlanetQuestView: View {
                             withAnimation(.spring(duration: 0.3)) {
                                 activeStep = step
                             }
+                            viewModel.startStep(for: food.id)
                             if step.isHighStakes {
                                 showShield = true
                             }
@@ -304,6 +356,14 @@ struct PlanetQuestView: View {
                     .font(.system(.title, design: .rounded, weight: .bold))
                     .foregroundStyle(.white)
 
+                if let step = activeStep {
+                    Text(step.paxEncouragement)
+                        .font(.system(.headline, design: .rounded))
+                        .foregroundStyle(.white.opacity(0.8))
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal)
+                }
+
                 Text("You earned Star Dust!")
                     .font(.system(.headline, design: .rounded))
                     .foregroundStyle(SpaceTheme.starGold)
@@ -334,6 +394,11 @@ struct PlanetQuestView: View {
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
             withAnimation(.spring) {
                 showCompletion = false
+
+                if step.isHighStakes {
+                    showVerification = true
+                }
+
                 activeStep = nil
                 showShield = false
             }
@@ -346,5 +411,74 @@ struct PlanetQuestView: View {
             activeStep = nil
             showShield = false
         }
+    }
+}
+
+struct ParentVerificationSheet: View {
+    let foodName: String
+    let step: SensoryStep
+    let onVerify: (TasteVerification) -> Void
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            VStack(spacing: 24) {
+                Image(systemName: "checkmark.shield.fill")
+                    .font(.system(size: 40))
+                    .foregroundStyle(.green)
+
+                Text("Parent Check-In")
+                    .font(.title3.bold())
+
+                Text("How did it go with \(foodName)?")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+
+                VStack(spacing: 12) {
+                    verificationButton("Swallowed a bite!", icon: "star.fill", color: .green) {
+                        onVerify(.swallowed)
+                    }
+
+                    verificationButton("Just a lick", icon: "hand.thumbsup.fill", color: .blue) {
+                        onVerify(.lickOnly)
+                    }
+
+                    verificationButton("Spit it out (totally brave!)", icon: "shield.checkered", color: .orange) {
+                        onVerify(.spitOut)
+                    }
+                }
+            }
+            .padding(24)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Skip") {
+                        onVerify(.unverified)
+                        dismiss()
+                    }
+                }
+            }
+        }
+    }
+
+    private func verificationButton(_ title: String, icon: String, color: Color, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 12) {
+                Image(systemName: icon)
+                    .foregroundStyle(color)
+                    .frame(width: 24)
+                Text(title)
+                    .font(.subheadline.weight(.medium))
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+            }
+            .padding(16)
+            .background(Color(.secondarySystemGroupedBackground))
+            .clipShape(.rect(cornerRadius: 12))
+        }
+        .tint(.primary)
     }
 }

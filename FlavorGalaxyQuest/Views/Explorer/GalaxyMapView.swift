@@ -24,6 +24,10 @@ struct GalaxyMapView: View {
                 categoryFilter
                 planetGrid
             }
+
+            if viewModel.showRewardUnlocked {
+                rewardUnlockedOverlay
+            }
         }
         .sheet(item: $selectedFood) { food in
             PlanetQuestView(food: food, viewModel: viewModel)
@@ -47,9 +51,21 @@ struct GalaxyMapView: View {
                 Text("Flavor Galaxy")
                     .font(.system(.title2, design: .rounded, weight: .bold))
                     .foregroundStyle(.white)
-                Text("Hi, \(viewModel.profile.name.isEmpty ? "Explorer" : viewModel.profile.name)!")
-                    .font(.system(.subheadline, design: .rounded))
-                    .foregroundStyle(.white.opacity(0.6))
+                HStack(spacing: 8) {
+                    Text("Hi, \(viewModel.profile.name.isEmpty ? "Explorer" : viewModel.profile.name)!")
+                        .font(.system(.subheadline, design: .rounded))
+                        .foregroundStyle(.white.opacity(0.6))
+                    if viewModel.profile.currentStreak > 0 {
+                        HStack(spacing: 2) {
+                            Image(systemName: "flame.fill")
+                                .font(.caption2)
+                                .foregroundStyle(.orange)
+                            Text("\(viewModel.profile.currentStreak)")
+                                .font(.system(.caption, design: .rounded, weight: .bold))
+                                .foregroundStyle(.orange)
+                        }
+                    }
+                }
             }
 
             Spacer()
@@ -109,9 +125,15 @@ struct GalaxyMapView: View {
 
     private var planetGrid: some View {
         ScrollView {
-            starJarBanner
-                .padding(.horizontal, 20)
-                .padding(.bottom, 8)
+            VStack(spacing: 12) {
+                starJarBanner
+                    .padding(.horizontal, 20)
+
+                if let suggestion = viewModel.bridgeSuggestions.first {
+                    bridgeSuggestionBanner(suggestion)
+                        .padding(.horizontal, 20)
+                }
+            }
 
             LazyVGrid(
                 columns: [
@@ -140,6 +162,49 @@ struct GalaxyMapView: View {
         .scrollIndicators(.hidden)
     }
 
+    private func bridgeSuggestionBanner(_ suggestion: BridgeSuggestion) -> some View {
+        Button {
+            selectedFood = suggestion.bridgeFood
+        } label: {
+            HStack(spacing: 12) {
+                ZStack {
+                    Circle()
+                        .fill(SpaceTheme.cosmicCyan.opacity(0.15))
+                        .frame(width: 44, height: 44)
+                    Image(systemName: "arrow.triangle.branch")
+                        .font(.title3)
+                        .foregroundStyle(SpaceTheme.cosmicCyan)
+                }
+
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("Try Next: \(suggestion.bridgeFood.emoji) \(suggestion.bridgeFood.name)")
+                        .font(.system(.subheadline, design: .rounded, weight: .bold))
+                        .foregroundStyle(.white)
+
+                    Text(suggestion.reason)
+                        .font(.system(.caption, design: .rounded))
+                        .foregroundStyle(.white.opacity(0.5))
+                        .lineLimit(1)
+                }
+
+                Spacer()
+
+                Image(systemName: "chevron.right")
+                    .font(.caption)
+                    .foregroundStyle(.white.opacity(0.3))
+            }
+            .padding(14)
+            .background(
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .fill(SpaceTheme.cosmicCyan.opacity(0.06))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16, style: .continuous)
+                            .stroke(SpaceTheme.cosmicCyan.opacity(0.15), lineWidth: 1)
+                    )
+            )
+        }
+    }
+
     private var starJarBanner: some View {
         Button {
             showParentGate = true
@@ -150,14 +215,14 @@ struct GalaxyMapView: View {
                         .fill(SpaceTheme.starGold.opacity(0.15))
                         .frame(width: 44, height: 44)
 
-                    Image(systemName: "star.circle.fill")
+                    Image(systemName: viewModel.profile.starJar.rewardUnlocked ? "gift.fill" : "star.circle.fill")
                         .font(.title2)
                         .foregroundStyle(SpaceTheme.starGold)
                         .symbolEffect(.pulse)
                 }
 
                 VStack(alignment: .leading, spacing: 3) {
-                    Text("Star Jar")
+                    Text(viewModel.profile.starJar.rewardUnlocked ? "Reward Unlocked!" : "Star Jar")
                         .font(.system(.subheadline, design: .rounded, weight: .bold))
                         .foregroundStyle(.white)
 
@@ -170,7 +235,9 @@ struct GalaxyMapView: View {
                             Capsule()
                                 .fill(
                                     LinearGradient(
-                                        colors: [SpaceTheme.starGold, SpaceTheme.warningOrange],
+                                        colors: viewModel.profile.starJar.rewardUnlocked
+                                            ? [SpaceTheme.planetGreen, SpaceTheme.cosmicCyan]
+                                            : [SpaceTheme.starGold, SpaceTheme.warningOrange],
                                         startPoint: .leading,
                                         endPoint: .trailing
                                     )
@@ -195,6 +262,50 @@ struct GalaxyMapView: View {
                     )
             )
         }
+    }
+
+    private var rewardUnlockedOverlay: some View {
+        ZStack {
+            Color.black.opacity(0.7).ignoresSafeArea()
+                .onTapGesture {
+                    withAnimation(.spring) { viewModel.showRewardUnlocked = false }
+                }
+
+            VStack(spacing: 24) {
+                Text("📡")
+                    .font(.system(size: 60))
+
+                Text("Transmission from Earth!")
+                    .font(.system(.title2, design: .rounded, weight: .bold))
+                    .foregroundStyle(.white)
+
+                Text("You earned your reward:")
+                    .font(.system(.headline, design: .rounded))
+                    .foregroundStyle(.white.opacity(0.7))
+
+                Text(viewModel.profile.starJar.rewardName)
+                    .font(.system(.title, design: .rounded, weight: .heavy))
+                    .foregroundStyle(SpaceTheme.starGold)
+
+                Text("Show this to your parent!")
+                    .font(.system(.callout, design: .rounded))
+                    .foregroundStyle(.white.opacity(0.6))
+
+                Button {
+                    withAnimation(.spring) { viewModel.showRewardUnlocked = false }
+                } label: {
+                    Text("Amazing!")
+                        .font(.system(.headline, design: .rounded, weight: .bold))
+                        .foregroundStyle(SpaceTheme.deepNavy)
+                        .padding(.horizontal, 40)
+                        .padding(.vertical, 14)
+                        .background(Capsule().fill(SpaceTheme.starGold))
+                }
+                .sensoryFeedback(.success, trigger: viewModel.showRewardUnlocked)
+            }
+            .padding(32)
+        }
+        .transition(.opacity.combined(with: .scale(scale: 0.9)))
     }
 }
 

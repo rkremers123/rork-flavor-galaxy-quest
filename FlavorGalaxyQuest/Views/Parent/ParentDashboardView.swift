@@ -66,14 +66,158 @@ struct ParentDashboardView: View {
         .scrollIndicators(.hidden)
     }
 
+    // MARK: - Overview Tab
+
     private var overviewTab: some View {
         ScrollView {
             VStack(spacing: 16) {
+                targetFoodProgressSection
+                streakSection
                 statsGrid
                 starJarSection
+                bridgeSuggestionsSection
                 recentActivitySection
             }
             .padding(16)
+        }
+    }
+
+    private var targetFoodProgressSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Target Food Progress")
+                .font(.headline)
+
+            if let target = viewModel.targetFood {
+                let progress = viewModel.questProgress(for: target.id)
+
+                VStack(spacing: 12) {
+                    HStack(spacing: 12) {
+                        Text(target.emoji)
+                            .font(.largeTitle)
+
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(target.name)
+                                .font(.headline)
+                            Text("\(Int(progress.progressFraction * 100))% Complete")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                        }
+
+                        Spacer()
+                    }
+
+                    HStack(spacing: 8) {
+                        ForEach(SensoryStep.allCases, id: \.self) { step in
+                            let completed = progress.completedSteps.contains(step)
+                            let skipped = progress.skippedSteps.contains(step)
+
+                            VStack(spacing: 4) {
+                                Image(systemName: completed ? "checkmark.circle.fill" : skipped ? "arrow.uturn.right.circle" : "circle")
+                                    .font(.title3)
+                                    .foregroundStyle(completed ? .green : skipped ? .orange : .secondary)
+                                Text(step.label)
+                                    .font(.caption2)
+                                    .foregroundStyle(.secondary)
+                            }
+                            .frame(maxWidth: .infinity)
+                        }
+                    }
+
+                    if !viewModel.bridgeSuggestions.isEmpty {
+                        let suggestion = viewModel.bridgeSuggestions[0]
+                        HStack(spacing: 8) {
+                            Image(systemName: suggestion.bridgeType.icon)
+                                .foregroundStyle(.blue)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Next: \(suggestion.bridgeFood.name)")
+                                    .font(.caption.weight(.semibold))
+                                Text(suggestion.reason)
+                                    .font(.caption2)
+                                    .foregroundStyle(.secondary)
+                            }
+                            Spacer()
+                        }
+                        .padding(10)
+                        .background(Color.blue.opacity(0.08))
+                        .clipShape(.rect(cornerRadius: 8))
+                    }
+                }
+                .padding(16)
+                .background(Color(.secondarySystemGroupedBackground))
+                .clipShape(.rect(cornerRadius: 14))
+            } else {
+                VStack(spacing: 8) {
+                    Image(systemName: "target")
+                        .font(.title2)
+                        .foregroundStyle(.secondary)
+                    Text("No target food set")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(24)
+                .background(Color(.secondarySystemGroupedBackground))
+                .clipShape(.rect(cornerRadius: 14))
+            }
+        }
+    }
+
+    private var streakSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("Streak")
+                    .font(.headline)
+                Spacer()
+                if viewModel.canResumeStreak {
+                    Button("Extend Streak") {
+                        viewModel.resumeStreak()
+                    }
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(.blue)
+                }
+            }
+
+            HStack(spacing: 16) {
+                VStack(spacing: 4) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "flame.fill")
+                            .foregroundStyle(.orange)
+                        Text("\(viewModel.profile.currentStreak)")
+                            .font(.title.bold())
+                    }
+                    Text("Current")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity)
+
+                Divider()
+                    .frame(height: 40)
+
+                VStack(spacing: 4) {
+                    Text("\(viewModel.profile.longestStreak)")
+                        .font(.title.bold())
+                    Text("Longest")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity)
+
+                Divider()
+                    .frame(height: 40)
+
+                VStack(spacing: 4) {
+                    Text("\(viewModel.profile.todayInteractionCount)")
+                        .font(.title.bold())
+                    Text("Today")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity)
+            }
+            .padding(16)
+            .background(Color(.secondarySystemGroupedBackground))
+            .clipShape(.rect(cornerRadius: 14))
         }
     }
 
@@ -98,9 +242,9 @@ struct ParentDashboardView: View {
                 color: .yellow
             )
             StatCard(
-                title: "Days Active",
-                value: "\(daysActive)",
-                icon: "calendar",
+                title: "Total Actions",
+                value: "\(viewModel.profile.totalInteractions)",
+                icon: "hand.tap.fill",
                 color: .orange
             )
         }
@@ -118,13 +262,19 @@ struct ParentDashboardView: View {
                     Text(viewModel.profile.starJar.rewardName)
                         .font(.subheadline.weight(.medium))
                     Spacer()
-                    Text("\(Int(viewModel.starJarProgress * 100))%")
-                        .font(.subheadline.weight(.bold))
-                        .foregroundStyle(.secondary)
+                    if viewModel.profile.starJar.rewardUnlocked {
+                        Text("UNLOCKED!")
+                            .font(.caption.bold())
+                            .foregroundStyle(.green)
+                    } else {
+                        Text("\(Int(viewModel.starJarProgress * 100))%")
+                            .font(.subheadline.weight(.bold))
+                            .foregroundStyle(.secondary)
+                    }
                 }
 
                 ProgressView(value: viewModel.starJarProgress)
-                    .tint(.yellow)
+                    .tint(viewModel.profile.starJar.rewardUnlocked ? .green : .yellow)
 
                 Text("\(viewModel.profile.totalStarDust) / \(viewModel.profile.starJar.targetStarDust) Star Dust")
                     .font(.caption)
@@ -133,6 +283,56 @@ struct ParentDashboardView: View {
             .padding(16)
             .background(Color(.secondarySystemGroupedBackground))
             .clipShape(.rect(cornerRadius: 14))
+        }
+    }
+
+    private var bridgeSuggestionsSection: some View {
+        Group {
+            if !viewModel.bridgeSuggestions.isEmpty {
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Bridge Food Suggestions")
+                        .font(.headline)
+
+                    Text("Stepping stones from safe foods toward \(viewModel.profile.targetFoodName)")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+
+                    VStack(spacing: 0) {
+                        ForEach(viewModel.bridgeSuggestions) { suggestion in
+                            HStack(spacing: 12) {
+                                Text(suggestion.bridgeFood.emoji)
+                                    .font(.title3)
+
+                                VStack(alignment: .leading, spacing: 2) {
+                                    HStack(spacing: 6) {
+                                        Text(suggestion.bridgeFood.name)
+                                            .font(.subheadline.weight(.medium))
+                                        Text(suggestion.bridgeType.label)
+                                            .font(.system(.caption2, weight: .bold))
+                                            .foregroundStyle(.blue)
+                                            .padding(.horizontal, 6)
+                                            .padding(.vertical, 2)
+                                            .background(Capsule().fill(.blue.opacity(0.12)))
+                                    }
+                                    Text(suggestion.reason)
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                        .lineLimit(2)
+                                }
+
+                                Spacer()
+
+                                Image(systemName: "arrow.right.circle")
+                                    .foregroundStyle(.secondary)
+                            }
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 10)
+                        }
+                    }
+                    .background(Color(.secondarySystemGroupedBackground))
+                    .clipShape(.rect(cornerRadius: 14))
+                }
+            }
         }
     }
 
@@ -196,6 +396,8 @@ struct ParentDashboardView: View {
         }
     }
 
+    // MARK: - Food Library Tab
+
     private var foodLibraryTab: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
@@ -233,7 +435,7 @@ struct ParentDashboardView: View {
                                                     )
                                             }
                                         }
-                                        Text("\(food.texture.label) \u{00B7} \(food.flavor.label) \u{00B7} \(food.aroma.label)")
+                                        Text("\(food.texture.label) · \(food.flavor.label) · \(food.aroma.label)")
                                             .font(.caption)
                                             .foregroundStyle(.secondary)
                                     }
@@ -262,11 +464,14 @@ struct ParentDashboardView: View {
         }
     }
 
+    // MARK: - Analytics Tab
+
     private var analyticsTab: some View {
         ScrollView {
             VStack(spacing: 20) {
                 braveryMapSection
-                bridgeFoodsSection
+                comfortInsightsSection
+                bridgeHistorySection
             }
             .padding(16)
         }
@@ -277,7 +482,7 @@ struct ParentDashboardView: View {
             Text("Bravery Map")
                 .font(.headline)
 
-            Text("Shows comfort level across sensory zones")
+            Text("Comfort level across sensory zones")
                 .font(.caption)
                 .foregroundStyle(.secondary)
 
@@ -326,27 +531,59 @@ struct ParentDashboardView: View {
         }
     }
 
-    private var bridgeFoodsSection: some View {
+    private var comfortInsightsSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Suggested Bridge Foods")
+            Text("Sensory Insights")
                 .font(.headline)
 
-            Text("Based on safe foods, these are the next best foods to try")
-                .font(.caption)
-                .foregroundStyle(.secondary)
+            let percentages = viewModel.comfortPercentages()
+            let sorted = percentages.sorted { $0.value > $1.value }
 
-            let safeFoods = viewModel.profile.safeFoodIds.compactMap { FoodDatabase.food(byId: $0) }
-            let bridges = safeFoods.flatMap { FoodDatabase.bridgeFoods(from: $0) }
-            let uniqueBridges = Array(Set(bridges.map(\.id)))
-                .compactMap { id in bridges.first { $0.id == id } }
-                .prefix(8)
+            if let easiest = sorted.first, let hardest = sorted.last, easiest.key != hardest.key {
+                VStack(alignment: .leading, spacing: 10) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "arrow.up.circle.fill")
+                            .foregroundStyle(.green)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Easiest: \(easiest.key.label)")
+                                .font(.subheadline.weight(.medium))
+                            Text("\(Int(easiest.value))% comfort")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
 
-            if uniqueBridges.isEmpty {
+                    HStack(spacing: 8) {
+                        Image(systemName: "arrow.down.circle.fill")
+                            .foregroundStyle(.orange)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Hardest: \(hardest.key.label)")
+                                .font(.subheadline.weight(.medium))
+                            Text("\(Int(hardest.value))% comfort")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+
+                    if hardest.key == .taste || hardest.key == .lick {
+                        HStack(spacing: 8) {
+                            Image(systemName: "lightbulb.fill")
+                                .foregroundStyle(.yellow)
+                            Text("Focus on touch & smell to build confidence before \(hardest.key.label.lowercased()).")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+                .padding(16)
+                .background(Color(.secondarySystemGroupedBackground))
+                .clipShape(.rect(cornerRadius: 14))
+            } else {
                 VStack(spacing: 8) {
-                    Image(systemName: "arrow.triangle.branch")
+                    Image(systemName: "chart.bar")
                         .font(.title2)
                         .foregroundStyle(.secondary)
-                    Text("Add safe foods to get bridge suggestions")
+                    Text("Complete more quests to unlock insights")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
@@ -354,40 +591,73 @@ struct ParentDashboardView: View {
                 .padding(24)
                 .background(Color(.secondarySystemGroupedBackground))
                 .clipShape(.rect(cornerRadius: 14))
-            } else {
-                VStack(spacing: 0) {
-                    ForEach(Array(uniqueBridges), id: \.id) { food in
-                        HStack(spacing: 12) {
-                            Text(food.emoji)
-                                .font(.title3)
-
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text(food.name)
-                                    .font(.subheadline.weight(.medium))
-                                Text("Similar: \(food.texture.label), \(food.flavor.label)")
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            }
-
-                            Spacer()
-
-                            Image(systemName: "arrow.right.circle")
-                                .foregroundStyle(.secondary)
-                        }
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 10)
-                    }
-                }
-                .background(Color(.secondarySystemGroupedBackground))
-                .clipShape(.rect(cornerRadius: 14))
             }
         }
     }
+
+    private var bridgeHistorySection: some View {
+        Group {
+            if !viewModel.profile.bridgeRecords.isEmpty {
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Bridge History")
+                        .font(.headline)
+
+                    VStack(spacing: 0) {
+                        ForEach(viewModel.profile.bridgeRecords) { record in
+                            if let food = FoodDatabase.food(byId: record.bridgeFoodId) {
+                                HStack(spacing: 12) {
+                                    Text(food.emoji)
+                                        .font(.title3)
+
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text(food.name)
+                                            .font(.subheadline.weight(.medium))
+                                        Text("\(record.bridgeType.label) · \(record.exposureCount) exposures")
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                    }
+
+                                    Spacer()
+
+                                    statusBadge(record.status)
+                                }
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 10)
+                            }
+                        }
+                    }
+                    .background(Color(.secondarySystemGroupedBackground))
+                    .clipShape(.rect(cornerRadius: 14))
+                }
+            }
+        }
+    }
+
+    private func statusBadge(_ status: BridgeStatus) -> some View {
+        Text(status.rawValue.capitalized)
+            .font(.system(.caption2, weight: .bold))
+            .foregroundStyle(statusColor(status))
+            .padding(.horizontal, 8)
+            .padding(.vertical, 3)
+            .background(Capsule().fill(statusColor(status).opacity(0.12)))
+    }
+
+    private func statusColor(_ status: BridgeStatus) -> Color {
+        switch status {
+        case .active: .blue
+        case .completed: .green
+        case .failed: .orange
+        case .skipped: .secondary
+        }
+    }
+
+    // MARK: - Settings Tab
 
     private var settingsTab: some View {
         ScrollView {
             VStack(spacing: 16) {
                 starJarSettingsSection
+                allergenSection
                 profileSection
                 dangerZoneSection
             }
@@ -427,6 +697,7 @@ struct ParentDashboardView: View {
                             get: { viewModel.profile.starJar.targetStarDust },
                             set: {
                                 viewModel.profile.starJar.targetStarDust = $0
+                                viewModel.profile.starJar.rewardUnlocked = false
                                 viewModel.saveProfile()
                             }
                         ),
@@ -442,6 +713,47 @@ struct ParentDashboardView: View {
         }
     }
 
+    private var allergenSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Allergen Filters")
+                .font(.headline)
+
+            Text("Excluded allergens won't appear in bridge suggestions")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 100), spacing: 8)], spacing: 8) {
+                ForEach(Allergen.allCases, id: \.self) { allergen in
+                    let isExcluded = viewModel.profile.excludedAllergens.contains(allergen)
+                    Button {
+                        if isExcluded {
+                            viewModel.profile.excludedAllergens.remove(allergen)
+                        } else {
+                            viewModel.profile.excludedAllergens.insert(allergen)
+                        }
+                        viewModel.refreshBridgeSuggestions()
+                        viewModel.saveProfile()
+                    } label: {
+                        HStack(spacing: 4) {
+                            Image(systemName: isExcluded ? "xmark.circle.fill" : "circle")
+                                .font(.caption)
+                                .foregroundStyle(isExcluded ? .red : .secondary)
+                            Text(allergen.label)
+                                .font(.caption.weight(.medium))
+                                .foregroundStyle(isExcluded ? .red : .primary)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 8)
+                        .background(
+                            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                .fill(isExcluded ? Color.red.opacity(0.08) : Color(.tertiarySystemFill))
+                        )
+                    }
+                }
+            }
+        }
+    }
+
     private var profileSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Explorer Profile")
@@ -452,6 +764,7 @@ struct ParentDashboardView: View {
                 profileRow("Age", value: "\(viewModel.profile.age)")
                 profileRow("Target Food", value: viewModel.profile.targetFoodName.isEmpty ? "Not set" : viewModel.profile.targetFoodName)
                 profileRow("Safe Foods", value: "\(viewModel.profile.safeFoodIds.count) foods")
+                profileRow("Days Active", value: "\(daysActive)")
             }
             .background(Color(.secondarySystemGroupedBackground))
             .clipShape(.rect(cornerRadius: 14))
