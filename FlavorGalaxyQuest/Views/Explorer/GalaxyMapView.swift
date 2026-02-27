@@ -7,6 +7,7 @@ struct GalaxyMapView: View {
     @State private var parentGateProgress: CGFloat = 0
     @State private var appeared: Bool = false
     @State private var selectedCategory: FoodCategory? = nil
+    @State private var showCosmetics: Bool = false
 
     private var displayedFoods: [FoodItem] {
         if let category = selectedCategory {
@@ -40,21 +41,37 @@ struct GalaxyMapView: View {
                 .presentationDetents([.medium])
                 .presentationDragIndicator(.visible)
         }
+        .sheet(isPresented: $showCosmetics) {
+            CosmeticsView(viewModel: viewModel)
+                .presentationDetents([.large])
+                .presentationDragIndicator(.visible)
+        }
         .onAppear {
             withAnimation(.spring.delay(0.2)) { appeared = true }
         }
     }
 
     private var header: some View {
-        HStack {
+        HStack(spacing: 12) {
+            Button {
+                showCosmetics = true
+            } label: {
+                ExplorerAvatarView(
+                    explorerType: viewModel.profile.explorerType,
+                    equippedCosmetics: viewModel.profile.equippedCosmetics,
+                    size: 44
+                )
+            }
+
             VStack(alignment: .leading, spacing: 2) {
-                Text("Flavor Galaxy")
-                    .font(.system(.title2, design: .rounded, weight: .bold))
+                Text(viewModel.profile.explorerDisplayName)
+                    .font(.system(.headline, design: .rounded, weight: .bold))
                     .foregroundStyle(.white)
                 HStack(spacing: 8) {
-                    Text("Hi, \(viewModel.profile.name.isEmpty ? "Explorer" : viewModel.profile.name)!")
-                        .font(.system(.subheadline, design: .rounded))
-                        .foregroundStyle(.white.opacity(0.6))
+                    LevelBadgeView(
+                        level: viewModel.profile.currentLevel,
+                        progress: viewModel.profile.levelProgress
+                    )
                     if viewModel.profile.currentStreak > 0 {
                         HStack(spacing: 2) {
                             Image(systemName: "flame.fill")
@@ -126,6 +143,14 @@ struct GalaxyMapView: View {
     private var planetGrid: some View {
         ScrollView {
             VStack(spacing: 12) {
+                JourneyMapView(
+                    currentPlanet: viewModel.profile.currentJourneyPlanet,
+                    progress: viewModel.profile.journeyProgress,
+                    explorerEmoji: viewModel.profile.explorerType.emoji,
+                    foodsExplored: viewModel.exploredFoodsCount
+                )
+                .padding(.horizontal, 20)
+
                 starJarBanner
                     .padding(.horizontal, 20)
 

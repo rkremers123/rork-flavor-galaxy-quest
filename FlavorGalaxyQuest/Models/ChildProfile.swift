@@ -6,6 +6,10 @@ class ChildProfileModel {
     var name: String = ""
     var age: Int = 5
     var avatarEmoji: String = "👨‍🚀"
+    var explorerTypeRawValue: String = ExplorerType.nova.rawValue
+    var explorerCustomName: String = ""
+    var equippedCosmeticValues: [String] = [Cosmetic.explorerHat.rawValue]
+    var unlockedCosmeticValues: [String] = [Cosmetic.explorerHat.rawValue]
     var safeFoodIds: [UUID] = []
     var targetFoodName: String = ""
     var targetFoodId: UUID?
@@ -32,6 +36,43 @@ class ChildProfileModel {
     @Relationship(deleteRule: .cascade) var bridgeRecords: [BridgeRecordModel] = []
 
     init() {}
+
+    var explorerType: ExplorerType {
+        get { ExplorerType(rawValue: explorerTypeRawValue) ?? .nova }
+        set { explorerTypeRawValue = newValue.rawValue }
+    }
+
+    var currentLevel: ExplorerLevel {
+        ExplorerLevel.level(for: totalStarDust)
+    }
+
+    var levelProgress: Double {
+        ExplorerLevel.progressToNext(points: totalStarDust)
+    }
+
+    var currentJourneyPlanet: JourneyPlanet {
+        let explored = questProgressItems.filter { !$0.completedStepValues.isEmpty }.count
+        return JourneyPlanet.current(for: explored)
+    }
+
+    var journeyProgress: Double {
+        let explored = questProgressItems.filter { !$0.completedStepValues.isEmpty }.count
+        return JourneyPlanet.progressToNext(foodsExplored: explored)
+    }
+
+    var unlockedCosmetics: Set<Cosmetic> {
+        get { Set(unlockedCosmeticValues.compactMap { Cosmetic(rawValue: $0) }) }
+        set { unlockedCosmeticValues = newValue.map(\.rawValue) }
+    }
+
+    var equippedCosmetics: Set<Cosmetic> {
+        get { Set(equippedCosmeticValues.compactMap { Cosmetic(rawValue: $0) }) }
+        set { equippedCosmeticValues = newValue.map(\.rawValue) }
+    }
+
+    var explorerDisplayName: String {
+        explorerCustomName.isEmpty ? explorerType.defaultName : explorerCustomName
+    }
 
     var excludedAllergens: Set<Allergen> {
         get { Set(excludedAllergenValues.compactMap { Allergen(rawValue: $0) }) }

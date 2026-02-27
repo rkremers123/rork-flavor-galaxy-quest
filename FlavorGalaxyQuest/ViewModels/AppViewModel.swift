@@ -16,6 +16,8 @@ class AppViewModel {
     var isTransitioning: Bool = false
     var bridgeSuggestions: [BridgeSuggestion] = []
     var showRewardUnlocked: Bool = false
+    var showLevelUp: Bool = false
+    var newLevelReached: ExplorerLevel?
     var pendingVerification: PendingVerification?
 
     struct PendingVerification {
@@ -84,8 +86,11 @@ class AppViewModel {
             progress.starDustEarned += step.starDustReward
             profile.totalStarDust += step.starDustReward
 
+            let previousLevel = profile.currentLevel
             checkStarJarReward()
             checkGearUnlocks()
+            checkCosmeticUnlocks()
+            checkLevelUp(previousLevel: previousLevel)
         }
 
         progress.lastAttemptDate = Date()
@@ -312,6 +317,45 @@ class AppViewModel {
         if dust >= 500 && !profile.unlockedGear.contains("galaxy_cape") {
             profile.unlockedGear.append("galaxy_cape")
         }
+    }
+
+    private func checkCosmeticUnlocks() {
+        let level = profile.currentLevel
+        var unlocked = profile.unlockedCosmetics
+        for cosmetic in Cosmetic.allCases {
+            if cosmetic.requiredLevel.rawValue <= level.rawValue {
+                unlocked.insert(cosmetic)
+            }
+        }
+        profile.unlockedCosmetics = unlocked
+    }
+
+    private func checkLevelUp(previousLevel: ExplorerLevel) {
+        let newLevel = profile.currentLevel
+        if newLevel.rawValue > previousLevel.rawValue {
+            newLevelReached = newLevel
+            showLevelUp = true
+        }
+    }
+
+    func dismissLevelUp() {
+        withAnimation(.spring) {
+            showLevelUp = false
+            newLevelReached = nil
+        }
+    }
+
+    func toggleCosmetic(_ cosmetic: Cosmetic) {
+        var equipped = profile.equippedCosmetics
+        if equipped.contains(cosmetic) {
+            equipped.remove(cosmetic)
+        } else {
+            let sameCategory = equipped.filter { $0.category == cosmetic.category }
+            for item in sameCategory { equipped.remove(item) }
+            equipped.insert(cosmetic)
+        }
+        profile.equippedCosmetics = equipped
+        saveProfile()
     }
 
     var targetFoodProgress: Double {

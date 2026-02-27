@@ -5,12 +5,14 @@ struct OnboardingView: View {
     @State private var currentStep: Int = 0
     @State private var childName: String = ""
     @State private var childAge: Int = 5
+    @State private var selectedExplorerType: ExplorerType = .nova
+    @State private var explorerCustomName: String = ""
     @State private var selectedSafeFoods: Set<UUID> = []
     @State private var targetFoodName: String = ""
     @State private var rewardName: String = ""
     @State private var appeared: Bool = false
 
-    private let totalSteps = 4
+    private let totalSteps = 5
 
     var body: some View {
         ZStack {
@@ -23,8 +25,9 @@ struct OnboardingView: View {
                 TabView(selection: $currentStep) {
                     welcomeStep.tag(0)
                     profileStep.tag(1)
-                    safeFoodsStep.tag(2)
-                    goalStep.tag(3)
+                    characterStep.tag(2)
+                    safeFoodsStep.tag(3)
+                    goalStep.tag(4)
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
                 .animation(.spring(duration: 0.4), value: currentStep)
@@ -142,6 +145,23 @@ struct OnboardingView: View {
         }
     }
 
+    private var characterStep: some View {
+        VStack(spacing: 0) {
+            CharacterSelectionView(
+                selectedType: $selectedExplorerType,
+                customName: $explorerCustomName
+            )
+
+            nextButton("Next") {
+                viewModel.profile.explorerType = selectedExplorerType
+                viewModel.profile.explorerCustomName = explorerCustomName
+                currentStep = 3
+            }
+            .padding(.horizontal, 24)
+            .padding(.bottom, 40)
+        }
+    }
+
     private var safeFoodsStep: some View {
         VStack(spacing: 16) {
             Spacer().frame(height: 12)
@@ -190,7 +210,7 @@ struct OnboardingView: View {
 
             nextButton("Next") {
                 viewModel.profile.safeFoodIds = Array(selectedSafeFoods)
-                currentStep = 3
+                currentStep = 4
             }
             .padding(.horizontal, 24)
             .padding(.bottom, 40)
