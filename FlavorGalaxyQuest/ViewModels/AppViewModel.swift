@@ -19,6 +19,7 @@ class AppViewModel {
     var showLevelUp: Bool = false
     var newLevelReached: ExplorerLevel?
     var pendingVerification: PendingVerification?
+    var customFoodItems: [FoodItem] = []
 
     struct PendingVerification {
         let foodId: UUID
@@ -38,6 +39,8 @@ class AppViewModel {
             modelContext.insert(newProfile)
             self.profile = newProfile
         }
+
+        loadCustomFoods()
 
         if PersistenceService.hasOnboarded {
             mode = .explorer
@@ -366,6 +369,27 @@ class AppViewModel {
 
     var targetFood: FoodItem? {
         guard let targetId = profile.targetFoodId else { return nil }
-        return FoodDatabase.food(byId: targetId)
+        return FoodDatabase.food(byId: targetId) ?? customFoodItems.first { $0.id == targetId }
+    }
+
+    func createCustomFood(name: String, texture: FoodTexture, flavor: FoodFlavor, temperature: FoodTemperature) {
+        let custom = CustomFoodModel(name: name, texture: texture, flavor: flavor, temperature: temperature)
+        modelContext.insert(custom)
+        try? modelContext.save()
+        loadCustomFoods()
+    }
+
+    private func loadCustomFoods() {
+        let descriptor = FetchDescriptor<CustomFoodModel>(sortBy: [SortDescriptor(\.createdDate, order: .reverse)])
+        let models = (try? modelContext.fetch(descriptor)) ?? []
+        customFoodItems = models.map { $0.toFoodItem() }
+    }
+
+    func allDisplayFoods(for category: FoodCategory?) -> [FoodItem] {
+        let combined = FoodDatabase.allFoods + customFoodItems
+        if let category {
+            return combined.filter { $0.category == category }
+        }
+        return combined
     }
 }

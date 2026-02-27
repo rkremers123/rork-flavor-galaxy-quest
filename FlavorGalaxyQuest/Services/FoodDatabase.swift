@@ -76,6 +76,66 @@ struct FoodDatabase {
         return allFoods.filter { $0.allergens.isDisjoint(with: allergens) }
     }
 
+    static func search(_ query: String, in foods: [FoodItem]) -> [FoodItem] {
+        guard !query.trimmingCharacters(in: .whitespaces).isEmpty else { return foods }
+        let trimmed = query.trimmingCharacters(in: .whitespaces).lowercased()
+
+        var exact: [FoodItem] = []
+        var prefix: [FoodItem] = []
+        var contains: [FoodItem] = []
+        var fuzzy: [FoodItem] = []
+
+        for food in foods {
+            let lower = food.name.lowercased()
+            let words = lower.split(separator: " ").map(String.init)
+
+            if lower == trimmed || words.contains(trimmed) {
+                exact.append(food)
+            } else if lower.hasPrefix(trimmed) || words.contains(where: { $0.hasPrefix(trimmed) }) {
+                prefix.append(food)
+            } else if lower.localizedStandardContains(trimmed) {
+                contains.append(food)
+            } else if fuzzyMatch(trimmed, lower) {
+                fuzzy.append(food)
+            }
+        }
+
+        return exact + prefix + contains + fuzzy
+    }
+
+    private static func fuzzyMatch(_ query: String, _ target: String) -> Bool {
+        guard query.count >= 3 else { return false }
+        let distance = levenshteinDistance(query, target)
+        let threshold = max(1, query.count / 3)
+        if distance <= threshold { return true }
+        let words = target.split(separator: " ").map(String.init)
+        for word in words {
+            let wordDist = levenshteinDistance(query, word)
+            if wordDist <= threshold { return true }
+        }
+        return false
+    }
+
+    private static func levenshteinDistance(_ s: String, _ t: String) -> Int {
+        let sArr = Array(s)
+        let tArr = Array(t)
+        let sLen = sArr.count
+        let tLen = tArr.count
+        if sLen == 0 { return tLen }
+        if tLen == 0 { return sLen }
+        var prev = Array(0...tLen)
+        var curr = [Int](repeating: 0, count: tLen + 1)
+        for i in 1...sLen {
+            curr[0] = i
+            for j in 1...tLen {
+                let cost = sArr[i - 1] == tArr[j - 1] ? 0 : 1
+                curr[j] = min(prev[j] + 1, curr[j - 1] + 1, prev[j - 1] + cost)
+            }
+            prev = curr
+        }
+        return prev[tLen]
+    }
+
     static func bridgeFoods(from safeFood: FoodItem) -> [FoodItem] {
         allFoods.filter { candidate in
             guard candidate.id != safeFood.id else { return false }

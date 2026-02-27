@@ -8,12 +8,10 @@ struct GalaxyMapView: View {
     @State private var appeared: Bool = false
     @State private var selectedCategory: FoodCategory? = nil
     @State private var showCosmetics: Bool = false
+    @State private var showFoodSearch: Bool = false
 
     private var displayedFoods: [FoodItem] {
-        if let category = selectedCategory {
-            return FoodDatabase.allFoods.filter { $0.category == category }
-        }
-        return FoodDatabase.allFoods
+        viewModel.allDisplayFoods(for: selectedCategory)
     }
 
     var body: some View {
@@ -43,6 +41,11 @@ struct GalaxyMapView: View {
         }
         .sheet(isPresented: $showCosmetics) {
             CosmeticsView(viewModel: viewModel)
+                .presentationDetents([.large])
+                .presentationDragIndicator(.visible)
+        }
+        .sheet(isPresented: $showFoodSearch) {
+            FoodSearchView(viewModel: viewModel, selectedFood: $selectedFood)
                 .presentationDetents([.large])
                 .presentationDragIndicator(.visible)
         }
@@ -88,6 +91,15 @@ struct GalaxyMapView: View {
             Spacer()
 
             StarDustCounter(amount: viewModel.profile.totalStarDust)
+
+            Button {
+                showFoodSearch = true
+            } label: {
+                Image(systemName: "magnifyingglass")
+                    .font(.title3)
+                    .foregroundStyle(.white.opacity(0.5))
+                    .frame(width: 44, height: 44)
+            }
 
             Button {
                 showParentGate = true
