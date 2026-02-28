@@ -10,6 +10,13 @@ struct ContentView: View {
             if let viewModel {
                 ZStack {
                     switch viewModel.mode {
+                    case .parentOnboarding:
+                        ParentOnboardingView(
+                            onCreateProfile: { viewModel.finishParentOnboarding() },
+                            onSkip: { viewModel.skipParentOnboarding() }
+                        )
+                        .transition(.opacity)
+
                     case .onboarding:
                         OnboardingView(viewModel: viewModel)
                             .transition(.opacity)
@@ -71,6 +78,7 @@ struct ContentView: View {
                         .zIndex(400)
                     }
                 }
+                .animation(.spring(duration: 0.5), value: viewModel.mode == .parentOnboarding)
                 .animation(.spring(duration: 0.5), value: viewModel.mode == .onboarding)
                 .animation(.spring(duration: 0.5), value: viewModel.mode == .explorer)
                 .animation(.spring(duration: 0.5), value: viewModel.mode == .parentDashboard)

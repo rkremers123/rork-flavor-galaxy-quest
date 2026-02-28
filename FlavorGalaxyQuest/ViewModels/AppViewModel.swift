@@ -2,6 +2,7 @@ import SwiftUI
 import SwiftData
 
 enum AppMode {
+    case parentOnboarding
     case onboarding
     case explorer
     case parentDashboard
@@ -66,6 +67,20 @@ class AppViewModel {
             refreshBridgeSuggestions()
             refreshSensoryProfile()
             refreshRegressionPatterns()
+        } else {
+            mode = .parentOnboarding
+        }
+    }
+
+    func finishParentOnboarding() {
+        withAnimation(.spring(duration: 0.5)) {
+            mode = .onboarding
+        }
+    }
+
+    func skipParentOnboarding() {
+        withAnimation(.spring(duration: 0.5)) {
+            mode = .onboarding
         }
     }
 
@@ -405,7 +420,7 @@ class AppViewModel {
         sensoryInsights = []
         regressionPatterns = []
         regressionAlerts = []
-        mode = .onboarding
+        mode = .parentOnboarding
     }
 
     private func resolveTargetFoodId() {
