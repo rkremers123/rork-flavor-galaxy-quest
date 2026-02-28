@@ -11,8 +11,9 @@ struct OnboardingView: View {
     @State private var targetFoodName: String = ""
     @State private var rewardName: String = ""
     @State private var appeared: Bool = false
+    @State private var showResetConfirmation: Bool = false
 
-    private let totalSteps = 5
+    private let totalSteps = 6
 
     var body: some View {
         ZStack {
@@ -28,6 +29,7 @@ struct OnboardingView: View {
                     characterStep.tag(2)
                     safeFoodsStep.tag(3)
                     goalStep.tag(4)
+                    summaryStep.tag(5)
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
                 .animation(.spring(duration: 0.4), value: currentStep)
@@ -267,11 +269,121 @@ struct OnboardingView: View {
 
             Spacer()
 
-            Button {
+            nextButton("Next") {
                 viewModel.profile.targetFoodName = targetFoodName
                 if !rewardName.isEmpty {
                     viewModel.profile.starJarRewardName = rewardName
                 }
+                viewModel.profile.safeFoodIds = Array(selectedSafeFoods)
+                currentStep = 5
+            }
+            .padding(.bottom, 40)
+        }
+    }
+
+    private var masteredCount: Int { selectedSafeFoods.count }
+
+    private var toExploreCount: Int {
+        FoodDatabase.allFoods.count - selectedSafeFoods.count
+    }
+
+    private var summaryStep: some View {
+        VStack(spacing: 24) {
+            Spacer().frame(height: 20)
+
+            PaxMascotView(message: "Here's \(childName.isEmpty ? "your explorer's" : childName + "'s") mission briefing!", size: 60)
+                .padding(.horizontal)
+
+            VStack(spacing: 16) {
+                HStack(spacing: 16) {
+                    summaryCard(
+                        count: masteredCount,
+                        label: "Foods Mastered",
+                        icon: "checkmark.seal.fill",
+                        color: SpaceTheme.planetGreen
+                    )
+                    summaryCard(
+                        count: toExploreCount,
+                        label: "Foods to Explore",
+                        icon: "sparkles",
+                        color: SpaceTheme.cosmicCyan
+                    )
+                }
+
+                if !targetFoodName.isEmpty {
+                    HStack(spacing: 12) {
+                        Image(systemName: "target")
+                            .font(.title3)
+                            .foregroundStyle(SpaceTheme.warningOrange)
+                            .frame(width: 36, height: 36)
+                            .background(Circle().fill(SpaceTheme.warningOrange.opacity(0.15)))
+
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Target Food")
+                                .font(.system(.caption2, design: .rounded, weight: .medium))
+                                .foregroundStyle(.white.opacity(0.5))
+                            Text(targetFoodName)
+                                .font(.system(.subheadline, design: .rounded, weight: .bold))
+                                .foregroundStyle(.white)
+                        }
+                        Spacer()
+                    }
+                    .padding(14)
+                    .background(
+                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                            .fill(.white.opacity(0.06))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                    .stroke(SpaceTheme.warningOrange.opacity(0.2), lineWidth: 1)
+                            )
+                    )
+                }
+
+                if masteredCount > 0 {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Already Mastered")
+                            .font(.system(.caption, design: .rounded, weight: .semibold))
+                            .foregroundStyle(SpaceTheme.planetGreen)
+
+                        let masteredFoods = FoodDatabase.allFoods.filter { selectedSafeFoods.contains($0.id) }
+                        ScrollView(.horizontal) {
+                            HStack(spacing: 8) {
+                                ForEach(masteredFoods) { food in
+                                    HStack(spacing: 6) {
+                                        Text(food.emoji)
+                                            .font(.caption)
+                                        Text(food.name)
+                                            .font(.system(.caption2, design: .rounded, weight: .medium))
+                                            .foregroundStyle(.white)
+                                    }
+                                    .padding(.horizontal, 10)
+                                    .padding(.vertical, 6)
+                                    .background(
+                                        Capsule()
+                                            .fill(SpaceTheme.planetGreen.opacity(0.15))
+                                            .overlay(
+                                                Capsule()
+                                                    .stroke(SpaceTheme.planetGreen.opacity(0.3), lineWidth: 1)
+                                            )
+                                    )
+                                }
+                            }
+                        }
+                        .contentMargins(.horizontal, 0)
+                        .scrollIndicators(.hidden)
+                    }
+                    .padding(14)
+                    .background(
+                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                            .fill(.white.opacity(0.04))
+                    )
+                }
+            }
+            .padding(.horizontal, 24)
+
+            Spacer()
+
+            Button {
                 viewModel.completeOnboarding()
             } label: {
                 HStack(spacing: 10) {
@@ -296,6 +408,32 @@ struct OnboardingView: View {
             .padding(.horizontal, 24)
             .padding(.bottom, 40)
         }
+    }
+
+    private func summaryCard(count: Int, label: String, icon: String, color: Color) -> some View {
+        VStack(spacing: 10) {
+            Image(systemName: icon)
+                .font(.title2)
+                .foregroundStyle(color)
+
+            Text("\(count)")
+                .font(.system(.title, design: .rounded, weight: .heavy))
+                .foregroundStyle(.white)
+
+            Text(label)
+                .font(.system(.caption, design: .rounded, weight: .medium))
+                .foregroundStyle(.white.opacity(0.6))
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 20)
+        .background(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(color.opacity(0.08))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .stroke(color.opacity(0.2), lineWidth: 1)
+                )
+        )
     }
 
     private func nextButton(_ title: String, action: @escaping () -> Void) -> some View {

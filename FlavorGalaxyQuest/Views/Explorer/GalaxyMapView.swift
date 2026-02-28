@@ -11,6 +11,8 @@ struct GalaxyMapView: View {
     @State private var showFoodSearch: Bool = false
     @State private var searchText: String = ""
     @State private var showCreateFood: Bool = false
+    @State private var foodToReset: FoodItem?
+    @State private var showResetConfirmation: Bool = false
     @FocusState private var isSearchFocused: Bool
 
     private var allFoodsForCategory: [FoodItem] {
@@ -69,6 +71,19 @@ struct GalaxyMapView: View {
             FoodSearchView(viewModel: viewModel, selectedFood: $selectedFood)
                 .presentationDetents([.large])
                 .presentationDragIndicator(.visible)
+        }
+        .alert("Reset \(foodToReset?.name ?? "Food") to Learn Phase?", isPresented: $showResetConfirmation) {
+            Button("Cancel", role: .cancel) {
+                foodToReset = nil
+            }
+            Button("Reset", role: .destructive) {
+                if let food = foodToReset {
+                    viewModel.resetFoodProgress(foodId: food.id)
+                }
+                foodToReset = nil
+            }
+        } message: {
+            Text("This will remove all logged progress and reset this food to the Look phase (Day 1). This action cannot be undone.")
         }
         .sheet(isPresented: $showCreateFood) {
             CustomFoodCreationModal(
@@ -245,6 +260,16 @@ struct GalaxyMapView: View {
                                             .padding(4)
                                     }
                                 }
+                        }
+                        .contextMenu {
+                            if progress?.isPreCompleted ?? false {
+                                Button(role: .destructive) {
+                                    foodToReset = food
+                                    showResetConfirmation = true
+                                } label: {
+                                    Label("Reset to Learn Phase", systemImage: "arrow.counterclockwise")
+                                }
+                            }
                         }
                         .opacity(appeared ? 1 : 0)
                         .offset(y: appeared ? 0 : 20)

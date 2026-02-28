@@ -57,6 +57,7 @@ class AppViewModel {
 
     func completeOnboarding() {
         PersistenceService.hasOnboarded = true
+        preCompleteSafeFoods()
         resolveTargetFoodId()
         refreshBridgeSuggestions()
         refreshSensoryProfile()
@@ -64,6 +65,54 @@ class AppViewModel {
         withAnimation(.spring(duration: 0.6)) {
             mode = .explorer
         }
+    }
+
+    func preCompleteSafeFoods() {
+        let setupDate = Date()
+        for foodId in profile.safeFoodIds {
+            guard profile.questProgressItems.first(where: { $0.foodId == foodId }) == nil else { continue }
+            let progress = QuestProgressModel(foodId: foodId)
+            progress.completedSteps = SensoryStep.allCases
+            progress.lastAttemptDate = setupDate
+            progress.starDustEarned = SensoryStep.allCases.reduce(0) { $0 + $1.starDustReward }
+            progress.isPreCompleted = true
+            modelContext.insert(progress)
+            profile.questProgressItems.append(progress)
+
+            for step in SensoryStep.allCases {
+                let interaction = SensoryInteractionModel(
+                    foodId: foodId,
+                    sensoryStep: step,
+                    completed: true,
+                    parentVerified: true
+                )
+                interaction.timestamp = setupDate
+                modelContext.insert(interaction)
+                profile.interactions.append(interaction)
+            }
+
+            profile.totalStarDust += SensoryStep.allCases.reduce(0) { $0 + $1.starDustReward }
+        }
+    }
+
+    func resetFoodProgress(foodId: UUID) {
+        if let progress = profile.questProgressItems.first(where: { $0.foodId == foodId }) {
+            progress.completedSteps = []
+            progress.skippedSteps = []
+            progress.lastAttemptDate = nil
+            progress.starDustEarned = 0
+            progress.stepStartTime = nil
+            progress.isPreCompleted = false
+        }
+
+        let toRemove = profile.interactions.filter { $0.foodId == foodId }
+        for interaction in toRemove {
+            profile.interactions.removeAll { $0.foodId == foodId }
+            modelContext.delete(interaction)
+        }
+
+        refreshSensoryProfile()
+        saveProfile()
     }
 
     func switchToParentMode() {

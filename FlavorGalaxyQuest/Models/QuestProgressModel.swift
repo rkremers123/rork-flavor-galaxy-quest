@@ -9,6 +9,7 @@ class QuestProgressModel {
     var starDustEarned: Int = 0
     var skippedStepValues: [Int] = []
     var stepStartTime: Date?
+    var isPreCompleted: Bool = false
     var profile: ChildProfileModel?
 
     init() {}

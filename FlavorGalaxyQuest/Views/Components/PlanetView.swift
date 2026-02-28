@@ -71,7 +71,7 @@ struct PlanetView: View {
                 if progress?.isComplete ?? false {
                     Image(systemName: "checkmark.seal.fill")
                         .font(.caption)
-                        .foregroundStyle(SpaceTheme.starGold)
+                        .foregroundStyle(progress?.isPreCompleted ?? false ? SpaceTheme.planetGreen : SpaceTheme.starGold)
                         .offset(x: 24, y: -24)
                         .transition(.scale.combined(with: .opacity))
                 }
@@ -86,6 +86,12 @@ struct PlanetView: View {
                 .font(.system(.caption, design: .rounded, weight: .semibold))
                 .foregroundStyle(completedSteps.isEmpty ? .white.opacity(0.5) : .white)
                 .lineLimit(1)
+
+            if progress?.isPreCompleted ?? false {
+                Text("Mastered")
+                    .font(.system(.caption2, design: .rounded, weight: .bold))
+                    .foregroundStyle(SpaceTheme.planetGreen)
+            }
         }
     }
 }
