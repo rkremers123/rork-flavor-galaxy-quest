@@ -120,12 +120,6 @@ struct JourneyMapView: View {
     }
 
     private func planetColor(for planet: JourneyPlanet) -> Color {
-        switch planet {
-        case .baseCamp: .green.opacity(0.35)
-        case .sensoryGrove: SpaceTheme.cosmicCyan.opacity(0.35)
-        case .flavorMountains: SpaceTheme.nebulaPink.opacity(0.4)
-        case .tasteOcean: .blue.opacity(0.35)
-        case .harvestFestival: SpaceTheme.starGold.opacity(0.35)
-        }
+        SpaceTheme.planetColor(hex: planet.accentColor).opacity(0.35)
     }
 }

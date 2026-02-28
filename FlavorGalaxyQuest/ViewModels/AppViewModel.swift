@@ -530,6 +530,21 @@ class AppViewModel {
         customFoodItems = models.map { $0.toFoodItem() }
     }
 
+    func foodsForPlanet(_ planet: JourneyPlanet) -> [FoodItem] {
+        let explored = profile.questProgressItems
+            .filter { !$0.completedStepValues.isEmpty }
+            .sorted { ($0.lastAttemptDate ?? .distantPast) < ($1.lastAttemptDate ?? .distantPast) }
+
+        let start = planet.foodsRequired
+        let end = min(start + JourneyPlanet.foodsPerPlanet, explored.count)
+        guard start < explored.count else { return [] }
+
+        let allFoods = FoodDatabase.allFoods + customFoodItems
+        return explored[start..<end].compactMap { progress in
+            allFoods.first { $0.id == progress.foodId }
+        }
+    }
+
     func allDisplayFoods(for category: FoodCategory?) -> [FoodItem] {
         let combined = FoodDatabase.allFoods + customFoodItems
         if let category {

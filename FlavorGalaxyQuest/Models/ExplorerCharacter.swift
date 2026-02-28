@@ -107,19 +107,27 @@ nonisolated enum ExplorerLevel: Int, Codable, CaseIterable, Sendable {
     }
 }
 
-nonisolated enum JourneyPlanet: Int, Codable, CaseIterable, Sendable {
+nonisolated enum JourneyPlanet: Int, Codable, CaseIterable, Sendable, Identifiable {
     case baseCamp = 0
     case sensoryGrove = 1
     case flavorMountains = 2
-    case tasteOcean = 3
-    case harvestFestival = 4
+    case crystalCaves = 3
+    case tasteOcean = 4
+    case stardustFields = 5
+    case nebulaRidge = 6
+    case harvestFestival = 7
+
+    var id: Int { rawValue }
 
     var name: String {
         switch self {
         case .baseCamp: "Base Camp"
         case .sensoryGrove: "Sensory Grove"
         case .flavorMountains: "Flavor Mountains"
+        case .crystalCaves: "Crystal Caves"
         case .tasteOcean: "Taste Ocean"
+        case .stardustFields: "Stardust Fields"
+        case .nebulaRidge: "Nebula Ridge"
         case .harvestFestival: "Harvest Festival"
         }
     }
@@ -129,7 +137,10 @@ nonisolated enum JourneyPlanet: Int, Codable, CaseIterable, Sendable {
         case .baseCamp: "🏕"
         case .sensoryGrove: "🌲"
         case .flavorMountains: "⛰"
+        case .crystalCaves: "💎"
         case .tasteOcean: "🌊"
+        case .stardustFields: "✨"
+        case .nebulaRidge: "☄️"
         case .harvestFestival: "🎉"
         }
     }
@@ -139,29 +150,27 @@ nonisolated enum JourneyPlanet: Int, Codable, CaseIterable, Sendable {
         case .baseCamp: "Starting Point"
         case .sensoryGrove: "Look & Touch"
         case .flavorMountains: "Smell & Taste"
+        case .crystalCaves: "Deep Discovery"
         case .tasteOcean: "Full Consumption"
+        case .stardustFields: "Bold Flavors"
+        case .nebulaRidge: "Final Frontier"
         case .harvestFestival: "Master Explorer"
         }
     }
 
-    var foodsRequired: Int {
-        switch self {
-        case .baseCamp: 0
-        case .sensoryGrove: 8
-        case .flavorMountains: 16
-        case .tasteOcean: 24
-        case .harvestFestival: 32
-        }
-    }
+    static let foodsPerPlanet: Int = 5
 
-    static let foodsPerPlanet: Int = 8
+    var foodsRequired: Int { rawValue * Self.foodsPerPlanet }
 
     var accentColor: String {
         switch self {
         case .baseCamp: "22C55E"
         case .sensoryGrove: "06B6D4"
         case .flavorMountains: "EC4899"
+        case .crystalCaves: "8B5CF6"
         case .tasteOcean: "3B82F6"
+        case .stardustFields: "F59E0B"
+        case .nebulaRidge: "EF4444"
         case .harvestFestival: "EAB308"
         }
     }
@@ -179,10 +188,11 @@ nonisolated enum JourneyPlanet: Int, Codable, CaseIterable, Sendable {
     }
 
     static func current(for foodsExplored: Int) -> JourneyPlanet {
-        if foodsExplored >= 32 { return .harvestFestival }
-        if foodsExplored >= 24 { return .tasteOcean }
-        if foodsExplored >= 16 { return .flavorMountains }
-        if foodsExplored >= 8 { return .sensoryGrove }
+        for planet in allCases.reversed() {
+            if foodsExplored >= planet.foodsRequired {
+                return planet
+            }
+        }
         return .baseCamp
     }
 
