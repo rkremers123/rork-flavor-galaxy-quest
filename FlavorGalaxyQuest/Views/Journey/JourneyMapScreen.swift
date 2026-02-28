@@ -1,10 +1,11 @@
 import SwiftUI
 
 struct JourneyMapScreen: View {
-    let viewModel: AppViewModel
+    @Bindable var viewModel: AppViewModel
     @State private var appeared = false
     @State private var showCosmetics = false
     @State private var selectedPlanet: JourneyPlanet?
+    @State private var showStreakBanner = false
 
     private var foodsExplored: Int { viewModel.exploredFoodsCount }
     private var currentPlanet: JourneyPlanet { JourneyPlanet.current(for: foodsExplored) }
@@ -41,10 +42,18 @@ struct JourneyMapScreen: View {
             .scrollIndicators(.hidden)
             .onAppear {
                 withAnimation(.spring.delay(0.2)) { appeared = true }
+                if viewModel.showStreakBroken {
+                    withAnimation(.spring.delay(0.6)) { showStreakBanner = true }
+                    viewModel.showStreakBroken = false
+                }
             }
 
             if viewModel.showRewardUnlocked {
                 rewardOverlay
+            }
+
+            if showStreakBanner {
+                streakBrokenBanner
             }
         }
         .sheet(item: $selectedPlanet) { planet in
@@ -89,14 +98,73 @@ struct JourneyMapScreen: View {
         }
     }
 
+    // MARK: - Streak Broken Banner
+
+    private var streakBrokenBanner: some View {
+        VStack {
+            HStack(spacing: 12) {
+                Text("💔")
+                    .font(.title2)
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Streak broken")
+                        .font(.system(.subheadline, design: .rounded, weight: .bold))
+                        .foregroundStyle(.white)
+                    Text("Start a new one today!")
+                        .font(.system(.caption, design: .rounded))
+                        .foregroundStyle(.white.opacity(0.7))
+                }
+
+                Spacer()
+
+                Button {
+                    withAnimation(.spring) { showStreakBanner = false }
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.title3)
+                        .foregroundStyle(.white.opacity(0.4))
+                }
+            }
+            .padding(16)
+            .background(
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .fill(.ultraThinMaterial)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16, style: .continuous)
+                            .stroke(.white.opacity(0.1), lineWidth: 1)
+                    )
+            )
+            .padding(.horizontal, 20)
+            .padding(.top, 60)
+
+            Spacer()
+        }
+        .transition(.move(edge: .top).combined(with: .opacity))
+        .zIndex(10)
+        .onAppear {
+            Task {
+                try? await Task.sleep(for: .seconds(4))
+                withAnimation(.spring) { showStreakBanner = false }
+            }
+        }
+    }
+
     // MARK: - Stats
 
     private var statsRow: some View {
         HStack(spacing: 12) {
             journeyStat(icon: "globe.americas.fill", value: "\(foodsExplored)", label: "Explored", color: SpaceTheme.cosmicCyan)
             journeyStat(icon: "checkmark.seal.fill", value: "\(viewModel.completedQuestsCount)", label: "Mastered", color: SpaceTheme.planetGreen)
+            streakStat
+        }
+    }
+
+    private var streakStat: some View {
+        Group {
             if viewModel.profile.currentStreak > 0 {
                 journeyStat(icon: "flame.fill", value: "\(viewModel.profile.currentStreak)", label: "Streak", color: .orange)
+            } else if viewModel.profile.longestStreak > 0 {
+                journeyStat(icon: "flame", value: "\(viewModel.profile.longestStreak)", label: "Best", color: .orange.opacity(0.5))
             }
         }
     }

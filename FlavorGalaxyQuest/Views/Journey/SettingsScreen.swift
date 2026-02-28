@@ -276,6 +276,7 @@ struct SettingsScreen: View {
             .padding(.bottom, 4)
 
             parentDashboardButton
+            streakCard
             starJarSettingsCard
             allergenCard
             subscriptionCard
@@ -523,6 +524,93 @@ struct SettingsScreen: View {
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 10)
+    }
+
+    private var streakCard: some View {
+        VStack(spacing: 12) {
+            HStack {
+                Text("Streak Stats")
+                    .font(.system(.caption, design: .rounded, weight: .bold))
+                    .foregroundStyle(.white.opacity(0.6))
+                Spacer()
+            }
+
+            HStack(spacing: 20) {
+                VStack(spacing: 4) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "flame.fill")
+                            .font(.title3)
+                            .foregroundStyle(.orange)
+                        Text("\(viewModel.profile.currentStreak)")
+                            .font(.system(.title2, design: .rounded, weight: .bold))
+                            .foregroundStyle(.white)
+                    }
+                    Text("Current")
+                        .font(.system(.caption2, design: .rounded))
+                        .foregroundStyle(.white.opacity(0.4))
+                }
+                .frame(maxWidth: .infinity)
+
+                Rectangle()
+                    .fill(.white.opacity(0.08))
+                    .frame(width: 1, height: 36)
+
+                VStack(spacing: 4) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "trophy.fill")
+                            .font(.title3)
+                            .foregroundStyle(SpaceTheme.starGold)
+                        Text("\(viewModel.profile.longestStreak)")
+                            .font(.system(.title2, design: .rounded, weight: .bold))
+                            .foregroundStyle(.white)
+                    }
+                    Text("Best")
+                        .font(.system(.caption2, design: .rounded))
+                        .foregroundStyle(.white.opacity(0.4))
+                }
+                .frame(maxWidth: .infinity)
+            }
+
+            if viewModel.canResumeStreak {
+                Button {
+                    viewModel.resumeStreak()
+                } label: {
+                    HStack(spacing: 6) {
+                        Image(systemName: "arrow.counterclockwise")
+                        Text("Resume Streak (1x/month)")
+                    }
+                    .font(.system(.caption, design: .rounded, weight: .semibold))
+                    .foregroundStyle(SpaceTheme.cosmicCyan)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 10)
+                    .background(
+                        RoundedRectangle(cornerRadius: 10, style: .continuous)
+                            .fill(SpaceTheme.cosmicCyan.opacity(0.1))
+                    )
+                }
+            }
+
+            if let lastDate = viewModel.profile.lastActivityDate {
+                HStack {
+                    Text("Last activity")
+                        .font(.system(.caption2, design: .rounded))
+                        .foregroundStyle(.white.opacity(0.4))
+                    Spacer()
+                    Text(lastDate, style: .relative)
+                        .font(.system(.caption2, design: .rounded, weight: .medium))
+                        .foregroundStyle(.white.opacity(0.6))
+                }
+            }
+        }
+        .padding(14)
+        .background(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .fill(.white.opacity(0.04))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .stroke(.orange.opacity(0.15), lineWidth: 1)
+                )
+        )
     }
 
     private var daysActive: Int {

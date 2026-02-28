@@ -29,6 +29,11 @@ class AppViewModel {
     var wisdomPlanet: JourneyPlanet?
     var showCertificate: Bool = false
 
+    var showStreakBroken: Bool = false
+    var showStreakMilestone: Bool = false
+    var streakMilestone: StreakMilestone?
+    var lastCompletedStreak: Int = 0
+
     var sensoryProfile: SensoryProfile = .empty
     var foodRecommendations: [FoodRecommendation] = []
     var sensoryInsights: [String] = []
@@ -63,7 +68,10 @@ class AppViewModel {
 
         if PersistenceService.hasOnboarded {
             mode = .explorer
-            StreakService.updateStreak(profile: profile)
+            let wasBroken = StreakService.updateStreak(profile: profile)
+            if wasBroken {
+                showStreakBroken = true
+            }
             refreshBridgeSuggestions()
             refreshSensoryProfile()
             refreshRegressionPatterns()
@@ -197,7 +205,11 @@ class AppViewModel {
         modelContext.insert(interaction)
         profile.interactions.append(interaction)
 
-        StreakService.recordDailyAction(profile: profile)
+        let milestone = StreakService.recordDailyAction(profile: profile)
+        if let milestone {
+            streakMilestone = milestone
+            lastCompletedStreak = profile.currentStreak
+        }
         updateBridgeExposure(foodId: foodId)
         saveProfile()
 

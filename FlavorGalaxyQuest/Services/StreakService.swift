@@ -1,10 +1,44 @@
 import Foundation
 
+nonisolated enum StreakMilestone: Int, CaseIterable, Sendable {
+    case threeDays = 3
+    case oneWeek = 7
+    case twoWeeks = 14
+    case oneMonth = 30
+
+    var title: String {
+        switch self {
+        case .threeDays: return "On a Roll!"
+        case .oneWeek: return "Week Warrior!"
+        case .twoWeeks: return "Two Weeks Strong!"
+        case .oneMonth: return "One Month Explorer!"
+        }
+    }
+
+    var emoji: String {
+        switch self {
+        case .threeDays: return "✨"
+        case .oneWeek: return "🔥"
+        case .twoWeeks: return "⭐️"
+        case .oneMonth: return "🏆"
+        }
+    }
+
+    var message: String {
+        switch self {
+        case .threeDays: return "Three days in a row! You're building a habit!"
+        case .oneWeek: return "A full week of exploring! Your bravery is amazing!"
+        case .twoWeeks: return "Two weeks of sensory adventures! You're unstoppable!"
+        case .oneMonth: return "One whole month! You're a true Galaxy Explorer!"
+        }
+    }
+}
+
 struct StreakService {
 
-    static func updateStreak(profile: ChildProfileModel) {
+    static func updateStreak(profile: ChildProfileModel) -> Bool {
         let sortedInteractions = profile.interactions.sorted { $0.timestamp > $1.timestamp }
-        guard let lastInteraction = sortedInteractions.first else { return }
+        guard let lastInteraction = sortedInteractions.first else { return false }
 
         let calendar = Calendar.current
         let lastDate = calendar.startOfDay(for: lastInteraction.timestamp)
@@ -16,11 +50,13 @@ struct StreakService {
                 profile.longestStreak = max(profile.longestStreak, profile.currentStreak)
                 profile.currentStreak = 0
                 profile.streakBrokenDate = lastInteraction.timestamp
+                return true
             }
         }
+        return false
     }
 
-    static func recordDailyAction(profile: ChildProfileModel) {
+    static func recordDailyAction(profile: ChildProfileModel) -> StreakMilestone? {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
 
@@ -29,7 +65,7 @@ struct StreakService {
             let daysBetween = calendar.dateComponents([.day], from: lastDay, to: today).day ?? 0
 
             if daysBetween == 0 {
-                return
+                return nil
             } else if daysBetween == 1 {
                 profile.currentStreak += 1
             } else {
@@ -42,6 +78,12 @@ struct StreakService {
 
         profile.lastActivityDate = Date()
         profile.longestStreak = max(profile.longestStreak, profile.currentStreak)
+
+        return checkMilestone(streak: profile.currentStreak)
+    }
+
+    static func checkMilestone(streak: Int) -> StreakMilestone? {
+        StreakMilestone.allCases.first { $0.rawValue == streak }
     }
 
     static func canResumeStreak(profile: ChildProfileModel) -> Bool {

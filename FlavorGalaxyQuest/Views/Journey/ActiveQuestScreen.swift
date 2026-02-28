@@ -99,6 +99,20 @@ struct ActiveQuestScreen: View {
                 .font(.system(.title, design: .rounded, weight: .bold))
                 .foregroundStyle(.white)
 
+            if viewModel.profile.currentStreak > 0 {
+                HStack(spacing: 6) {
+                    Image(systemName: "flame.fill")
+                        .font(.caption)
+                        .foregroundStyle(.orange)
+                    Text("\(viewModel.profile.currentStreak) day streak")
+                        .font(.system(.caption, design: .rounded, weight: .bold))
+                        .foregroundStyle(.orange)
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .background(Capsule().fill(.orange.opacity(0.1)))
+            }
+
             HStack(spacing: 14) {
                 sensoryPill(food.texture.label, icon: "waveform")
                 sensoryPill(food.flavor.label, icon: "drop.fill")
@@ -416,8 +430,12 @@ struct ActiveQuestScreen: View {
 
         withAnimation(.spring) { showCompletion = true }
 
+        let hasMilestone = viewModel.streakMilestone != nil
+        let displayDuration: Duration = hasMilestone ? .seconds(3.5) : .seconds(2)
+
         Task {
-            try? await Task.sleep(for: .seconds(2))
+            try? await Task.sleep(for: displayDuration)
+            viewModel.streakMilestone = nil
             withAnimation(.spring) {
                 showCompletion = false
                 if step.isHighStakes {
@@ -432,17 +450,31 @@ struct ActiveQuestScreen: View {
             Color.black.opacity(0.92).ignoresSafeArea()
 
             VStack(spacing: 16) {
-                Text("⭐️").font(.system(size: 56))
+                if let milestone = viewModel.streakMilestone {
+                    Text(milestone.emoji).font(.system(size: 56))
 
-                Text("Amazing!")
-                    .font(.system(.title2, design: .rounded, weight: .bold))
-                    .foregroundStyle(.white)
+                    Text(milestone.title)
+                        .font(.system(.title2, design: .rounded, weight: .bold))
+                        .foregroundStyle(.white)
 
-                Text(step.paxEncouragement)
-                    .font(.system(.callout, design: .rounded))
-                    .foregroundStyle(.white.opacity(0.8))
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 24)
+                    Text(milestone.message)
+                        .font(.system(.callout, design: .rounded))
+                        .foregroundStyle(.white.opacity(0.8))
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 24)
+                } else {
+                    Text("⭐️").font(.system(size: 56))
+
+                    Text("Amazing!")
+                        .font(.system(.title2, design: .rounded, weight: .bold))
+                        .foregroundStyle(.white)
+
+                    Text(step.paxEncouragement)
+                        .font(.system(.callout, design: .rounded))
+                        .foregroundStyle(.white.opacity(0.8))
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 24)
+                }
 
                 HStack(spacing: 4) {
                     Image(systemName: "sparkles")
@@ -450,6 +482,17 @@ struct ActiveQuestScreen: View {
                 }
                 .font(.system(.headline, design: .rounded, weight: .bold))
                 .foregroundStyle(SpaceTheme.starGold)
+
+                if viewModel.profile.currentStreak > 0 {
+                    HStack(spacing: 6) {
+                        Image(systemName: "flame.fill")
+                            .foregroundStyle(.orange)
+                        Text("Streak: Day \(viewModel.profile.currentStreak)!")
+                            .foregroundStyle(.orange)
+                    }
+                    .font(.system(.subheadline, design: .rounded, weight: .bold))
+                    .padding(.top, 4)
+                }
             }
             .scaleEffect(showCompletion ? 1.0 : 0.5)
             .opacity(showCompletion ? 1 : 0)
