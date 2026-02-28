@@ -10,8 +10,8 @@ struct JourneyMapScreen: View {
     private var currentPlanet: JourneyPlanet { JourneyPlanet.current(for: foodsExplored) }
 
     private static let xFractions: [CGFloat] = [0.30, 0.72, 0.25, 0.75, 0.28, 0.68, 0.32, 0.50]
-    private let verticalSpacing: CGFloat = 88
-    private let nodeSize: CGFloat = 68
+    private let verticalSpacing: CGFloat = 150
+    private let nodeSize: CGFloat = 130
 
     private var mapHeight: CGFloat {
         CGFloat(JourneyPlanet.allCases.count - 1) * verticalSpacing + nodeSize + 80
@@ -155,7 +155,7 @@ struct JourneyMapScreen: View {
 
                 let activePos = positions[currentPlanet.rawValue]
                 explorerMarker
-                    .position(x: activePos.x - 50, y: activePos.y - 12)
+                    .position(x: activePos.x - 80, y: activePos.y - 20)
                     .animation(.spring(duration: 0.8, bounce: 0.3), value: currentPlanet)
             }
         }
@@ -216,12 +216,12 @@ struct JourneyMapScreen: View {
                         .shadow(color: isLocked ? .clear : planetColor.opacity(0.3), radius: 10)
 
                     Text(planet.emoji)
-                        .font(.system(size: 30))
+                        .font(.system(size: 56))
                         .opacity(isLocked ? 0.2 : 1.0)
 
                     if isCompleted {
                         Image(systemName: "checkmark.circle.fill")
-                            .font(.caption)
+                            .font(.body)
                             .foregroundStyle(SpaceTheme.planetGreen)
                             .background(Circle().fill(SpaceTheme.deepNavy).padding(-2))
                             .offset(x: nodeSize / 2 - 2, y: -(nodeSize / 2 - 2))
@@ -229,7 +229,7 @@ struct JourneyMapScreen: View {
 
                     if isLocked {
                         Image(systemName: "lock.fill")
-                            .font(.system(size: 10))
+                            .font(.system(size: 16))
                             .foregroundStyle(.white.opacity(0.2))
                             .offset(x: nodeSize / 2 - 2, y: -(nodeSize / 2 - 2))
                     }
@@ -244,13 +244,13 @@ struct JourneyMapScreen: View {
                 }
 
                 Text(planet.name)
-                    .font(.system(.caption2, design: .rounded, weight: .bold))
+                    .font(.system(.caption, design: .rounded, weight: .bold))
                     .foregroundStyle(isLocked ? .white.opacity(0.2) : .white.opacity(0.85))
                     .lineLimit(1)
 
                 if !isLocked {
                     Text("\(completed)/\(JourneyPlanet.foodsPerPlanet)")
-                        .font(.system(size: 10, weight: .bold, design: .rounded))
+                        .font(.system(size: 13, weight: .bold, design: .rounded))
                         .foregroundStyle(isCompleted ? SpaceTheme.planetGreen : planetColor)
                 }
             }
@@ -264,12 +264,12 @@ struct JourneyMapScreen: View {
         ZStack {
             Circle()
                 .fill(SpaceTheme.planetColor(hex: viewModel.profile.explorerType.accentHex).opacity(0.25))
-                .frame(width: 38, height: 38)
+                .frame(width: 56, height: 56)
 
             Image(viewModel.profile.explorerType.imageName)
                 .resizable()
                 .scaledToFit()
-                .frame(width: 32, height: 32)
+                .frame(width: 48, height: 48)
         }
         .modifier(FloatEffect())
     }
