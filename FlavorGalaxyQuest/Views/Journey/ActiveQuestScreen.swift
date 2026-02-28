@@ -22,7 +22,13 @@ struct ActiveQuestScreen: View {
             SpaceBackgroundView()
 
             if let food {
-                questContent(food)
+                VStack(spacing: 0) {
+                    questContent(food)
+
+                    if let step = currentStep {
+                        floatingActionBar(step, food: food)
+                    }
+                }
             } else {
                 emptyState
             }
@@ -63,7 +69,7 @@ struct ActiveQuestScreen: View {
             }
             .padding(.horizontal, 20)
             .padding(.top, 16)
-            .padding(.bottom, 120)
+            .padding(.bottom, 20)
         }
         .scrollIndicators(.hidden)
     }
@@ -125,70 +131,78 @@ struct ActiveQuestScreen: View {
                 let isCurrent = step == currentStep
                 let stepColor = SpaceTheme.planetColor(hex: step.color)
 
-                HStack(spacing: 16) {
-                    ZStack {
-                        Circle()
-                            .fill(
-                                isCompleted ? stepColor.opacity(0.2) :
-                                isCurrent ? SpaceTheme.cosmicCyan.opacity(0.15) :
-                                .white.opacity(0.04)
-                            )
-                            .frame(width: 44, height: 44)
-                            .overlay(
-                                Circle().stroke(
-                                    isCompleted ? stepColor :
-                                    isCurrent ? SpaceTheme.cosmicCyan :
-                                    .white.opacity(0.08),
-                                    lineWidth: isCurrent ? 2.5 : 1.5
+                Button {
+                    if isCurrent, let food {
+                        performStepCompletion(step, food: food)
+                    }
+                } label: {
+                    HStack(spacing: 16) {
+                        ZStack {
+                            Circle()
+                                .fill(
+                                    isCompleted ? stepColor.opacity(0.2) :
+                                    isCurrent ? SpaceTheme.cosmicCyan.opacity(0.15) :
+                                    .white.opacity(0.04)
                                 )
-                            )
+                                .frame(width: 44, height: 44)
+                                .overlay(
+                                    Circle().stroke(
+                                        isCompleted ? stepColor :
+                                        isCurrent ? SpaceTheme.cosmicCyan :
+                                        .white.opacity(0.08),
+                                        lineWidth: isCurrent ? 2.5 : 1.5
+                                    )
+                                )
+
+                            if isCompleted {
+                                Image(systemName: "checkmark")
+                                    .font(.callout.bold())
+                                    .foregroundStyle(stepColor)
+                            } else if isSkipped {
+                                Image(systemName: "arrow.uturn.right")
+                                    .font(.caption.bold())
+                                    .foregroundStyle(.white.opacity(0.3))
+                            } else {
+                                Image(systemName: step.icon)
+                                    .font(.callout)
+                                    .foregroundStyle(isCurrent ? SpaceTheme.cosmicCyan : .white.opacity(0.2))
+                            }
+                        }
+
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(step.label.uppercased())
+                                .font(.system(.subheadline, design: .rounded, weight: .bold))
+                                .foregroundStyle(
+                                    isCompleted ? stepColor :
+                                    isCurrent ? .white :
+                                    .white.opacity(0.25)
+                                )
+
+                            if isCurrent {
+                                Text("Tap to complete · \(step.missionTitle)")
+                                    .font(.system(.caption, design: .rounded, weight: .medium))
+                                    .foregroundStyle(SpaceTheme.cosmicCyan)
+                            }
+                        }
+
+                        Spacer()
 
                         if isCompleted {
-                            Image(systemName: "checkmark")
-                                .font(.callout.bold())
-                                .foregroundStyle(stepColor)
-                        } else if isSkipped {
-                            Image(systemName: "arrow.uturn.right")
-                                .font(.caption.bold())
-                                .foregroundStyle(.white.opacity(0.3))
-                        } else {
-                            Image(systemName: step.icon)
-                                .font(.callout)
-                                .foregroundStyle(isCurrent ? SpaceTheme.cosmicCyan : .white.opacity(0.2))
+                            Text("+\(step.starDustReward)")
+                                .font(.system(.caption2, design: .rounded, weight: .bold))
+                                .foregroundStyle(SpaceTheme.starGold.opacity(0.5))
                         }
-                    }
-
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(step.label.uppercased())
-                            .font(.system(.subheadline, design: .rounded, weight: .bold))
-                            .foregroundStyle(
-                                isCompleted ? stepColor :
-                                isCurrent ? .white :
-                                .white.opacity(0.25)
-                            )
 
                         if isCurrent {
-                            Text(step.missionTitle)
-                                .font(.system(.caption, design: .rounded, weight: .medium))
+                            Image(systemName: "play.circle.fill")
+                                .font(.title3)
                                 .foregroundStyle(SpaceTheme.cosmicCyan)
                         }
                     }
-
-                    Spacer()
-
-                    if isCompleted {
-                        Text("+\(step.starDustReward)")
-                            .font(.system(.caption2, design: .rounded, weight: .bold))
-                            .foregroundStyle(SpaceTheme.starGold.opacity(0.5))
-                    }
-
-                    if isCurrent {
-                        Image(systemName: "chevron.right")
-                            .font(.caption.bold())
-                            .foregroundStyle(SpaceTheme.cosmicCyan)
-                    }
+                    .padding(.vertical, 12)
                 }
-                .padding(.vertical, 12)
+                .disabled(!isCurrent)
+                .sensoryFeedback(.impact(flexibility: .solid), trigger: isCurrent ? celebrateTrigger : 0)
 
                 if step != .taste {
                     HStack {
@@ -260,14 +274,49 @@ struct ActiveQuestScreen: View {
                 .padding(.vertical, 14)
                 .background(Capsule().fill(.white.opacity(0.05)))
             }
+        }
+    }
 
-            HStack(spacing: 4) {
-                Image(systemName: "sparkles")
-                    .font(.caption2)
-                Text("+\(step.starDustReward) Star Dust")
-                    .font(.system(.caption, design: .rounded, weight: .semibold))
+    private func floatingActionBar(_ step: SensoryStep, food: FoodItem) -> some View {
+        VStack(spacing: 0) {
+            Divider().overlay(.white.opacity(0.06))
+
+            HStack(spacing: 12) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(step.label.uppercased())
+                        .font(.system(.caption2, design: .rounded, weight: .bold))
+                        .foregroundStyle(SpaceTheme.cosmicCyan)
+                    HStack(spacing: 4) {
+                        Image(systemName: "sparkles")
+                            .font(.system(size: 9))
+                        Text("+\(step.starDustReward) Star Dust")
+                            .font(.system(.caption2, design: .rounded, weight: .semibold))
+                    }
+                    .foregroundStyle(SpaceTheme.starGold.opacity(0.7))
+                }
+
+                Spacer()
+
+                Button {
+                    performStepCompletion(step, food: food)
+                } label: {
+                    HStack(spacing: 8) {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.subheadline)
+                        Text("I Did It!")
+                            .font(.system(.subheadline, design: .rounded, weight: .bold))
+                    }
+                    .foregroundStyle(SpaceTheme.deepNavy)
+                    .padding(.horizontal, 24)
+                    .padding(.vertical, 12)
+                    .background(Capsule().fill(SpaceTheme.starGold))
+                }
+                .sensoryFeedback(.success, trigger: celebrateTrigger)
             }
-            .foregroundStyle(SpaceTheme.starGold.opacity(0.6))
+            .padding(.horizontal, 20)
+            .padding(.vertical, 12)
+            .background(.ultraThinMaterial.opacity(0.8))
+            .background(SpaceTheme.deepNavy.opacity(0.9))
         }
     }
 
