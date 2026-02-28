@@ -6,13 +6,14 @@ struct JourneyMapScreen: View {
     @State private var showCosmetics = false
     @State private var selectedPlanet: JourneyPlanet?
     @State private var showStreakBanner = false
+    @State private var showExplorerDetail = false
 
     private var foodsExplored: Int { viewModel.exploredFoodsCount }
     private var currentPlanet: JourneyPlanet { JourneyPlanet.current(for: foodsExplored) }
 
     private static let xFractions: [CGFloat] = [0.30, 0.72, 0.25, 0.75, 0.28, 0.68, 0.32, 0.50]
     private let verticalSpacing: CGFloat = 150
-    private let nodeSize: CGFloat = 130
+    private let nodeSize: CGFloat = 160
 
     private var mapHeight: CGFloat {
         CGFloat(JourneyPlanet.allCases.count - 1) * verticalSpacing + nodeSize + 80
@@ -68,19 +69,34 @@ struct JourneyMapScreen: View {
                 .presentationDetents([.large])
                 .presentationDragIndicator(.visible)
         }
+        .sheet(isPresented: $showExplorerDetail) {
+            ExplorerDetailModal(viewModel: viewModel, showCosmetics: $showCosmetics)
+                .presentationDetents([.medium])
+                .presentationDragIndicator(.visible)
+                .presentationBackground(SpaceTheme.deepNavy)
+        }
     }
 
     // MARK: - Header
 
     private var explorerHeader: some View {
-        HStack(spacing: 12) {
-            Button { showCosmetics = true } label: {
+        HStack(spacing: 14) {
+            Button { showExplorerDetail = true } label: {
                 ExplorerAvatarView(
                     explorerType: viewModel.profile.explorerType,
                     equippedCosmetics: viewModel.profile.equippedCosmetics,
-                    size: 48
+                    size: 64
                 )
+                .overlay {
+                    Circle()
+                        .stroke(
+                            SpaceTheme.planetColor(hex: viewModel.profile.explorerType.accentHex),
+                            lineWidth: 2
+                        )
+                        .frame(width: 68, height: 68)
+                }
             }
+            .scaleEffect(1.0)
 
             VStack(alignment: .leading, spacing: 3) {
                 Text(viewModel.profile.explorerDisplayName)
@@ -250,7 +266,7 @@ struct JourneyMapScreen: View {
         return Button {
             selectedPlanet = planet
         } label: {
-            VStack(spacing: 6) {
+            VStack(spacing: 8) {
                 ZStack {
                     if isActive {
                         Circle()
@@ -259,66 +275,45 @@ struct JourneyMapScreen: View {
                             .modifier(PulseEffect())
                     }
 
-                    Circle()
-                        .fill(
-                            RadialGradient(
-                                colors: isLocked
-                                    ? [.gray.opacity(0.2), .gray.opacity(0.05)]
-                                    : [planetColor.opacity(0.85), planetColor.opacity(0.25)],
-                                center: UnitPoint(x: 0.35, y: 0.35),
-                                startRadius: 5,
-                                endRadius: nodeSize / 2
-                            )
-                        )
+                    Image(planet.imageName)
+                        .resizable()
+                        .scaledToFit()
                         .frame(width: nodeSize, height: nodeSize)
-                        .overlay {
-                            Circle()
-                                .fill(
-                                    LinearGradient(
-                                        colors: [.white.opacity(isLocked ? 0.05 : 0.2), .clear],
-                                        startPoint: .topLeading,
-                                        endPoint: .bottomTrailing
-                                    )
-                                )
-                        }
-                        .shadow(color: isLocked ? .clear : planetColor.opacity(0.3), radius: 10)
-
-                    Text(planet.emoji)
-                        .font(.system(size: 56))
-                        .opacity(isLocked ? 0.2 : 1.0)
+                        .clipShape(Circle())
+                        .opacity(isLocked ? 0.25 : 1.0)
+                        .shadow(color: isLocked ? .clear : planetColor.opacity(0.4), radius: 12)
 
                     if isCompleted {
                         Image(systemName: "checkmark.circle.fill")
-                            .font(.body)
+                            .font(.title3)
                             .foregroundStyle(SpaceTheme.planetGreen)
-                            .background(Circle().fill(SpaceTheme.deepNavy).padding(-2))
-                            .offset(x: nodeSize / 2 - 2, y: -(nodeSize / 2 - 2))
+                            .background(Circle().fill(SpaceTheme.deepNavy).padding(-3))
+                            .offset(x: nodeSize / 2 - 6, y: -(nodeSize / 2 - 6))
                     }
 
                     if isLocked {
                         Image(systemName: "lock.fill")
-                            .font(.system(size: 16))
-                            .foregroundStyle(.white.opacity(0.2))
-                            .offset(x: nodeSize / 2 - 2, y: -(nodeSize / 2 - 2))
+                            .font(.system(size: 20))
+                            .foregroundStyle(.white.opacity(0.3))
                     }
 
                     if !isLocked && !isCompleted {
                         Circle()
                             .trim(from: 0, to: Double(completed) / Double(JourneyPlanet.foodsPerPlanet))
-                            .stroke(planetColor, style: StrokeStyle(lineWidth: 3, lineCap: .round))
-                            .frame(width: nodeSize + 4, height: nodeSize + 4)
+                            .stroke(planetColor, style: StrokeStyle(lineWidth: 3.5, lineCap: .round))
+                            .frame(width: nodeSize + 6, height: nodeSize + 6)
                             .rotationEffect(.degrees(-90))
                     }
                 }
 
                 Text(planet.name)
-                    .font(.system(.caption, design: .rounded, weight: .bold))
-                    .foregroundStyle(isLocked ? .white.opacity(0.2) : .white.opacity(0.85))
+                    .font(.system(.subheadline, design: .rounded, weight: .bold))
+                    .foregroundStyle(isLocked ? .white.opacity(0.2) : .white.opacity(0.9))
                     .lineLimit(1)
 
                 if !isLocked {
                     Text("\(completed)/\(JourneyPlanet.foodsPerPlanet)")
-                        .font(.system(size: 13, weight: .bold, design: .rounded))
+                        .font(.system(size: 14, weight: .bold, design: .rounded))
                         .foregroundStyle(isCompleted ? SpaceTheme.planetGreen : planetColor)
                 }
             }
@@ -443,22 +438,13 @@ struct PlanetDetailSheet: View {
 
     private var planetHeader: some View {
         VStack(spacing: 12) {
-            ZStack {
-                Circle()
-                    .fill(
-                        RadialGradient(
-                            colors: [planetColor.opacity(0.3), .clear],
-                            center: .center,
-                            startRadius: 20,
-                            endRadius: 60
-                        )
-                    )
-                    .frame(width: 120, height: 120)
-
-                Text(planet.emoji)
-                    .font(.system(size: 56))
-                    .opacity(isLocked ? 0.3 : 1.0)
-            }
+            Image(planet.imageName)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 120, height: 120)
+                .clipShape(Circle())
+                .opacity(isLocked ? 0.3 : 1.0)
+                .shadow(color: planetColor.opacity(0.4), radius: 12)
 
             Text(planet.name)
                 .font(.system(.title2, design: .rounded, weight: .bold))

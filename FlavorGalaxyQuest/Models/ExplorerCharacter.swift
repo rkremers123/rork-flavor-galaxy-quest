@@ -154,6 +154,19 @@ nonisolated enum JourneyPlanet: Int, Codable, CaseIterable, Sendable, Identifiab
         }
     }
 
+    var imageName: String {
+        switch self {
+        case .baseCamp: "planet_base_camp"
+        case .sensoryGrove: "planet_sensory_grove"
+        case .flavorMountains: "planet_flavor_mountains"
+        case .crystalCaves: "planet_texture_trails"
+        case .tasteOcean: "planet_taste_ocean"
+        case .stardustFields: "planet_aroma_airship"
+        case .nebulaRidge: "planet_taste_jungle"
+        case .harvestFestival: "planet_galaxys_heart"
+        }
+    }
+
     var subtitle: String {
         switch self {
         case .baseCamp: "Starting Point"
