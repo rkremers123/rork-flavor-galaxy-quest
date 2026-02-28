@@ -20,6 +20,11 @@ class AppViewModel {
     var newLevelReached: ExplorerLevel?
     var pendingVerification: PendingVerification?
     var customFoodItems: [FoodItem] = []
+    var selectedTab: Int = 0
+    var activeQuestFoodId: UUID?
+    var showPlanetCelebration: Bool = false
+    var celebratedPlanet: JourneyPlanet?
+    var showCertificate: Bool = false
 
     var sensoryProfile: SensoryProfile = .empty
     var foodRecommendations: [FoodRecommendation] = []
@@ -133,6 +138,9 @@ class AppViewModel {
     }
 
     func completeStep(_ step: SensoryStep, for foodId: UUID) {
+        let previousExplored = exploredFoodsCount
+        let previousPlanet = JourneyPlanet.current(for: previousExplored)
+
         let progress = getOrCreateQuestProgress(for: foodId)
 
         if step.isHighStakes {
@@ -171,6 +179,25 @@ class AppViewModel {
 
         if step == .taste || step == .lick {
             refreshSensoryProfile()
+        }
+
+        let newExplored = exploredFoodsCount
+        let newPlanet = JourneyPlanet.current(for: newExplored)
+        if newPlanet.rawValue > previousPlanet.rawValue {
+            celebratedPlanet = newPlanet
+            Task {
+                try? await Task.sleep(for: .seconds(2.5))
+                withAnimation(.spring) {
+                    showPlanetCelebration = true
+                }
+            }
+        }
+
+        if JourneyPlanet.harvestFestival.isCompleted(totalExplored: newExplored) && !JourneyPlanet.harvestFestival.isCompleted(totalExplored: previousExplored) {
+            Task {
+                try? await Task.sleep(for: .seconds(3))
+                showCertificate = true
+            }
         }
     }
 
@@ -371,7 +398,7 @@ class AppViewModel {
         }
     }
 
-    private func getOrCreateQuestProgress(for foodId: UUID) -> QuestProgressModel {
+    func getOrCreateQuestProgress(for foodId: UUID) -> QuestProgressModel {
         if let existing = profile.questProgressItems.first(where: { $0.foodId == foodId }) {
             return existing
         }
@@ -437,6 +464,30 @@ class AppViewModel {
         withAnimation(.spring) {
             showLevelUp = false
             newLevelReached = nil
+        }
+    }
+
+    var activeQuestFood: FoodItem? {
+        guard let id = activeQuestFoodId else { return nil }
+        return FoodDatabase.food(byId: id) ?? customFoodItems.first { $0.id == id }
+    }
+
+    var activeQuestProgress: QuestProgressModel? {
+        guard let id = activeQuestFoodId else { return nil }
+        return questProgress(for: id)
+    }
+
+    func setActiveQuest(food: FoodItem) {
+        activeQuestFoodId = food.id
+        _ = getOrCreateQuestProgress(for: food.id)
+        selectedTab = 1
+    }
+
+    func dismissPlanetCelebration() {
+        withAnimation(.spring) {
+            showPlanetCelebration = false
+            celebratedPlanet = nil
+            selectedTab = 0
         }
     }
 

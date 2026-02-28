@@ -147,29 +147,49 @@ nonisolated enum JourneyPlanet: Int, Codable, CaseIterable, Sendable {
     var foodsRequired: Int {
         switch self {
         case .baseCamp: 0
-        case .sensoryGrove: 4
-        case .flavorMountains: 9
-        case .tasteOcean: 16
-        case .harvestFestival: 25
+        case .sensoryGrove: 8
+        case .flavorMountains: 16
+        case .tasteOcean: 24
+        case .harvestFestival: 32
         }
     }
 
+    static let foodsPerPlanet: Int = 8
+
+    var accentColor: String {
+        switch self {
+        case .baseCamp: "22C55E"
+        case .sensoryGrove: "06B6D4"
+        case .flavorMountains: "EC4899"
+        case .tasteOcean: "3B82F6"
+        case .harvestFestival: "EAB308"
+        }
+    }
+
+    func foodsCompleted(totalExplored: Int) -> Int {
+        min(max(totalExplored - foodsRequired, 0), Self.foodsPerPlanet)
+    }
+
+    func isCompleted(totalExplored: Int) -> Bool {
+        foodsCompleted(totalExplored: totalExplored) >= Self.foodsPerPlanet
+    }
+
+    func isLocked(totalExplored: Int) -> Bool {
+        totalExplored < foodsRequired
+    }
+
     static func current(for foodsExplored: Int) -> JourneyPlanet {
-        if foodsExplored >= 25 { return .harvestFestival }
-        if foodsExplored >= 16 { return .tasteOcean }
-        if foodsExplored >= 9 { return .flavorMountains }
-        if foodsExplored >= 4 { return .sensoryGrove }
+        if foodsExplored >= 32 { return .harvestFestival }
+        if foodsExplored >= 24 { return .tasteOcean }
+        if foodsExplored >= 16 { return .flavorMountains }
+        if foodsExplored >= 8 { return .sensoryGrove }
         return .baseCamp
     }
 
     static func progressToNext(foodsExplored: Int) -> Double {
-        let current = current(for: foodsExplored)
-        guard current != .harvestFestival else { return 1.0 }
-        let nextPlanet = JourneyPlanet(rawValue: current.rawValue + 1) ?? .harvestFestival
-        let base = current.foodsRequired
-        let range = nextPlanet.foodsRequired - base
-        guard range > 0 else { return 1.0 }
-        return min(Double(foodsExplored - base) / Double(range), 1.0)
+        let planet = current(for: foodsExplored)
+        let completed = planet.foodsCompleted(totalExplored: foodsExplored)
+        return Double(completed) / Double(foodsPerPlanet)
     }
 }
 
