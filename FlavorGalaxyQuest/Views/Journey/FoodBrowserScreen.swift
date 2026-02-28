@@ -77,6 +77,20 @@ struct FoodBrowserScreen: View {
                 }
             )
         }
+        .sheet(isPresented: $viewModel.showRegressionModal) {
+            if let food = viewModel.regressionTargetFood {
+                RegressionModal(
+                    food: food,
+                    viewModel: viewModel,
+                    onDismiss: {
+                        viewModel.showRegressionModal = false
+                        viewModel.regressionTargetFood = nil
+                    }
+                )
+                .presentationDetents([.large])
+                .presentationDragIndicator(.visible)
+            }
+        }
     }
 
     private var tabPicker: some View {
@@ -302,6 +316,7 @@ struct FoodBrowserScreen: View {
         let progress = viewModel.questProgress(for: food.id)
         let isInProgress = !(progress?.completedStepValues.isEmpty ?? true) && !(progress?.isComplete ?? false)
         let isMastered = progress?.isComplete ?? false
+        let isRegressed = viewModel.isRegressed(foodId: food.id)
 
         return Button {
             viewModel.setActiveQuest(food: food)
@@ -318,7 +333,18 @@ struct FoodBrowserScreen: View {
                     }
                 }
 
-                if isInProgress {
+                if isRegressed {
+                    HStack(spacing: 2) {
+                        Image(systemName: "arrow.down.right")
+                            .font(.system(size: 6, weight: .bold))
+                        Text("USED TO EAT")
+                            .font(.system(size: 7, weight: .bold, design: .rounded))
+                    }
+                    .foregroundStyle(.orange)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(Capsule().fill(Color.orange.opacity(0.15)))
+                } else if isInProgress {
                     Text("IN PROGRESS")
                         .font(.system(size: 8, weight: .bold, design: .rounded))
                         .foregroundStyle(SpaceTheme.cosmicCyan)
@@ -332,6 +358,29 @@ struct FoodBrowserScreen: View {
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
                         .background(Capsule().fill(SpaceTheme.planetGreen.opacity(0.15)))
+                }
+            }
+        }
+        .contextMenu {
+            if isMastered && !isRegressed {
+                Button {
+                    viewModel.beginRegressionFlow(food: food)
+                } label: {
+                    Label("Used to Eat It", systemImage: "arrow.down.right")
+                }
+
+                Button(role: .destructive) {
+                    viewModel.resetFoodProgress(foodId: food.id)
+                } label: {
+                    Label("Reset Progress", systemImage: "arrow.counterclockwise")
+                }
+            }
+
+            if isRegressed {
+                Button {
+                    viewModel.reMasterFood(foodId: food.id)
+                } label: {
+                    Label("Eating It Again!", systemImage: "checkmark.circle.fill")
                 }
             }
         }
@@ -413,6 +462,7 @@ struct FoodBrowserScreen: View {
         let progress = viewModel.questProgress(for: food.id)
         let isInProgress = !(progress?.completedStepValues.isEmpty ?? true) && !(progress?.isComplete ?? false)
         let isMastered = progress?.isComplete ?? false
+        let isRegressed = viewModel.isRegressed(foodId: food.id)
 
         return Button {
             viewModel.setActiveQuest(food: food)
@@ -451,7 +501,15 @@ struct FoodBrowserScreen: View {
 
                 Spacer()
 
-                if isMastered {
+                if isRegressed {
+                    HStack(spacing: 3) {
+                        Image(systemName: "arrow.down.right")
+                            .font(.system(size: 8, weight: .bold))
+                        Text("USED TO EAT")
+                            .font(.system(.caption2, design: .rounded, weight: .bold))
+                    }
+                    .foregroundStyle(.orange)
+                } else if isMastered {
                     Text("MASTERED")
                         .font(.system(.caption2, design: .rounded, weight: .bold))
                         .foregroundStyle(SpaceTheme.planetGreen)
@@ -467,6 +525,23 @@ struct FoodBrowserScreen: View {
             }
             .padding(.horizontal, 20)
             .padding(.vertical, 12)
+        }
+        .contextMenu {
+            if isMastered && !isRegressed {
+                Button {
+                    viewModel.beginRegressionFlow(food: food)
+                } label: {
+                    Label("Used to Eat It", systemImage: "arrow.down.right")
+                }
+            }
+
+            if isRegressed {
+                Button {
+                    viewModel.reMasterFood(foodId: food.id)
+                } label: {
+                    Label("Eating It Again!", systemImage: "checkmark.circle.fill")
+                }
+            }
         }
     }
 

@@ -34,6 +34,7 @@ class ChildProfileModel {
     @Relationship(deleteRule: .cascade) var questProgressItems: [QuestProgressModel] = []
     @Relationship(deleteRule: .cascade) var interactions: [SensoryInteractionModel] = []
     @Relationship(deleteRule: .cascade) var bridgeRecords: [BridgeRecordModel] = []
+    @Relationship(deleteRule: .cascade) var regressions: [RegressionModel] = []
 
     init() {}
 

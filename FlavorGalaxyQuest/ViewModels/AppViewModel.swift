@@ -33,6 +33,12 @@ class AppViewModel {
     var sensoryInsights: [String] = []
     let subscription = SubscriptionManager.shared
 
+    var regressionPatterns: [RegressionPattern] = []
+    var regressionAlerts: [RegressionAlertItem] = []
+    var showRegressionModal: Bool = false
+    var regressionTargetFood: FoodItem?
+    var regressionTargetProgress: QuestProgressModel?
+
     struct PendingVerification {
         let foodId: UUID
         let step: SensoryStep
@@ -59,6 +65,7 @@ class AppViewModel {
             StreakService.updateStreak(profile: profile)
             refreshBridgeSuggestions()
             refreshSensoryProfile()
+            refreshRegressionPatterns()
         }
     }
 
@@ -181,6 +188,10 @@ class AppViewModel {
 
         if step == .taste || step == .lick {
             refreshSensoryProfile()
+        }
+
+        if isRegressed(foodId: foodId) {
+            resolveRegression(foodId: foodId)
         }
 
         let newExplored = exploredFoodsCount
@@ -381,6 +392,7 @@ class AppViewModel {
         try? modelContext.delete(model: QuestProgressModel.self)
         try? modelContext.delete(model: SensoryInteractionModel.self)
         try? modelContext.delete(model: BridgeRecordModel.self)
+        try? modelContext.delete(model: RegressionModel.self)
         try? modelContext.delete(model: ChildProfileModel.self)
         try? modelContext.save()
 
@@ -391,6 +403,8 @@ class AppViewModel {
         sensoryProfile = .empty
         foodRecommendations = []
         sensoryInsights = []
+        regressionPatterns = []
+        regressionAlerts = []
         mode = .onboarding
     }
 
@@ -567,5 +581,82 @@ class AppViewModel {
             return combined.filter { $0.category == category }
         }
         return combined
+    }
+
+    func markAsUsedToEat(food: FoodItem, regressionDate: Date, notes: String) {
+        let progress = questProgress(for: food.id)
+        let masterDate = progress?.lastAttemptDate ?? profile.createdDate
+
+        let regression = RegressionModel(
+            foodId: food.id,
+            foodName: food.name,
+            regressionDate: regressionDate,
+            masterDate: masterDate,
+            texture: food.texture,
+            flavor: food.flavor,
+            temperature: food.temperature,
+            notes: notes
+        )
+        modelContext.insert(regression)
+        profile.regressions.append(regression)
+
+        refreshRegressionPatterns()
+        saveProfile()
+    }
+
+    func resolveRegression(foodId: UUID) {
+        let activeRegressions = profile.regressions.filter { $0.foodId == foodId && $0.status == .active }
+        for regression in activeRegressions {
+            regression.status = .resolved
+            regression.resolvedDate = Date()
+        }
+        refreshRegressionPatterns()
+        saveProfile()
+    }
+
+    func reMasterFood(foodId: UUID) {
+        resolveRegression(foodId: foodId)
+        refreshSensoryProfile()
+    }
+
+    func isRegressed(foodId: UUID) -> Bool {
+        profile.regressions.contains { $0.foodId == foodId && $0.status == .active }
+    }
+
+    func regressionForFood(_ foodId: UUID) -> RegressionModel? {
+        profile.regressions.first { $0.foodId == foodId && $0.status == .active }
+    }
+
+    func refreshRegressionPatterns() {
+        regressionPatterns = RegressionTrackingService.detectPatterns(
+            regressions: profile.regressions,
+            childName: profile.explorerDisplayName
+        )
+        regressionAlerts = RegressionTrackingService.generateAlerts(
+            patterns: regressionPatterns,
+            childName: profile.explorerDisplayName
+        )
+    }
+
+    var activeRegressionCount: Int {
+        profile.regressions.filter { $0.status == .active }.count
+    }
+
+    var activeRegressions: [RegressionModel] {
+        profile.regressions.filter { $0.status == .active }
+            .sorted { $0.regressionDate > $1.regressionDate }
+    }
+
+    var recentRegressions: [RegressionModel] {
+        profile.regressions
+            .sorted { $0.regressionDate > $1.regressionDate }
+            .prefix(10)
+            .map { $0 }
+    }
+
+    func beginRegressionFlow(food: FoodItem) {
+        regressionTargetFood = food
+        regressionTargetProgress = questProgress(for: food.id)
+        showRegressionModal = true
     }
 }

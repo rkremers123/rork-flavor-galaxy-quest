@@ -20,6 +20,7 @@ struct ParentDashboardView: View {
                 TabView(selection: $selectedTab) {
                     overviewTab.tag(ParentTab.overview)
                     foodLibraryTab.tag(ParentTab.foodLibrary)
+                    regressionsTab.tag(ParentTab.regressions)
                     analyticsTab.tag(ParentTab.analytics)
                     recommendationsTab.tag(ParentTab.recommendations)
                     settingsTab.tag(ParentTab.settings)
@@ -97,6 +98,10 @@ struct ParentDashboardView: View {
     private var overviewTab: some View {
         ScrollView {
             VStack(spacing: 16) {
+                if viewModel.activeRegressionCount > 0 {
+                    regressionBanner
+                }
+
                 targetFoodProgressSection
                 streakSection
                 statsGrid
@@ -111,6 +116,37 @@ struct ParentDashboardView: View {
                 recentActivitySection
             }
             .padding(16)
+        }
+    }
+
+    private var regressionBanner: some View {
+        Button {
+            withAnimation(.spring(duration: 0.3)) { selectedTab = .regressions }
+        } label: {
+            HStack(spacing: 12) {
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .foregroundStyle(.orange)
+                    .font(.title3)
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("\(viewModel.activeRegressionCount) Regression\(viewModel.activeRegressionCount == 1 ? "" : "s") Detected")
+                        .font(.subheadline.weight(.semibold))
+                    if !viewModel.regressionPatterns.isEmpty {
+                        Text("\(viewModel.regressionPatterns.count) sensory pattern\(viewModel.regressionPatterns.count == 1 ? "" : "s") found")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+
+                Spacer()
+
+                Image(systemName: "chevron.right")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.secondary)
+            }
+            .padding(14)
+            .background(Color.orange.opacity(0.08))
+            .clipShape(.rect(cornerRadius: 14))
         }
     }
 
@@ -534,6 +570,10 @@ struct ParentDashboardView: View {
         }
     }
 
+    private var regressionsTab: some View {
+        RegressionInsightsView(viewModel: viewModel)
+    }
+
     private var analyticsTab: some View {
         Group {
             if viewModel.subscription.hasAccess {
@@ -928,12 +968,13 @@ struct ParentDashboardView: View {
 }
 
 enum ParentTab: CaseIterable {
-    case overview, foodLibrary, analytics, recommendations, settings
+    case overview, foodLibrary, regressions, analytics, recommendations, settings
 
     var label: String {
         switch self {
         case .overview: "Overview"
         case .foodLibrary: "Foods"
+        case .regressions: "Regressions"
         case .analytics: "Analytics"
         case .recommendations: "Suggest"
         case .settings: "Settings"
@@ -944,6 +985,7 @@ enum ParentTab: CaseIterable {
         switch self {
         case .overview: "chart.bar.fill"
         case .foodLibrary: "books.vertical.fill"
+        case .regressions: "arrow.down.right.circle.fill"
         case .analytics: "brain.head.profile.fill"
         case .recommendations: "sparkles"
         case .settings: "gearshape.fill"

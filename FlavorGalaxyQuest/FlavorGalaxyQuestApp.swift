@@ -12,7 +12,8 @@ struct FlavorGalaxyQuestApp: App {
             QuestProgressModel.self,
             SensoryInteractionModel.self,
             BridgeRecordModel.self,
-            CustomFoodModel.self
+            CustomFoodModel.self,
+            RegressionModel.self
         ])
     }
 }
