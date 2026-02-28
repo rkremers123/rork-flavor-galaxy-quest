@@ -207,7 +207,7 @@ struct GalaxyMapView: View {
                 JourneyMapView(
                     currentPlanet: viewModel.profile.currentJourneyPlanet,
                     progress: viewModel.profile.journeyProgress,
-                    explorerEmoji: viewModel.profile.explorerType.emoji,
+                    explorerType: viewModel.profile.explorerType,
                     foodsExplored: viewModel.exploredFoodsCount
                 )
                 .padding(.horizontal, 20)

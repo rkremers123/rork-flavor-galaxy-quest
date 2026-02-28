@@ -39,7 +39,7 @@ struct ContentView: View {
                     if viewModel.showLevelUp, let level = viewModel.newLevelReached {
                         LevelUpCelebrationView(
                             level: level,
-                            explorerEmoji: viewModel.profile.explorerType.emoji,
+                            explorerType: viewModel.profile.explorerType,
                             onDismiss: { viewModel.dismissLevelUp() }
                         )
                         .transition(.opacity.combined(with: .scale(scale: 0.9)))
@@ -49,7 +49,7 @@ struct ContentView: View {
                     if viewModel.showPlanetCelebration, let planet = viewModel.celebratedPlanet {
                         PlanetCelebrationView(
                             planet: planet,
-                            explorerEmoji: viewModel.profile.explorerType.emoji,
+                            explorerType: viewModel.profile.explorerType,
                             onComplete: { viewModel.dismissPlanetCelebration() }
                         )
                         .transition(.opacity)

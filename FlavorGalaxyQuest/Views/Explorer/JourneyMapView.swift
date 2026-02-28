@@ -3,7 +3,7 @@ import SwiftUI
 struct JourneyMapView: View {
     let currentPlanet: JourneyPlanet
     let progress: Double
-    let explorerEmoji: String
+    let explorerType: ExplorerType
     let foodsExplored: Int
 
     var body: some View {
@@ -89,8 +89,10 @@ struct JourneyMapView: View {
                 .opacity(isReached ? 1.0 : 0.3)
 
             if isCurrent {
-                Text(explorerEmoji)
-                    .font(.caption)
+                Image(explorerType.imageName)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(height: 24)
                     .offset(y: -30)
             }
         }

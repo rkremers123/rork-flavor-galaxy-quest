@@ -2,7 +2,7 @@ import SwiftUI
 
 struct LevelUpCelebrationView: View {
     let level: ExplorerLevel
-    let explorerEmoji: String
+    let explorerType: ExplorerType
     let onDismiss: () -> Void
     @State private var showContent: Bool = false
     @State private var confettiTrigger: Int = 0
@@ -31,8 +31,10 @@ struct LevelUpCelebrationView: View {
             .allowsHitTesting(false)
 
             VStack(spacing: 24) {
-                Text(explorerEmoji)
-                    .font(.system(size: 80))
+                Image(explorerType.imageName)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(height: 100)
                     .scaleEffect(showContent ? 1.0 : 0.3)
 
                 VStack(spacing: 8) {

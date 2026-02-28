@@ -24,9 +24,11 @@ struct CharacterSelectionView: View {
                         }
                     } label: {
                         VStack(spacing: 10) {
-                            Text(type.emoji)
-                                .font(.system(size: 44))
-                                .scaleEffect(isSelected ? 1.15 : 1.0)
+                            Image(type.imageName)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(height: 100)
+                                .scaleEffect(isSelected ? 1.1 : 1.0)
 
                             Text(type.defaultName)
                                 .font(.system(.headline, design: .rounded, weight: .bold))

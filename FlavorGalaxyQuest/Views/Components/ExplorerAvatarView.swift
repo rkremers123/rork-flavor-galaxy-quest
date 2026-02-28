@@ -35,8 +35,10 @@ struct ExplorerAvatarView: View {
                 )
                 .frame(width: size, height: size)
 
-            Text(explorerType.emoji)
-                .font(.system(size: size * 0.5))
+            Image(explorerType.imageName)
+                .resizable()
+                .scaledToFit()
+                .frame(width: size * 0.75, height: size * 0.75)
                 .offset(y: float ? -3 : 3)
                 .animation(.easeInOut(duration: 1.8).repeatForever(autoreverses: true), value: float)
 

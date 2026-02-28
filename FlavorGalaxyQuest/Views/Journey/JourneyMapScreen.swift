@@ -266,8 +266,10 @@ struct JourneyMapScreen: View {
                 .fill(SpaceTheme.planetColor(hex: viewModel.profile.explorerType.accentHex).opacity(0.25))
                 .frame(width: 38, height: 38)
 
-            Text(viewModel.profile.explorerType.emoji)
-                .font(.title3)
+            Image(viewModel.profile.explorerType.imageName)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 32, height: 32)
         }
         .modifier(FloatEffect())
     }

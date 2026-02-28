@@ -2,7 +2,7 @@ import SwiftUI
 
 struct PlanetCelebrationView: View {
     let planet: JourneyPlanet
-    let explorerEmoji: String
+    let explorerType: ExplorerType
     let onComplete: () -> Void
 
     @State private var appeared = false
@@ -49,8 +49,10 @@ struct PlanetCelebrationView: View {
                 .opacity(appeared ? 1 : 0)
                 .offset(y: appeared ? 0 : 20)
 
-                Text(explorerEmoji)
-                    .font(.system(size: 44))
+                Image(explorerType.imageName)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(height: 60)
                     .scaleEffect(appeared ? 1.0 : 0.5)
                     .rotationEffect(.degrees(appeared ? 0 : -15))
             }

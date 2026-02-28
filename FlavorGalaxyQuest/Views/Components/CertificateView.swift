@@ -108,9 +108,11 @@ struct CertificateView: View {
                     .font(.system(.title, design: .rounded, weight: .heavy))
                     .foregroundStyle(SpaceTheme.cosmicCyan)
 
-                HStack(spacing: 6) {
-                    Text(explorerType.emoji)
-                        .font(.title3)
+                HStack(spacing: 8) {
+                    Image(explorerType.imageName)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(height: 36)
                     Text(explorerType.title)
                         .font(.system(.subheadline, design: .rounded, weight: .semibold))
                         .foregroundStyle(.white.opacity(0.7))
@@ -236,8 +238,14 @@ struct CertificateRenderContent: View {
                 .font(.system(.title, design: .rounded, weight: .heavy))
                 .foregroundStyle(.cyan)
 
-            Text("\(explorerType.emoji) \(explorerType.title)")
-                .font(.subheadline)
+            HStack(spacing: 6) {
+                Image(explorerType.imageName)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(height: 28)
+                Text(explorerType.title)
+                    .font(.subheadline)
+            }
 
             Text("Has completed the Flavor Galaxy Journey!")
                 .font(.subheadline.weight(.medium))
