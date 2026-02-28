@@ -24,6 +24,8 @@ class AppViewModel {
     var activeQuestFoodId: UUID?
     var showPlanetCelebration: Bool = false
     var celebratedPlanet: JourneyPlanet?
+    var showPlanetWisdom: Bool = false
+    var wisdomPlanet: JourneyPlanet?
     var showCertificate: Bool = false
 
     var sensoryProfile: SensoryProfile = .empty
@@ -484,9 +486,23 @@ class AppViewModel {
     }
 
     func dismissPlanetCelebration() {
+        let planet = celebratedPlanet
         withAnimation(.spring) {
             showPlanetCelebration = false
             celebratedPlanet = nil
+        }
+        if let planet {
+            wisdomPlanet = planet
+            withAnimation(.spring(duration: 0.4)) {
+                showPlanetWisdom = true
+            }
+        }
+    }
+
+    func dismissPlanetWisdom() {
+        withAnimation(.spring) {
+            showPlanetWisdom = false
+            wisdomPlanet = nil
             selectedTab = 0
         }
     }

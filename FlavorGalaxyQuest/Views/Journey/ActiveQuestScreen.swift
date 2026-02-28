@@ -429,7 +429,7 @@ struct ActiveQuestScreen: View {
 
     private func stepCelebrationOverlay(_ step: SensoryStep) -> some View {
         ZStack {
-            Color.black.opacity(0.5).ignoresSafeArea()
+            Color.black.opacity(0.92).ignoresSafeArea()
 
             VStack(spacing: 16) {
                 Text("⭐️").font(.system(size: 56))

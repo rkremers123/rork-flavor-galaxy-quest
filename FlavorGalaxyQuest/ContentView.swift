@@ -49,6 +49,15 @@ struct ContentView: View {
                         .zIndex(300)
                     }
 
+                    if viewModel.showPlanetWisdom, let planet = viewModel.wisdomPlanet {
+                        PlanetWisdomModal(
+                            planet: planet,
+                            onContinue: { viewModel.dismissPlanetWisdom() }
+                        )
+                        .transition(.opacity.combined(with: .scale(scale: 0.95)))
+                        .zIndex(350)
+                    }
+
                     if viewModel.showCertificate {
                         CertificateView(
                             childName: viewModel.profile.explorerDisplayName,
@@ -67,6 +76,7 @@ struct ContentView: View {
                 .animation(.spring(duration: 0.5), value: viewModel.mode == .parentDashboard)
                 .animation(.spring(duration: 0.4), value: viewModel.showLevelUp)
                 .animation(.spring(duration: 0.5), value: viewModel.showPlanetCelebration)
+                .animation(.spring(duration: 0.4), value: viewModel.showPlanetWisdom)
                 .animation(.spring(duration: 0.5), value: viewModel.showCertificate)
             }
         }
