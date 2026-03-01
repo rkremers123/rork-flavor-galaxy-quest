@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flavor Galaxy Journey Map Layout V3 - Zig-Zag with Side Explorers</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+            line-height: 1.6;
+            color: #1a1a1a;
+            background: linear-gradient(135deg, #0a0a1e 0%, #1a1a3e 100%);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 36px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        header p {
+            font-size: 16px;
+            opacity: 0.95;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        section {
+            margin-bottom: 50px;
+        }
+
+        h2 {
+            color: #667eea;
+            font-size: 28px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        h3 {
+            color: #764ba2;
+            font-size: 20px;
+            margin-top: 25px;
+            margin-bottom: 15px;
+        }
+
+        p {
+            margin-bottom: 15px;
+            font-size: 16px;
+            line-height: 1.8;
+        }
+
+        .priority-badge {
+            display: inline-block;
+            background: #e91e63;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-right: 8px;
+            margin-bottom: 15px;
+        }
+
+        .code-block {
+            background: #f0f0f0;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 6px;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            overflow-x: auto;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            border-left: 4px solid #d4af37;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .action-box {
+            background: #e8f5e9;
+            border-left: 4px solid #28a745;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .action-box h4 {
+            color: #1b5e20;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        ul, ol {
+            margin-left: 30px;
+            margin-bottom: 15px;
+        }
+
+        li {
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        strong {
+            color: #667eea;
+        }
+
+        .spec-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: #f9f9f9;
+        }
+
+        .spec-table th {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .spec-table td {
+            padding: 12px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .spec-table tr:hover {
+            background: #f0f4ff;
+        }
+
+        .diagram {
+            background: #f9f9f9;
+            border: 2px dashed #667eea;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.6;
+            overflow-x: auto;
+        }
+
+        .checklist {
+            list-style: none;
+            margin-left: 0;
+        }
+
+        .checklist li {
+            padding: 10px 0;
+            padding-left: 30px;
+            position: relative;
+            font-size: 16px;
+        }
+
+        .checklist li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .footer-note {
+            background: #fafafa;
+            border-top: 2px solid #eee;
+            padding: 30px;
+            margin-top: 50px;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                padding: 20px;
+            }
+
+            h2 {
+                font-size: 22px;
+            }
+
+            h3 {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚀 Flavor Galaxy Journey Map</h1>
+            <p>Layout V3 - Zig-Zag Pattern with Side-Positioned Explorers</p>
+        </header>
+
+        <div class="content">
+
+            <section>
+                <h2><span class="priority-badge">CRITICAL</span>Layout Redesign V3</h2>
+                <p>The two-planet viewport is right, but the layout needs to be zig-zag (not vertical). Explorers should be positioned to the side of planets, not on top. This makes both fully visible at once and creates a visual journey path.</p>
+            </section>
+
+            <!-- VISUAL OVERVIEW -->
+            <section>
+                <h2>Visual Layout Overview</h2>
+
+                <div class="diagram">
+ZIG-ZAG JOURNEY MAP PATTERN (Scrollable Vertical)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[VIEWPORT HEIGHT: 100vh]
+
+Row 1: PLANET 1 (LEFT) + EXPLORER (RIGHT)
+┌─────────────────────────────────────────────┐
+│                                             │
+│  🪐                         👨‍🚀           │
+│  Base Camp              (Star Explorer)     │
+│  Starting Point                             │
+│  6/8 foods                                  │
+│                                             │
+│         ╲                                   │
+│          ╲ (Zig-Zag Connector)             │
+│           ╲ (flowing wave, not straight)    │
+│            ╲                                │
+└─────────────────────────────────────────────┘
+
+[SPACE: 60-80px gap with connector]
+
+Row 2: PLANET 2 (RIGHT) + EXPLORER (LEFT)
+┌─────────────────────────────────────────────┐
+│                                             │
+│  👨‍🚀                         🪐           │
+│  (Cosmo Explorer)       Sensory Grove      │
+│                         Look & Touch       │
+│                         4/4 foods          │
+│                                             │
+│                    ╱                        │
+│                   ╱ (Zig-Zag Connector)    │
+│                  ╱ (flowing wave)           │
+│                 ╱                           │
+└─────────────────────────────────────────────┘
+
+[SPACE: 60-80px gap with connector]
+
+Row 3: PLANET 3 (LEFT) + EXPLORER (RIGHT)
+┌─────────────────────────────────────────────┐
+│                                             │
+│  🪐                         👨‍🚀           │
+│  Texture Trails             (Nova)          │
+│  Touch & Feel                               │
+│  [Grayed out - locked]                      │
+│                                             │
+│         ╲                                   │
+│          ╲ (Zig-Zag Connector)             │
+│           ╲                                 │
+└─────────────────────────────────────────────┘
+
+[Pattern continues alternating LEFT-RIGHT-LEFT-RIGHT...]
+
+SCROLL BEHAVIOR:
+  - Can see both planets on screen at once (one on each side)
+  - Zig-zag pattern creates visual journey path
+  - Diagonal connectors flow from bottom of one planet to top of next
+  - User scrolls down to progress through planets
+  - Locked planets below are still visible but grayed out
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                </div>
+
+                <div class="highlight-box">
+                    <p><strong>Key Principle:</strong> This layout creates a natural visual journey path (like a board game route) where both planets are visible at once, and the explorer is never hidden behind the planet.</p>
+                </div>
+            </section>
+
+            <!-- SIZING -->
+            <section>
+                <h2>#1: Planet & Explorer Sizing</h2>
+
+                <p><strong>Goal:</strong> Reduce planet size so both planets fit on screen. Position explorer to the side so it's fully visible and not covered by planet.</p>
+
+                <h3>Sizing by Device</h3>
+
+                <table class="spec-table">
+                    <tr>
+                        <th>Device</th>
+                        <th>Planet Diameter</th>
+                        <th>Explorer Size</th>
+                        <th>Horizontal Spacing</th>
+                    </tr>
+                    <tr>
+                        <td><strong>Mobile</strong> (&lt;768px)</td>
+                        <td>150px</td>
+                        <td>80px</td>
+                        <td>Left planet + 20px gap + explorer (OR reverse)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Tablet</strong> (768px-1024px)</td>
+                        <td>180px</td>
+                        <td>100px</td>
+                        <td>Left planet + 30px gap + explorer</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Desktop</strong> (&gt;1024px)</td>
+                        <td>200px</td>
+                        <td>120px</td>
+                        <td>Left planet + 40px gap + explorer</td>
+                    </tr>
+                </table>
+
+                <p><strong>Ratio Achieved:</strong> Planet is 1.5-2x larger than explorer (so explorer is still prominent but not oversized relative to planet).</p>
+
+                <div class="action-box">
+                    <h4>✓ Deliverable for Rork</h4>
+                    <p>Reduce planet size to 150-200px diameter. Reduce explorer to 80-120px. Position explorer to the side of planet with 20-40px gap (depending on device).</p>
+                </div>
+            </section>
+
+            <!-- ZIG-ZAG LAYOUT -->
+            <section>
+                <h2>#2: Zig-Zag Horizontal Layout</h2>
+
+                <p><strong>Goal:</strong> Alternate planet position (left, right, left, right) to create a visual journey path. Both planets visible on screen at all times.</p>
+
+                <h3>Horizontal Positioning Logic</h3>
+
+                <div class="code-block">
+// Pseudo-code for zig-zag positioning
+planets = [
+  { id: 1, name: 'Base Camp', side: 'left' },
+  { id: 2, name: 'Sensory Grove', side: 'right' },
+  { id: 3, name: 'Texture Trails', side: 'left' },
+  { id: 4, name: 'Aroma Airship', side: 'right' },
+  { id: 5, name: 'Flavor Mountains', side: 'left' },
+  { id: 6, name: 'Taste Ocean', side: 'right' },
+  { id: 7, name: 'Taste Jungle', side: 'left' },
+  { id: 8, name: "Galaxy's Heart", side: 'right' }
+];
+
+// In JSX/React:
+planets.map((planet, index) => {
+  const isLeft = index % 2 === 0; // 0, 2, 4, 6 = left
+  const isRight = index % 2 === 1; // 1, 3, 5, 7 = right
+  
+  return (
+    <div className="planet-row">
+      {isLeft && <div className="planet-left">🪐</div>}
+      {isLeft && <div className="explorer-right">👨‍🚀</div>}
+      
+      {isRight && <div className="explorer-left">👨‍🚀</div>}
+      {isRight && <div className="planet-right">🪐</div>}
+    </div>
+  );
+});
+                </div>
+
+                <h3>CSS Layout Structure</h3>
+
+                <div class="code-block">
+.journey-container {
+  display: flex;
+  flex-direction: column;
+  gap: 60px; /* Space between rows + connector */
+  padding: 40px 20px;
+}
+
+.planet-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: auto;
+  width: 100%;
+  position: relative;
+}
+
+.planet-left {
+  position: relative;
+  left: 0;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.explorer-right {
+  position: relative;
+  right: 0;
+  width: 80px;
+  height: 80px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.planet-right {
+  position: relative;
+  right: 0;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.explorer-left {
+  position: relative;
+  left: 0;
+  width: 80px;
+  height: 80px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .planet-left,
+  .planet-right {
+    width: 150px;
+    height: 150px;
+  }
+  
+  .explorer-left,
+  .explorer-right {
+    width: 80px;
+    height: 80px;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1024px) {
+  .planet-left,
+  .planet-right {
+    width: 180px;
+    height: 180px;
+  }
+  
+  .explorer-left,
+  .explorer-right {
+    width: 100px;
+    height: 100px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .planet-left,
+  .planet-right {
+    width: 200px;
+    height: 200px;
+  }
+  
+  .explorer-left,
+  .explorer-right {
+    width: 120px;
+    height: 120px;
+  }
+}
+                </div>
+
+                <div class="action-box">
+                    <h4>✓ Deliverable for Rork</h4>
+                    <p>Restructure journey map to alternate planet position (left-right-left-right pattern). Both planets visible on screen at once. Explorer positioned to the side (not on top) with 20-40px gap depending on device.</p>
+                </div>
+            </section>
+
+            <!-- CONNECTOR -->
+            <section>
+                <h2>#3: Diagonal Zig-Zag Connectors</h2>
+
+                <p><strong>Goal:</strong> Connect planets with flowing diagonal lines that flow from bottom-right of left planet down to top-left of right planet (and vice versa).</p>
+
+                <h3>Connector Path Logic</h3>
+
+                <div class="diagram">
+Row 1 (Planet LEFT, Explorer RIGHT):
+  Planet at X: 50px, Y: 0
+  Connector starts at bottom-right of planet
+  
+  ╲ (diagonal flowing down-right)
+   ╲ (wave/curve pattern)
+    ╲
+
+Row 2 (Planet RIGHT, Explorer LEFT):
+  Planet at X: screen-right, Y: 150px
+  Connector ends at top-left of planet
+
+  /
+ / (diagonal flowing down-left)
+╱ (wave/curve pattern)
+
+Pattern repeats...
+                </div>
+
+                <h3>SVG Diagonal Wave Connector</h3>
+
+                <div class="code-block">
+<!-- Mobile: Diagonal from bottom-left to bottom-right -->
+<svg width="100%" height="80" viewBox="0 0 400 80" preserveAspectRatio="none">
+  <!-- Diagonal wave: left-to-right -->
+  <path
+    d="M 50,0 Q 100,20 150,40 T 350,80"
+    stroke="url(#waveGradient)"
+    stroke-width="3"
+    fill="none"
+    stroke-linecap="round"
+    opacity="0.4"
+    filter="drop-shadow(0 0 4px rgba(0, 217, 255, 0.3))"
+  />
+  <defs>
+    <linearGradient id="waveGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#00d9ff;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#d4af37;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#e91e63;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+</svg>
+
+<!-- For RIGHT-to-LEFT (next row, reverse direction) -->
+<svg width="100%" height="80" viewBox="0 0 400 80" preserveAspectRatio="none">
+  <!-- Diagonal wave: right-to-left (mirrored) -->
+  <path
+    d="M 350,0 Q 300,20 250,40 T 50,80"
+    stroke="url(#waveGradient)"
+    stroke-width="3"
+    fill="none"
+    stroke-linecap="round"
+    opacity="0.4"
+    filter="drop-shadow(0 0 4px rgba(0, 217, 255, 0.3))"
+  />
+  <defs>
+    <linearGradient id="waveGradient" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#00d9ff;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#d4af37;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#e91e63;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+</svg>
+                </div>
+
+                <h3>Connector Placement CSS</h3>
+
+                <div class="code-block">
+.connector-row {
+  position: relative;
+  height: 60px;
+  width: 100%;
+  margin: 0;
+}
+
+/* Alternating left-to-right and right-to-left */
+.connector-row:nth-child(even) svg {
+  /* Left-to-right connectors */
+  transform: scaleX(1);
+}
+
+.connector-row:nth-child(odd) svg {
+  /* Right-to-left connectors (mirrored) */
+  transform: scaleX(-1);
+}
+
+svg path {
+  transition: opacity 0.6s ease-in-out;
+}
+
+svg path.locked {
+  opacity: 0.15;
+  filter: grayscale(80%);
+}
+
+svg path.active {
+  opacity: 0.4;
+}
+
+svg path.completed {
+  opacity: 0.5;
+}
+                </div>
+
+                <div class="action-box">
+                    <h4>✓ Deliverable for Rork</h4>
+                    <p>Implement diagonal SVG wave connectors that flow diagonally between zig-zag positioned planets. Alternate direction (left-to-right, then right-to-left) to match the zig-zag pattern. Use gradient color with state-based opacity.</p>
+                </div>
+            </section>
+
+            <!-- EXPLORER ANIMATION -->
+            <section>
+                <h2>#4: Explorer Animation (Keep Bob + Pulse)</h2>
+
+                <p>Keep the explorer animations from previous version, just apply to the side-positioned explorers.</p>
+
+                <h3>Explorer CSS (Side Positioning)</h3>
+
+                <div class="code-block">
+.explorer-character {
+  width: 80px;
+  height: 80px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  animation: explorer-bob 0.8s ease-in-out infinite,
+             explorer-pulse 1.5s ease-in-out infinite;
+  filter: drop-shadow(0 0 12px rgba(102, 126, 234, 0.7));
+}
+
+@keyframes explorer-bob {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-5px); }
+}
+
+@keyframes explorer-pulse {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 1; }
+}
+
+/* Responsive sizing */
+@media (max-width: 768px) {
+  .explorer-character {
+    width: 80px;
+    height: 80px;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1024px) {
+  .explorer-character {
+    width: 100px;
+    height: 100px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .explorer-character {
+    width: 120px;
+    height: 120px;
+  }
+}
+                </div>
+
+                <div class="action-box">
+                    <h4>✓ Deliverable for Rork</h4>
+                    <p>Explorer animations remain the same (bob + pulse). Just apply to side-positioned explorers.</p>
+                </div>
+            </section>
+
+            <!-- LOCKED PLANETS -->
+            <section>
+                <h2>#5: Locked Planet Styling</h2>
+
+                <p>Planets below current progress should be grayed out and non-interactive.</p>
+
+                <div class="code-block">
+.planet-icon {
+  border-radius: 50%;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  transition: opacity 0.3s ease;
+}
+
+.planet-icon.unlocked {
+  opacity: 1;
+  cursor: pointer;
+}
+
+.planet-icon.locked {
+  opacity: 0.4;
+  filter: grayscale(60%);
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.planet-label {
+  font-size: 18px;
+  font-weight: 700;
+  color: white;
+  margin-top: 10px;
+}
+
+.planet-label.locked {
+  color: #666;
+}
+
+.planet-progress {
+  font-size: 14px;
+  color: #d4af37;
+}
+
+.planet-progress.locked {
+  color: #555;
+}
+                </div>
+
+                <div class="action-box">
+                    <h4>✓ Deliverable for Rork</h4>
+                    <p>Apply locked styling (opacity 0.4, grayscale, grayed text) to planets below current progress. Make them non-clickable.</p>
+                </div>
+            </section>
+
+            <!-- CHECKLIST -->
+            <section>
+                <h2>📋 Implementation Checklist for Rork</h2>
+
+                <div class="action-box">
+                    <h4>High Priority - Layout Restructure</h4>
+                    <ul class="checklist">
+                        <li>Reduce planet size (150px mobile → 200px desktop)</li>
+                        <li>Reduce explorer size (80px mobile → 120px desktop)</li>
+                        <li>Alternate planet position left-right-left-right</li>
+                        <li>Position explorer to the side of planet (not on top)</li>
+                        <li>Create 20-40px gap between planet and explorer</li>
+                        <li>Both planets visible on screen at once (scrollable)</li>
+                    </ul>
+                </div>
+
+                <div class="action-box">
+                    <h4>High Priority - Diagonal Connectors</h4>
+                    <ul class="checklist">
+                        <li>Replace vertical connectors with diagonal SVG waves</li>
+                        <li>Implement left-to-right wave (rows 1, 3, 5, 7)</li>
+                        <li>Implement right-to-left wave (rows 2, 4, 6, 8)</li>
+                        <li>Apply gradient color (cyan→gold→pink)</li>
+                        <li>Set opacity 30-50% with glow</li>
+                        <li>Implement state-based opacity (locked, active, completed)</li>
+                    </ul>
+                </div>
+
+                <div class="action-box">
+                    <h4>High Priority - Locked Planets</h4>
+                    <ul class="checklist">
+                        <li>Gray out planets below current progress (opacity 0.4)</li>
+                        <li>Apply grayscale filter to locked planets</li>
+                        <li>Make locked planets non-clickable (pointer-events: none)</li>
+                        <li>Gray out text on locked planets</li>
+                    </ul>
+                </div>
+
+                <div class="action-box">
+                    <h4>Testing Checklist</h4>
+                    <ul class="checklist">
+                        <li>Both planets fully visible on screen (one left, one right)</li>
+                        <li>Explorer positioned to side of planet (not covered)</li>
+                        <li>Planets alternate left-right-left-right pattern</li>
+                        <li>Diagonal connectors flow between planets</li>
+                        <li>Zig-zag pattern creates visual journey path</li>
+                        <li>Locked planets are grayed out and non-interactive</li>
+                        <li>Explorer bob/pulse animations work smoothly</li>
+                        <li>Mobile layout (&lt;768px) is proportional</li>
+                        <li>Tablet layout (768px-1024px) is proportional</li>
+                        <li>Desktop layout (&gt;1024px) is proportional</li>
+                        <li>Scroll behavior is smooth (no jumps)</li>
+                    </ul>
+                </div>
+            </section>
+
+            <div class="footer-note">
+                <p><strong>Key Insight:</strong> This zig-zag layout with side explorers solves three problems at once:</p>
+                <p>1. Both planets visible (no hidden content)<br>2. Explorer always visible (never covered)<br>3. Visual journey path (zig-zag = game board feeling)</p>
+                <p><strong>Deadline:</strong> End of week. This is the final iteration for the journey map.</p>
+            </div>
+
+        </div>
+    </div>
+</body>
+</html>

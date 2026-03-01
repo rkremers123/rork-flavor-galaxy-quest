@@ -25,10 +25,10 @@ struct JourneyMapScreen: View {
 
                         statsRow
                             .padding(.horizontal, 20)
-                            .padding(.bottom, 8)
+                            .padding(.bottom, 16)
 
-                        planetJourney
-                            .padding(.horizontal, 20)
+                        zigZagJourney
+                            .padding(.horizontal, 16)
 
                         Spacer().frame(height: 120)
                     }
@@ -195,141 +195,175 @@ struct JourneyMapScreen: View {
         .background(Capsule().fill(.white.opacity(0.06)))
     }
 
-    // MARK: - Two-Planet Journey
+    // MARK: - Zig-Zag Journey
 
-    private var planetJourney: some View {
+    private var zigZagJourney: some View {
         VStack(spacing: 0) {
             ForEach(Array(JourneyPlanet.allCases.enumerated()), id: \.element) { index, planet in
                 let isActive = planet == currentPlanet
                 let isCompleted = viewModel.dynamicIsPlanetCompleted(planet)
                 let isLocked = viewModel.dynamicIsPlanetLocked(planet)
+                let isLeft = index % 2 == 0
 
-                planetSegment(planet: planet, isActive: isActive, isCompleted: isCompleted, isLocked: isLocked)
-                    .id(planet)
-                    .opacity(appeared ? 1 : 0)
-                    .offset(y: appeared ? 0 : 30)
-                    .animation(.spring(duration: 0.6).delay(Double(index) * 0.08), value: appeared)
+                zigZagRow(
+                    planet: planet,
+                    isActive: isActive,
+                    isCompleted: isCompleted,
+                    isLocked: isLocked,
+                    isLeft: isLeft
+                )
+                .id(planet)
+                .opacity(appeared ? 1 : 0)
+                .offset(y: appeared ? 0 : 30)
+                .animation(.spring(duration: 0.6).delay(Double(index) * 0.08), value: appeared)
 
                 if index < JourneyPlanet.allCases.count - 1 {
-                    waveConnector(fromIndex: index)
+                    diagonalConnector(fromIndex: index)
                 }
             }
         }
     }
 
-    private func planetSegment(planet: JourneyPlanet, isActive: Bool, isCompleted: Bool, isLocked: Bool) -> some View {
+    private func zigZagRow(planet: JourneyPlanet, isActive: Bool, isCompleted: Bool, isLocked: Bool, isLeft: Bool) -> some View {
         let completed = viewModel.dynamicFoodsCompleted(planet)
         let total = viewModel.dynamicFoodsForPlanet(planet)
         let planetColor = SpaceTheme.planetColor(hex: planet.accentColor)
-        let planetSize: CGFloat = 220
+        let planetSize: CGFloat = 150
+        let explorerSize: CGFloat = 80
 
         return Button {
             if !isLocked {
                 selectedPlanet = planet
             }
         } label: {
-            VStack(spacing: 0) {
-                ZStack {
-                    if isActive {
-                        Circle()
-                            .stroke(planetColor.opacity(0.4), lineWidth: 3)
-                            .frame(width: planetSize + 20, height: planetSize + 20)
-                            .modifier(PulseEffect())
-                    }
+            HStack(spacing: 20) {
+                if isLeft {
+                    planetContent(
+                        planet: planet,
+                        planetColor: planetColor,
+                        planetSize: planetSize,
+                        isActive: isActive,
+                        isCompleted: isCompleted,
+                        isLocked: isLocked,
+                        completed: completed,
+                        total: total
+                    )
 
-                    if !isLocked && !isCompleted && total > 0 {
-                        Circle()
-                            .trim(from: 0, to: Double(completed) / Double(total))
-                            .stroke(planetColor, style: StrokeStyle(lineWidth: 4, lineCap: .round))
-                            .frame(width: planetSize + 10, height: planetSize + 10)
-                            .rotationEffect(.degrees(-90))
-                    }
-
-                    Image(planet.imageName)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: planetSize, height: planetSize)
-                        .clipShape(Circle())
-                        .opacity(isLocked ? 0.35 : (isCompleted ? 0.6 : 1.0))
-                        .saturation(isLocked ? 0.3 : 1.0)
-                        .shadow(color: isLocked ? .clear : planetColor.opacity(0.5), radius: 16)
+                    Spacer()
 
                     if isActive {
-                        explorerOnCurrentPlanet
+                        explorerSideView(size: explorerSize)
+                    }
+                } else {
+                    if isActive {
+                        explorerSideView(size: explorerSize)
                     }
 
-                    if isCompleted {
-                        Image(systemName: "checkmark.circle.fill")
-                            .font(.title2)
-                            .foregroundStyle(SpaceTheme.planetGreen)
-                            .background(Circle().fill(SpaceTheme.deepNavy).padding(-4))
-                            .offset(x: planetSize / 2 - 10, y: -(planetSize / 2 - 10))
-                    }
+                    Spacer()
 
-                    if isLocked {
-                        Image(systemName: "lock.fill")
-                            .font(.system(size: 24))
-                            .foregroundStyle(.white.opacity(0.25))
-                    }
-                }
-
-                Spacer().frame(height: 14)
-
-                Text(planet.name)
-                    .font(.system(.title3, design: .rounded, weight: .bold))
-                    .foregroundStyle(isLocked ? .white.opacity(0.25) : .white)
-                    .lineLimit(1)
-
-                Text(planet.subtitle)
-                    .font(.system(.caption, design: .rounded))
-                    .foregroundStyle(isLocked ? .white.opacity(0.15) : .white.opacity(0.5))
-
-                if !isLocked {
-                    Text("\(completed)/\(total) foods")
-                        .font(.system(.subheadline, design: .rounded, weight: .bold))
-                        .foregroundStyle(isCompleted ? SpaceTheme.planetGreen : planetColor)
-                        .padding(.top, 4)
+                    planetContent(
+                        planet: planet,
+                        planetColor: planetColor,
+                        planetSize: planetSize,
+                        isActive: isActive,
+                        isCompleted: isCompleted,
+                        isLocked: isLocked,
+                        completed: completed,
+                        total: total
+                    )
                 }
             }
-            .padding(.vertical, 24)
+            .padding(.vertical, 12)
         }
         .buttonStyle(.plain)
         .disabled(isLocked)
     }
 
-    private var explorerOnCurrentPlanet: some View {
-        let completed = viewModel.dynamicFoodsCompleted(currentPlanet)
-        let total = viewModel.dynamicFoodsForPlanet(currentPlanet)
-        let progress = total > 0 ? Double(completed) / Double(total) : 0
-        let yOffset: CGFloat = -CGFloat(progress) * 30
+    private func planetContent(planet: JourneyPlanet, planetColor: Color, planetSize: CGFloat, isActive: Bool, isCompleted: Bool, isLocked: Bool, completed: Int, total: Int) -> some View {
+        VStack(spacing: 8) {
+            ZStack {
+                if isActive {
+                    Circle()
+                        .stroke(planetColor.opacity(0.4), lineWidth: 3)
+                        .frame(width: planetSize + 16, height: planetSize + 16)
+                        .modifier(PulseEffect())
+                }
 
-        return ExplorerAvatarView(
-            explorerType: viewModel.profile.explorerType,
-            equippedCosmetics: viewModel.profile.equippedCosmetics,
-            size: 90
-        )
-        .shadow(color: SpaceTheme.planetColor(hex: viewModel.profile.explorerType.accentHex).opacity(0.6), radius: 16)
-        .offset(y: yOffset - 10)
-        .animation(.spring(duration: 0.6), value: completed)
-        .zIndex(20)
+                if !isLocked && !isCompleted && total > 0 {
+                    Circle()
+                        .trim(from: 0, to: Double(completed) / Double(total))
+                        .stroke(planetColor, style: StrokeStyle(lineWidth: 4, lineCap: .round))
+                        .frame(width: planetSize + 8, height: planetSize + 8)
+                        .rotationEffect(.degrees(-90))
+                }
+
+                Image(planet.imageName)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: planetSize, height: planetSize)
+                    .clipShape(Circle())
+                    .opacity(isLocked ? 0.35 : (isCompleted ? 0.6 : 1.0))
+                    .saturation(isLocked ? 0.3 : 1.0)
+                    .shadow(color: isLocked ? .clear : planetColor.opacity(0.5), radius: 12)
+
+                if isCompleted {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.title3)
+                        .foregroundStyle(SpaceTheme.planetGreen)
+                        .background(Circle().fill(SpaceTheme.deepNavy).padding(-3))
+                        .offset(x: planetSize / 2 - 8, y: -(planetSize / 2 - 8))
+                }
+
+                if isLocked {
+                    Image(systemName: "lock.fill")
+                        .font(.system(size: 22))
+                        .foregroundStyle(.white.opacity(0.25))
+                }
+            }
+
+            Text(planet.name)
+                .font(.system(.subheadline, design: .rounded, weight: .bold))
+                .foregroundStyle(isLocked ? .white.opacity(0.25) : .white)
+                .lineLimit(1)
+
+            Text(planet.subtitle)
+                .font(.system(.caption2, design: .rounded))
+                .foregroundStyle(isLocked ? .white.opacity(0.15) : .white.opacity(0.5))
+
+            if !isLocked {
+                Text("\(completed)/\(total) foods")
+                    .font(.system(.caption, design: .rounded, weight: .bold))
+                    .foregroundStyle(isCompleted ? SpaceTheme.planetGreen : planetColor)
+            }
+        }
     }
 
-    // MARK: - Wave Connector
+    private func explorerSideView(size: CGFloat) -> some View {
+        ExplorerAvatarView(
+            explorerType: viewModel.profile.explorerType,
+            equippedCosmetics: viewModel.profile.equippedCosmetics,
+            size: size
+        )
+        .shadow(color: SpaceTheme.planetColor(hex: viewModel.profile.explorerType.accentHex).opacity(0.6), radius: 12)
+    }
 
-    private func waveConnector(fromIndex index: Int) -> some View {
+    // MARK: - Diagonal Connector
+
+    private func diagonalConnector(fromIndex index: Int) -> some View {
         let currentPlanetAtIndex = JourneyPlanet.allCases[index]
         let nextPlanet = JourneyPlanet.allCases[index + 1]
         let isCompleted = viewModel.dynamicIsPlanetCompleted(currentPlanetAtIndex)
         let isNextActive = !viewModel.dynamicIsPlanetLocked(nextPlanet)
         let isLocked = !isNextActive && !isCompleted
+        let goesLeftToRight = index % 2 == 0
 
-        return WaveConnectorView(
+        return DiagonalWaveConnector(
             isCompleted: isCompleted,
             isActive: isNextActive && !isCompleted,
-            isLocked: isLocked
+            isLocked: isLocked,
+            goesLeftToRight: goesLeftToRight
         )
-        .frame(height: 120)
-        .padding(.vertical, -8)
+        .frame(height: 60)
     }
 
     // MARK: - Reward Overlay
@@ -374,12 +408,13 @@ struct JourneyMapScreen: View {
     }
 }
 
-// MARK: - Wave Connector View
+// MARK: - Diagonal Wave Connector
 
-struct WaveConnectorView: View {
+struct DiagonalWaveConnector: View {
     let isCompleted: Bool
     let isActive: Bool
     let isLocked: Bool
+    let goesLeftToRight: Bool
 
     @State private var shimmer: Bool = false
 
@@ -391,25 +426,27 @@ struct WaveConnectorView: View {
 
     var body: some View {
         Canvas { context, size in
-            let midX = size.width / 2
-            let amplitude: CGFloat = 30
+            let startX: CGFloat = goesLeftToRight ? size.width * 0.2 : size.width * 0.8
+            let endX: CGFloat = goesLeftToRight ? size.width * 0.8 : size.width * 0.2
+            let midX = (startX + endX) / 2
+            let controlOffset: CGFloat = goesLeftToRight ? 40 : -40
 
             var path = Path()
-            path.move(to: CGPoint(x: midX, y: 0))
+            path.move(to: CGPoint(x: startX, y: 0))
             path.addQuadCurve(
                 to: CGPoint(x: midX, y: size.height * 0.5),
-                control: CGPoint(x: midX - amplitude, y: size.height * 0.25)
+                control: CGPoint(x: startX + controlOffset, y: size.height * 0.25)
             )
             path.addQuadCurve(
-                to: CGPoint(x: midX, y: size.height),
-                control: CGPoint(x: midX + amplitude, y: size.height * 0.75)
+                to: CGPoint(x: endX, y: size.height),
+                control: CGPoint(x: endX - controlOffset, y: size.height * 0.75)
             )
 
             if isLocked {
                 context.stroke(
                     path,
                     with: .color(.white.opacity(0.2)),
-                    style: StrokeStyle(lineWidth: 3, lineCap: .round, dash: [8, 6])
+                    style: StrokeStyle(lineWidth: 2.5, lineCap: .round, dash: [8, 6])
                 )
             } else {
                 let gradient = Gradient(colors: [
@@ -419,28 +456,24 @@ struct WaveConnectorView: View {
                 ])
                 let linearGradient = GraphicsContext.Shading.linearGradient(
                     gradient,
-                    startPoint: CGPoint(x: midX, y: 0),
-                    endPoint: CGPoint(x: midX, y: size.height)
+                    startPoint: CGPoint(x: startX, y: 0),
+                    endPoint: CGPoint(x: endX, y: size.height)
                 )
 
-                context.addFilter(.shadow(color: SpaceTheme.cosmicCyan.opacity(0.3), radius: 6))
+                context.addFilter(.shadow(color: SpaceTheme.cosmicCyan.opacity(0.3), radius: 4))
                 context.stroke(
                     path,
                     with: linearGradient,
-                    style: StrokeStyle(lineWidth: 4, lineCap: .round)
+                    style: StrokeStyle(lineWidth: 3, lineCap: .round)
                 )
             }
 
             if (isActive || isCompleted) && !isLocked {
-                let dotPositions: [CGFloat] = [0.2, 0.5, 0.8]
+                let dotPositions: [CGFloat] = [0.25, 0.5, 0.75]
                 for t in dotPositions {
+                    let x = startX + (endX - startX) * t
                     let y = size.height * t
-                    let controlFactor = t < 0.5
-                        ? -amplitude * (1 - abs(t - 0.25) / 0.25)
-                        : amplitude * (1 - abs(t - 0.75) / 0.25)
-                    let x = midX + controlFactor * 0.5
-
-                    let dotSize: CGFloat = shimmer ? 4 : 3
+                    let dotSize: CGFloat = shimmer ? 4 : 2.5
                     let dotOpacity = shimmer ? 0.8 : 0.4
                     let rect = CGRect(x: x - dotSize / 2, y: y - dotSize / 2, width: dotSize, height: dotSize)
                     context.fill(
