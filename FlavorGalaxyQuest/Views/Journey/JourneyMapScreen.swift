@@ -12,6 +12,7 @@ struct JourneyMapScreen: View {
     private var currentPlanet: JourneyPlanet { viewModel.dynamicCurrentPlanet }
 
     private let nodeSize: CGFloat = 160
+    private let connectorSize: CGFloat = 50
     private let columns = 2
 
     var body: some View {
@@ -200,23 +201,36 @@ struct JourneyMapScreen: View {
     // MARK: - Boardgame Grid
 
     private var boardgameGrid: some View {
-        VStack(spacing: 24) {
+        VStack(spacing: 16) {
             ForEach(Array(JourneyPlanet.allCases.enumerated()), id: \.element) { index, planet in
                 let isEvenRow = index % 2 == 0
 
-                HStack {
-                    if !isEvenRow { Spacer() }
+                ZStack {
+                    HStack {
+                        if !isEvenRow { Spacer() }
 
-                    planetNode(planet)
-                        .opacity(appeared ? 1 : 0)
-                        .offset(y: appeared ? 0 : 20)
-                        .animation(.spring(duration: 0.5).delay(Double(index) * 0.08), value: appeared)
+                        planetNode(planet)
 
-                    if isEvenRow { Spacer() }
+                        if isEvenRow { Spacer() }
+                    }
+
+                    if planet == currentPlanet {
+                        HStack {
+                            if !isEvenRow { Spacer() }
+
+                            explorerOnPlanet
+                                .offset(y: -nodeSize / 2 - 16)
+
+                            if isEvenRow { Spacer() }
+                        }
+                    }
                 }
+                .opacity(appeared ? 1 : 0)
+                .offset(y: appeared ? 0 : 20)
+                .animation(.spring(duration: 0.5).delay(Double(index) * 0.08), value: appeared)
 
                 if index < JourneyPlanet.allCases.count - 1 {
-                    connectorDots(from: index)
+                    cosmicConnector(from: index)
                 }
             }
         }
@@ -288,17 +302,51 @@ struct JourneyMapScreen: View {
         .buttonStyle(.plain)
     }
 
-    private func connectorDots(from index: Int) -> some View {
-        let nextPlanet = JourneyPlanet.allCases[index + 1]
-        let isLit = !viewModel.dynamicIsPlanetLocked(nextPlanet)
+    private var explorerOnPlanet: some View {
+        let completed = viewModel.dynamicFoodsCompleted(currentPlanet)
+        let total = viewModel.dynamicFoodsForPlanet(currentPlanet)
+        let progress = total > 0 ? Double(completed) / Double(total) : 0
+        let verticalOffset: CGFloat = -CGFloat(progress) * 20
 
-        return HStack(spacing: 8) {
-            ForEach(0..<3, id: \.self) { dot in
-                Circle()
-                    .fill(isLit ? .white.opacity(0.25) : .white.opacity(0.06))
-                    .frame(width: 6, height: 6)
-            }
+        return ExplorerAvatarView(
+            explorerType: viewModel.profile.explorerType,
+            equippedCosmetics: viewModel.profile.equippedCosmetics,
+            size: 52
+        )
+        .background {
+            Circle()
+                .fill(
+                    RadialGradient(
+                        colors: [
+                            SpaceTheme.planetColor(hex: viewModel.profile.explorerType.accentHex).opacity(0.4),
+                            .clear
+                        ],
+                        center: .center,
+                        startRadius: 8,
+                        endRadius: 32
+                    )
+                )
+                .frame(width: 60, height: 60)
         }
+        .offset(y: verticalOffset)
+        .animation(.spring(duration: 0.6), value: completed)
+    }
+
+    private func cosmicConnector(from index: Int) -> some View {
+        let currentPlanetAtIndex = JourneyPlanet.allCases[index]
+        let nextPlanet = JourneyPlanet.allCases[index + 1]
+        let isCompleted = viewModel.dynamicIsPlanetCompleted(currentPlanetAtIndex)
+        let isActive = !viewModel.dynamicIsPlanetLocked(nextPlanet)
+        let isLocked = !isActive && !isCompleted
+
+        return Image("cosmic_connector_star")
+            .resizable()
+            .scaledToFit()
+            .frame(width: connectorSize, height: connectorSize)
+            .opacity(isLocked ? 0.2 : isCompleted ? 0.6 : 0.5)
+            .saturation(isLocked ? 0 : 1.0)
+            .shadow(color: isCompleted ? SpaceTheme.starGold.opacity(0.4) : .clear, radius: 6)
+            .modifier(ConnectorPulseEffect(isActive: isActive && !isCompleted))
     }
 
     // MARK: - Reward Overlay
@@ -548,5 +596,27 @@ struct PulseEffect: ViewModifier {
             .opacity(pulse ? 0.5 : 1.0)
             .animation(.easeInOut(duration: 1.8).repeatForever(autoreverses: true), value: pulse)
             .onAppear { pulse = true }
+    }
+}
+
+struct ConnectorPulseEffect: ViewModifier {
+    let isActive: Bool
+    @State private var pulse = false
+
+    func body(content: Content) -> some View {
+        content
+            .scaleEffect(isActive && pulse ? 1.08 : 1.0)
+            .animation(
+                isActive
+                    ? .easeInOut(duration: 1.8).repeatForever(autoreverses: true)
+                    : .default,
+                value: pulse
+            )
+            .onAppear {
+                if isActive { pulse = true }
+            }
+            .onChange(of: isActive) { _, newValue in
+                pulse = newValue
+            }
     }
 }
