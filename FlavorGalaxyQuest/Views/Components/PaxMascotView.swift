@@ -3,6 +3,7 @@ import SwiftUI
 struct PaxMascotView: View {
     let message: String
     var size: CGFloat = 80
+    var explorerType: ExplorerType = .nova
     @State private var bounce: Bool = false
 
     var body: some View {
@@ -19,8 +20,10 @@ struct PaxMascotView: View {
                     )
                     .frame(width: size, height: size)
 
-                Text("🧑‍🚀")
-                    .font(.system(size: size * 0.5))
+                Image(explorerType.imageName)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: size * 0.6, height: size * 0.6)
                     .offset(y: bounce ? -4 : 4)
                     .animation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true), value: bounce)
             }

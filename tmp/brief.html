@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flavor Galaxy Journey Map Redesign Brief V2</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+            line-height: 1.6;
+            color: #1a1a1a;
+            background: linear-gradient(135deg, #0a0a1e 0%, #1a1a3e 100%);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 36px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        header p {
+            font-size: 16px;
+            opacity: 0.95;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        section {
+            margin-bottom: 50px;
+        }
+
+        h2 {
+            color: #667eea;
+            font-size: 28px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        h3 {
+            color: #764ba2;
+            font-size: 20px;
+            margin-top: 25px;
+            margin-bottom: 15px;
+        }
+
+        p {
+            margin-bottom: 15px;
+            font-size: 16px;
+            line-height: 1.8;
+        }
+
+        .priority-badge {
+            display: inline-block;
+            background: #e91e63;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-right: 8px;
+            margin-bottom: 15px;
+        }
+
+        .code-block {
+            background: #f0f0f0;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 6px;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            overflow-x: auto;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            border-left: 4px solid #d4af37;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .highlight-box strong {
+            color: #764ba2;
+        }
+
+        .action-box {
+            background: #e8f5e9;
+            border-left: 4px solid #28a745;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .action-box h4 {
+            color: #1b5e20;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        ul, ol {
+            margin-left: 30px;
+            margin-bottom: 15px;
+        }
+
+        li {
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        strong {
+            color: #667eea;
+        }
+
+        .spec-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: #f9f9f9;
+        }
+
+        .spec-table th {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .spec-table td {
+            padding: 12px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .spec-table tr:hover {
+            background: #f0f4ff;
+        }
+
+        .visual-spec {
+            background: #f5f5ff;
+            border: 2px solid #667eea;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .visual-spec h4 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .diagram {
+            background: #f9f9f9;
+            border: 2px dashed #667eea;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+
+        .checklist {
+            list-style: none;
+            margin-left: 0;
+        }
+
+        .checklist li {
+            padding: 10px 0;
+            padding-left: 30px;
+            position: relative;
+            font-size: 16px;
+        }
+
+        .checklist li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .footer-note {
+            background: #fafafa;
+            border-top: 2px solid #eee;
+            padding: 30px;
+            margin-top: 50px;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                padding: 20px;
+            }
+
+            h2 {
+                font-size: 22px;
+            }
+
+            h3 {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚀 Flavor Galaxy Journey Map</h1>
+            <p>Redesign Brief V2 - Two-Planet Viewport with Explorer Focus</p>
+        </header>
+
+        <div class="content">
+
+            <section>
+                <h2><span class="priority-badge">CRITICAL</span>Redesign Overview</h2>
+                <p>Previous iteration had too much on screen at once, making the explorer too small and planets feel crowded. This brief redesigns the journey to show only 2 planets at a time with a larger explorer character as the focal point.</p>
+            </section>
+
+            <!-- ISSUE 1: TWO-PLANET VIEWPORT -->
+            <section>
+                <h2>#1: Two-Planet Viewport (Only Show 2 Planets at Once)</h2>
+
+                <p><strong>Goal:</strong> Focus the user's attention on the current journey segment. Increase planet size. Make explorer 3x larger and a focal point of the screen.</p>
+
+                <h3>Layout Architecture</h3>
+
+                <div class="diagram">
+JOURNEY MAP SCROLL BEHAVIOR:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[Viewport Height: Full Screen]
+
+Top Half (50% of screen):
+  Current Planet (e.g., Base Camp)
+  - Large planet icon (250px diameter on mobile, 300px tablet, 350px desktop)
+  - Planet name + progress
+  - Explorer character positioned on/near planet
+
+Middle Section (Connector):
+  Zig-Zag Visual Connector (curved line or flowing shape)
+  - NOT the star image
+  - Think: flowing river or curved trail
+  - Color: gradient cyan→gold→pink, 30-50% opacity
+
+Bottom Half (50% of screen):
+  Next Planet (e.g., Sensory Grove)
+  - Large planet icon (250px diameter on mobile, 300px tablet, 350px desktop)
+  - Planet name + progress (locked planets: grayed out text, disabled state)
+  - No explorer on next planet yet
+
+SCROLL BEHAVIOR:
+  - When user scrolls down, current planet slides up
+  - Next planet becomes the current planet (top half)
+  - New planet appears in bottom half (locked)
+  - Smooth scroll, not jumpy
+  - Can see 2-3 locked planets below (all grayed out, indicate scroll to unlock)
+
+LOCKED PLANETS (Not Yet Reached):
+  - Opacity: 40-50% (visible but de-emphasized)
+  - Text: Gray color (#999)
+  - Icon: Slightly desaturated
+  - Interaction: Not clickable, show tooltip "Unlock by progressing"
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                </div>
+
+                <h3>Planet Sizing by Device</h3>
+
+                <table class="spec-table">
+                    <tr>
+                        <th>Device</th>
+                        <th>Planet Diameter</th>
+                        <th>Explorer Size</th>
+                        <th>Connector Height</th>
+                    </tr>
+                    <tr>
+                        <td><strong>Mobile</strong> (&lt;768px)</td>
+                        <td>250px</td>
+                        <td>90px</td>
+                        <td>120-150px</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Tablet</strong> (768px-1024px)</td>
+                        <td>300px</td>
+                        <td>110px</td>
+                        <td>150-180px</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Desktop</strong> (&gt;1024px)</td>
+                        <td>350px</td>
+                        <td>130px</td>
+                        <td>180-220px</td>
+                    </tr>
+                </table>
+
+                <h3>CSS Layout Structure</h3>
+
+                <div class="code-block">
+.journey-viewport {
+  height: 100vh;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  background: #0a0a1e url('data:image/svg+xml,...') repeat;
+}
+
+.planet-segment {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px;
+  position: relative;
+}
+
+.planet-top-half {
+  height: 50vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.planet-bottom-half {
+  height: 50vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.planet-icon {
+  width: 250px;
+  height: 250px;
+  border-radius: 50%;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.planet-icon.locked {
+  opacity: 0.4;
+  filter: grayscale(50%);
+}
+
+.planet-label {
+  font-size: 24px;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 10px;
+}
+
+.planet-label.locked {
+  color: #999;
+}
+
+.planet-progress {
+  font-size: 16px;
+  color: #d4af37;
+}
+
+.planet-progress.locked {
+  color: #666;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .planet-icon {
+    width: 250px;
+    height: 250px;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1024px) {
+  .planet-icon {
+    width: 300px;
+    height: 300px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .planet-icon {
+    width: 350px;
+    height: 350px;
+  }
+}
+                </div>
+
+                <div class="action-box">
+                    <h4>✓ Deliverable for Rork</h4>
+                    <p>Restructure journey map to show only 2 planets per viewport (current + next). Remove multi-planet list view. Increase planet sizes according to specs. Lock/gray out planets below current progress.</p>
+                </div>
+            </section>
+
+            <!-- ISSUE 2: ZIG-ZAG CONNECTOR (NOT STARS) -->
+            <section>
+                <h2>#2: Zig-Zag Connector Between Planets (Replace Stars)</h2>
+
+                <p><strong>Goal:</strong> Remove the star image connectors. Replace with a flowing, organic zig-zag or curved trail visual that connects planets vertically.</p>
+
+                <h3>Visual Design Options</h3>
+
+                <div class="visual-spec">
+                    <h4>Recommended: Flowing Wave/River Connector</h4>
+                    <p><strong>Style:</strong> Organic, flowing line that curves left-right (zig-zag pattern) as it flows downward between planets</p>
+                    <ul style="margin: 15px 0; margin-left: 20px;">
+                        <li><strong>Shape:</strong> SVG path with cubic bezier curves (not sharp angles)</li>
+                        <li><strong>Color:</strong> Gradient from cyan (#00d9ff) → gold (#d4af37) → pink (#e91e63)</li>
+                        <li><strong>Width:</strong> 3-6px stroke (mobile 3px, desktop 6px)</li>
+                        <li><strong>Opacity:</strong> 30-50% (ethereal, not solid)</li>
+                        <li><strong>Height:</strong> 120-220px (spans gap between planets)</li>
+                        <li><strong>Glow:</strong> Soft blur/shadow for depth (box-shadow or filter: drop-shadow)</li>
+                        <li><strong>Animation (Optional):</strong> Subtle flow animation (particles or shimmer flowing down the path)</li>
+                    </ul>
+                </div>
+
+                <h3>SVG Path Example</h3>
+
+                <div class="code-block">
+<!-- Mobile: 3px wave, 120px tall -->
+<svg width="100%" height="120" viewBox="0 0 200 120" preserveAspectRatio="none">
+  <!-- Wave path: starts center, waves left-right, ends center -->
+  <path
+    d="M 100,0 Q 80,30 100,60 T 100,120"
+    stroke="url(#waveGradient)"
+    stroke-width="3"
+    fill="none"
+    stroke-linecap="round"
+    opacity="0.4"
+    filter="drop-shadow(0 0 4px rgba(0, 217, 255, 0.3))"
+  />
+  
+  <defs>
+    <linearGradient id="waveGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#00d9ff;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#d4af37;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#e91e63;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+</svg>
+
+<!-- Desktop: 6px wave, 220px tall -->
+<svg width="100%" height="220" viewBox="0 0 200 220" preserveAspectRatio="none">
+  <path
+    d="M 100,0 Q 70,55 100,110 T 100,220"
+    stroke="url(#waveGradient)"
+    stroke-width="6"
+    fill="none"
+    stroke-linecap="round"
+    opacity="0.5"
+    filter="drop-shadow(0 0 8px rgba(0, 217, 255, 0.4))"
+  />
+  
+  <defs>
+    <linearGradient id="waveGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#00d9ff;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#d4af37;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#e91e63;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+</svg>
+                </div>
+
+                <h3>State-Based Styling</h3>
+
+                <table class="spec-table">
+                    <tr>
+                        <th>Connection State</th>
+                        <th>Appearance</th>
+                        <th>Opacity</th>
+                        <th>Animation</th>
+                    </tr>
+                    <tr>
+                        <td><strong>Locked</strong> (Planet not yet reached)</td>
+                        <td>Desaturated gray</td>
+                        <td>15%</td>
+                        <td>None</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Active</strong> (User progressing toward next planet)</td>
+                        <td>Full gradient (cyan→gold→pink)</td>
+                        <td>40%</td>
+                        <td>Subtle flow/shimmer (optional)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Completed</strong> (Planet unlocked)</td>
+                        <td>Full gradient, brighter</td>
+                        <td>50%</td>
+                        <td>Steady glow</td>
+                    </tr>
+                </table>
+
+                <div class="action-box">
+                    <h4>✓ Deliverable for Rork</h4>
+                    <p>Replace star connectors with flowing SVG wave/river visual between planets. Implement state-based opacity and styling. Ensure wave scales responsively (mobile 3px stroke, desktop 6px). Remove cosmic-connector-star.png references entirely.</p>
+                </div>
+            </section>
+
+            <!-- ISSUE 3: EXPLORER 3X BIGGER -->
+            <section>
+                <h2>#3: Explorer Character 3x Larger (Focal Point)</h2>
+
+                <p><strong>Goal:</strong> Make the explorer character the visual anchor of the journey, not a small icon next to the planet.</p>
+
+                <h3>Explorer Sizing & Positioning</h3>
+
+                <table class="spec-table">
+                    <tr>
+                        <th>Device</th>
+                        <th>Explorer Size</th>
+                        <th>Position on Planet</th>
+                        <th>Z-Index</th>
+                    </tr>
+                    <tr>
+                        <td><strong>Mobile</strong></td>
+                        <td>90px × 90px</td>
+                        <td>Center of planet, slightly above</td>
+                        <td>20</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Tablet</strong></td>
+                        <td>110px × 110px</td>
+                        <td>Center of planet, slightly above</td>
+                        <td>20</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Desktop</strong></td>
+                        <td>130px × 130px</td>
+                        <td>Center of planet, slightly above</td>
+                        <td>20</td>
+                    </tr>
+                </table>
+
+                <h3>Explorer Animation</h3>
+
+                <div class="visual-spec">
+                    <h4>Dynamic Effects (Keep These)</h4>
+                    <ul style="margin: 15px 0; margin-left: 20px;">
+                        <li><strong>Bob Animation:</strong> Gentle up-down float (5-7px offset, 0.8s loop)</li>
+                        <li><strong>Pulse/Strobe:</strong> Subtle opacity flicker (0.8 → 1.0, 1.5s loop)</li>
+                        <li><strong>Glow Effect:</strong> Soft drop-shadow around explorer for depth</li>
+                        <li><strong>Progressive Movement:</strong> Explorer moves toward next planet as foods are logged (smooth, not jumpy)</li>
+                    </ul>
+                </div>
+
+                <h3>CSS for Explorer</h3>
+
+                <div class="code-block">
+.explorer-character {
+  position: absolute;
+  width: 90px;
+  height: 90px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  z-index: 20;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  filter: drop-shadow(0 0 12px rgba(102, 126, 234, 0.7));
+  animation: explorer-bob 0.8s ease-in-out infinite,
+             explorer-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes explorer-bob {
+  0%, 100% { transform: translate(-50%, -50%); }
+  50% { transform: translate(-50%, -57px); }
+}
+
+@keyframes explorer-pulse {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 1; }
+}
+
+/* When explorer is transitioning to next planet */
+.explorer-character.transitioning {
+  transition: top 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              left 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Responsive sizing */
+@media (max-width: 768px) {
+  .explorer-character {
+    width: 90px;
+    height: 90px;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1024px) {
+  .explorer-character {
+    width: 110px;
+    height: 110px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .explorer-character {
+    width: 130px;
+    height: 130px;
+  }
+}
+                </div>
+
+                <div class="action-box">
+                    <h4>✓ Deliverable for Rork</h4>
+                    <p>Increase explorer character size 3x (from ~40px to 90-130px). Position as focal point on current planet. Maintain bob, pulse, and glow animations. Ensure smooth transitions as explorer moves toward next planet based on food progression.</p>
+                </div>
+            </section>
+
+            <!-- ISSUE 4: ONBOARDING EXPLORER ICON -->
+            <section>
+                <h2>#4: Replace Astronaut Emoji with Random Explorer Character</h2>
+
+                <p><strong>Goal:</strong> On onboarding welcome slide, replace the astronaut emoji with one of the 4 explorer characters (Nova, Cosmo, Star, Orbit). Randomly select a different one each time someone goes through onboarding.</p>
+
+                <h3>Onboarding Welcome Slide Redesign</h3>
+
+                <div class="visual-spec">
+                    <h4>Before (Current)</h4>
+                    <p>👨‍🚀 (astronaut emoji) above "Welcome to Flavor Galaxy!"</p>
+                    <h4>After (Redesigned)</h4>
+                    <p>[Random Explorer Character Image] above "Welcome to Flavor Galaxy!"</p>
+                    <p>Size: 120px × 120px (large enough to be a visual anchor)</p>
+                </div>
+
+                <h3>Implementation Logic</h3>
+
+                <div class="code-block">
+// Onboarding Welcome Slide
+const explorers = [
+  { name: 'Nova', image: 'explorer-nova.jpg', color: '#00d9ff' },
+  { name: 'Cosmo', image: 'explorer-cosmo.jpg', color: '#667eea' },
+  { name: 'Star', image: 'explorer-star.jpg', color: '#d4af37' },
+  { name: 'Orbit', image: 'explorer-orbit.jpg', color: '#e91e63' }
+];
+
+// On onboarding start, randomly select one
+const randomExplorer = explorers[Math.floor(Math.random() * explorers.length)];
+
+// Display on welcome slide
+<img src={`/assets/explorers/${randomExplorer.image}`} alt={randomExplorer.name} />
+<h1>Welcome to Flavor Galaxy!</h1>
+<p>Every food is a planet waiting to be explored. No pressure, just adventure!</p>
+
+// ALSO: Show which explorer was selected in the welcome message
+<p>Meet {randomExplorer.name}, your guide on this adventure!</p>
+                </div>
+
+                <h3>All Astronaut Emoji Replacements</h3>
+
+                <p><strong>Search the codebase for:</strong> All instances of 👨‍🚀 (astronaut emoji)</p>
+
+                <table class="spec-table">
+                    <tr>
+                        <th>Location</th>
+                        <th>Current</th>
+                        <th>Replace With</th>
+                        <th>Logic</th>
+                    </tr>
+                    <tr>
+                        <td>Onboarding Welcome Slide</td>
+                        <td>👨‍🚀</td>
+                        <td>Random Explorer (Nova/Cosmo/Star/Orbit)</td>
+                        <td>Randomly select on session start</td>
+                    </tr>
+                    <tr>
+                        <td>Quest Tab Header</td>
+                        <td>👨‍🚀</td>
+                        <td>Same explorer as session (consistent)</td>
+                        <td>Store selected explorer in state</td>
+                    </tr>
+                    <tr>
+                        <td>Settings/Profile Section</td>
+                        <td>👨‍🚀</td>
+                        <td>Same explorer as session</td>
+                        <td>Use stored explorer</td>
+                    </tr>
+                    <tr>
+                        <td>Any Loading Screens</td>
+                        <td>👨‍🚀</td>
+                        <td>Same explorer as session</td>
+                        <td>Use stored explorer</td>
+                    </tr>
+                    <tr>
+                        <td>Error/Empty States</td>
+                        <td>👨‍🚀</td>
+                        <td>Same explorer as session</td>
+                        <td>Use stored explorer</td>
+                    </tr>
+                </table>
+
+                <div class="action-box">
+                    <h4>✓ Deliverable for Rork</h4>
+                    <p>Find all astronaut emoji instances (👨‍🚀) in the app. Replace with:</p>
+                    <ol style="margin: 10px 0; margin-left: 20px;">
+                        <li>Onboarding: Randomly select one of 4 explorers on welcome slide</li>
+                        <li>Throughout app: Use the same selected explorer consistently for the user's session</li>
+                        <li>Store selected explorer in user state so it persists across app reopens</li>
+                        <li>Use 120px explorer image (not emoji) for visual impact</li>
+                    </ol>
+                </div>
+            </section>
+
+            <!-- CHECKLIST -->
+            <section>
+                <h2>📋 Implementation Checklist for Rork</h2>
+
+                <div class="action-box">
+                    <h4>High Priority - Journey Map Redesign</h4>
+                    <ul class="checklist">
+                        <li>Restructure journey viewport to show only 2 planets (current + next)</li>
+                        <li>Increase planet size (250px mobile → 350px desktop)</li>
+                        <li>Lock/gray out planets below current progress</li>
+                        <li>Implement smooth scroll behavior between planets</li>
+                        <li>Make locked planets non-interactive with visual "unlock" hints</li>
+                    </ul>
+                </div>
+
+                <div class="action-box">
+                    <h4>High Priority - Connectors</h4>
+                    <ul class="checklist">
+                        <li>Remove star connector image (cosmic-connector-star.png)</li>
+                        <li>Implement SVG wave/river connector between planets</li>
+                        <li>Apply gradient color (cyan→gold→pink)</li>
+                        <li>Set opacity 30-50% with glow effect</li>
+                        <li>Test scaling on mobile/tablet/desktop</li>
+                    </ul>
+                </div>
+
+                <div class="action-box">
+                    <h4>High Priority - Explorer Character</h4>
+                    <ul class="checklist">
+                        <li>Increase explorer size 3x (90-130px based on device)</li>
+                        <li>Position as focal point on current planet</li>
+                        <li>Maintain bob animation (5-7px float, 0.8s loop)</li>
+                        <li>Maintain pulse animation (opacity flicker, 1.5s loop)</li>
+                        <li>Implement progressive movement toward next planet based on food progress %</li>
+                    </ul>
+                </div>
+
+                <div class="action-box">
+                    <h4>High Priority - Onboarding</h4>
+                    <ul class="checklist">
+                        <li>Search codebase for all 👨‍🚀 (astronaut emoji) instances</li>
+                        <li>Replace onboarding welcome with random explorer character image</li>
+                        <li>Store selected explorer in user state for session consistency</li>
+                        <li>Replace all other astronaut emoji instances with same explorer</li>
+                        <li>Test: Verify different explorer selected on each onboarding restart</li>
+                    </ul>
+                </div>
+
+                <div class="action-box">
+                    <h4>Testing Checklist</h4>
+                    <ul class="checklist">
+                        <li>Journey: Only 2 planets visible at once (scroll to see more)</li>
+                        <li>Journey: Locked planets are grayed out and non-interactive</li>
+                        <li>Journey: Wave connector is visible between planets</li>
+                        <li>Explorer: 3x larger than before (90-130px confirmed)</li>
+                        <li>Explorer: Bob and pulse animations are smooth and not janky</li>
+                        <li>Explorer: Moves smoothly toward next planet as foods logged</li>
+                        <li>Onboarding: Random explorer appears on welcome slide</li>
+                        <li>Onboarding: Same explorer persists throughout app session</li>
+                        <li>Mobile: Planet sizing and explorer fit properly (&lt;768px)</li>
+                        <li>Tablet: Planet sizing and explorer fit properly (768px-1024px)</li>
+                        <li>Desktop: Planet sizing and explorer fit properly (&gt;1024px)</li>
+                    </ul>
+                </div>
+            </section>
+
+            <div class="footer-note">
+                <p><strong>Deadline:</strong> End of week. This redesign significantly improves focus and visual hierarchy.</p>
+                <p><strong>Key Philosophy:</strong> Two planets per screen = less clutter, bigger explorer = visual anchor, wave connector = organic flow. Much better UX than the previous multi-planet list view.</p>
+                <p><strong>Questions?</strong> Send screenshots/video of progress and we'll QA together.</p>
+            </div>
+
+        </div>
+    </div>
+</body>
+</html>

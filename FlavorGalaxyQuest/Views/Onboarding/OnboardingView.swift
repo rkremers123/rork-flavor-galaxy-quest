@@ -17,6 +17,7 @@ struct OnboardingView: View {
     @State private var goalFlavors: Set<FoodFlavor> = []
     @State private var goalTemperature: FoodTemperature? = nil
     @State private var goalNotes: String = ""
+    @State private var randomExplorer: ExplorerType = ExplorerType.allCases.randomElement() ?? .nova
 
     private let totalSteps = 7
 
@@ -63,8 +64,10 @@ struct OnboardingView: View {
             Spacer()
 
             VStack(spacing: 16) {
-                Text("🧑‍🚀")
-                    .font(.system(size: 80))
+                Image(randomExplorer.imageName)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 120, height: 120)
                     .scaleEffect(appeared ? 1.0 : 0.3)
                     .opacity(appeared ? 1 : 0)
 
