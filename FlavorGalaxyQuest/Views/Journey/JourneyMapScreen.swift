@@ -228,52 +228,61 @@ struct JourneyMapScreen: View {
         let completed = viewModel.dynamicFoodsCompleted(planet)
         let total = viewModel.dynamicFoodsForPlanet(planet)
         let planetColor = SpaceTheme.planetColor(hex: planet.accentColor)
-        let planetSize: CGFloat = 150
-        let explorerSize: CGFloat = 80
+        let planetSize: CGFloat = 300
+        let explorerSize: CGFloat = 200
+        let explorerOverlap: CGFloat = 50
 
         return Button {
             if !isLocked {
                 selectedPlanet = planet
             }
         } label: {
-            HStack(spacing: 20) {
-                if isLeft {
-                    planetContent(
-                        planet: planet,
-                        planetColor: planetColor,
-                        planetSize: planetSize,
-                        isActive: isActive,
-                        isCompleted: isCompleted,
-                        isLocked: isLocked,
-                        completed: completed,
-                        total: total
-                    )
-
-                    Spacer()
-
-                    if isActive {
-                        explorerSideView(size: explorerSize)
+            ZStack {
+                HStack(spacing: 0) {
+                    if isLeft {
+                        planetContent(
+                            planet: planet,
+                            planetColor: planetColor,
+                            planetSize: planetSize,
+                            isActive: isActive,
+                            isCompleted: isCompleted,
+                            isLocked: isLocked,
+                            completed: completed,
+                            total: total
+                        )
+                        Spacer()
+                    } else {
+                        Spacer()
+                        planetContent(
+                            planet: planet,
+                            planetColor: planetColor,
+                            planetSize: planetSize,
+                            isActive: isActive,
+                            isCompleted: isCompleted,
+                            isLocked: isLocked,
+                            completed: completed,
+                            total: total
+                        )
                     }
-                } else {
-                    if isActive {
-                        explorerSideView(size: explorerSize)
+                }
+
+                if isActive {
+                    HStack(spacing: 0) {
+                        if isLeft {
+                            Spacer()
+                                .frame(width: planetSize - explorerOverlap)
+                            explorerSideView(size: explorerSize)
+                            Spacer()
+                        } else {
+                            Spacer()
+                            explorerSideView(size: explorerSize)
+                            Spacer()
+                                .frame(width: planetSize - explorerOverlap)
+                        }
                     }
-
-                    Spacer()
-
-                    planetContent(
-                        planet: planet,
-                        planetColor: planetColor,
-                        planetSize: planetSize,
-                        isActive: isActive,
-                        isCompleted: isCompleted,
-                        isLocked: isLocked,
-                        completed: completed,
-                        total: total
-                    )
                 }
             }
-            .padding(.vertical, 12)
+            .padding(.vertical, 8)
         }
         .buttonStyle(.plain)
         .disabled(isLocked)
