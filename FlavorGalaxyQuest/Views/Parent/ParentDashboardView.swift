@@ -19,6 +19,7 @@ struct ParentDashboardView: View {
 
                 TabView(selection: $selectedTab) {
                     overviewTab.tag(ParentTab.overview)
+                    progressTab.tag(ParentTab.progress)
                     foodLibraryTab.tag(ParentTab.foodLibrary)
                     regressionsTab.tag(ParentTab.regressions)
                     analyticsTab.tag(ParentTab.analytics)
@@ -32,8 +33,15 @@ struct ParentDashboardView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Back to Explorer") {
+                    Button {
                         viewModel.switchToExplorerMode()
+                    } label: {
+                        HStack(spacing: 4) {
+                            Image(systemName: "chevron.left")
+                                .font(.caption.weight(.semibold))
+                            Text("Back to \(viewModel.profile.explorerDisplayName)'s Journey")
+                                .font(.subheadline)
+                        }
                     }
                 }
             }
@@ -112,6 +120,16 @@ struct ParentDashboardView: View {
                 }
 
                 recentActivitySection
+            }
+            .padding(16)
+        }
+    }
+
+    private var progressTab: some View {
+        ScrollView {
+            VStack(spacing: 20) {
+                CalendarProgressView(viewModel: viewModel)
+                MonthlyReportView(viewModel: viewModel)
             }
             .padding(16)
         }
@@ -966,11 +984,12 @@ struct ParentDashboardView: View {
 }
 
 enum ParentTab: CaseIterable {
-    case overview, foodLibrary, regressions, analytics, recommendations, settings
+    case overview, progress, foodLibrary, regressions, analytics, recommendations, settings
 
     var label: String {
         switch self {
         case .overview: "Overview"
+        case .progress: "Progress"
         case .foodLibrary: "Foods"
         case .regressions: "Regressions"
         case .analytics: "Analytics"
@@ -982,6 +1001,7 @@ enum ParentTab: CaseIterable {
     var icon: String {
         switch self {
         case .overview: "chart.bar.fill"
+        case .progress: "calendar"
         case .foodLibrary: "books.vertical.fill"
         case .regressions: "arrow.down.right.circle.fill"
         case .analytics: "brain.head.profile.fill"

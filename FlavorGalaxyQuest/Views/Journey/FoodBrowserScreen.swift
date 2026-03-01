@@ -20,18 +20,56 @@ enum FoodBrowserTab: String, CaseIterable {
     }
 }
 
+enum FoodSortMode: String, CaseIterable {
+    case dateAdded, phase, texture, flavor
+
+    var label: String {
+        switch self {
+        case .dateAdded: "Date"
+        case .phase: "Phase"
+        case .texture: "Texture"
+        case .flavor: "Flavor"
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .dateAdded: "calendar"
+        case .phase: "stairs"
+        case .texture: "waveform"
+        case .flavor: "drop.fill"
+        }
+    }
+}
+
 struct FoodBrowserScreen: View {
     @Bindable var viewModel: AppViewModel
     @State private var browserTab: FoodBrowserTab = .allFoods
     @State private var searchText = ""
     @State private var selectedCategory: FoodCategory? = nil
     @State private var showCreateFood = false
+    @State private var sortMode: FoodSortMode = .dateAdded
+    @State private var fabScale: CGFloat = 1.0
     @FocusState private var isSearchFocused: Bool
 
     private var allFoods: [FoodItem] {
-        let combined = FoodDatabase.allFoods + viewModel.customFoodItems
+        var combined = FoodDatabase.allFoods + viewModel.customFoodItems
         if let category = selectedCategory {
-            return combined.filter { $0.category == category }
+            combined = combined.filter { $0.category == category }
+        }
+        switch sortMode {
+        case .texture:
+            combined.sort { $0.texture.scaleRank < $1.texture.scaleRank }
+        case .flavor:
+            combined.sort { $0.flavor.rawValue < $1.flavor.rawValue }
+        case .phase:
+            combined.sort { food1, food2 in
+                let p1 = viewModel.questProgress(for: food1.id)?.completedStepValues.count ?? 0
+                let p2 = viewModel.questProgress(for: food2.id)?.completedStepValues.count ?? 0
+                return p1 > p2
+            }
+        case .dateAdded:
+            break
         }
         return combined
     }
@@ -65,6 +103,39 @@ struct FoodBrowserScreen: View {
                     allFoodsContent
                 case .search:
                     searchContent
+                }
+            }
+
+            VStack {
+                Spacer()
+                HStack {
+                    Spacer()
+                    Button {
+                        withAnimation(.spring(duration: 0.15)) { fabScale = 1.1 }
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+                            withAnimation(.spring(duration: 0.15)) { fabScale = 1.0 }
+                            showCreateFood = true
+                        }
+                    } label: {
+                        Image(systemName: "plus")
+                            .font(.title2.weight(.semibold))
+                            .foregroundStyle(.white)
+                            .frame(width: 56, height: 56)
+                            .background(
+                                Circle()
+                                    .fill(
+                                        LinearGradient(
+                                            colors: [SpaceTheme.cosmicCyan, SpaceTheme.planetColor(hex: "667eea")],
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        )
+                                    )
+                                    .shadow(color: SpaceTheme.cosmicCyan.opacity(0.4), radius: 10, y: 4)
+                            )
+                    }
+                    .scaleEffect(fabScale)
+                    .padding(.trailing, 20)
+                    .padding(.bottom, 90)
                 }
             }
         }
@@ -254,9 +325,36 @@ struct FoodBrowserScreen: View {
         )
     }
 
+    private var sortPicker: some View {
+        HStack(spacing: 6) {
+            ForEach(FoodSortMode.allCases, id: \.self) { mode in
+                Button {
+                    withAnimation(.spring(duration: 0.3)) { sortMode = mode }
+                } label: {
+                    HStack(spacing: 3) {
+                        Image(systemName: mode.icon)
+                            .font(.system(size: 9))
+                        Text(mode.label)
+                            .font(.system(size: 10, weight: .semibold, design: .rounded))
+                    }
+                    .foregroundStyle(sortMode == mode ? SpaceTheme.deepNavy : .white.opacity(0.5))
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 5)
+                    .background(
+                        Capsule().fill(sortMode == mode ? SpaceTheme.starGold : .white.opacity(0.06))
+                    )
+                }
+            }
+        }
+        .padding(.horizontal, 20)
+    }
+
     private var allFoodsContent: some View {
         VStack(spacing: 0) {
             categoryChips
+                .padding(.bottom, 4)
+
+            sortPicker
                 .padding(.bottom, 8)
 
             ScrollView {

@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flavor Galaxy - Feature Implementation Brief Parts 4, 5, 6</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+            line-height: 1.6;
+            color: #1a1a1a;
+            background: linear-gradient(135deg, #0a0a1e 0%, #1a1a3e 100%);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 36px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        header p {
+            font-size: 16px;
+            opacity: 0.95;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        section {
+            margin-bottom: 60px;
+        }
+
+        h2 {
+            color: #667eea;
+            font-size: 28px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        h3 {
+            color: #764ba2;
+            font-size: 20px;
+            margin-top: 25px;
+            margin-bottom: 15px;
+        }
+
+        p {
+            margin-bottom: 15px;
+            font-size: 16px;
+            line-height: 1.8;
+        }
+
+        .priority-badge {
+            display: inline-block;
+            background: #e91e63;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-right: 8px;
+            margin-bottom: 15px;
+        }
+
+        .code-block {
+            background: #f0f0f0;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 6px;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            overflow-x: auto;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            border-left: 4px solid #d4af37;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .action-box {
+            background: #e8f5e9;
+            border-left: 4px solid #28a745;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .action-box h4 {
+            color: #1b5e20;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        ul, ol {
+            margin-left: 30px;
+            margin-bottom: 15px;
+        }
+
+        li {
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        strong {
+            color: #667eea;
+        }
+
+        .spec-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: #f9f9f9;
+        }
+
+        .spec-table th {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .spec-table td {
+            padding: 12px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .spec-table tr:hover {
+            background: #f0f4ff;
+        }
+
+        .checklist {
+            list-style: none;
+            margin-left: 0;
+        }
+
+        .checklist li {
+            padding: 10px 0;
+            padding-left: 30px;
+            position: relative;
+            font-size: 16px;
+        }
+
+        .checklist li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .feature-block {
+            background: #f5f5ff;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .feature-name {
+            color: #667eea;
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .footer-note {
+            background: #fafafa;
+            border-top: 2px solid #eee;
+            padding: 30px;
+            margin-top: 50px;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                padding: 20px;
+            }
+
+            h2 {
+                font-size: 22px;
+            }
+
+            h3 {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚀 Flavor Galaxy</h1>
+            <p>Feature Implementation Brief - Parts 4, 5, 6</p>
+        </header>
+
+        <div class="content">
+
+            <section>
+                <h2><span class="priority-badge">PARTS 4-6</span>Food Management, Progress Tracking, & Bug Fixes</h2>
+                <p>This brief covers the remaining core features needed for beta launch.</p>
+            </section>
+
+            <!-- PART 4: FOOD MANAGEMENT -->
+            <section>
+                <h2>PART 4: Food Management System</h2>
+
+                <p><strong>Overview:</strong> System for users to log foods, manage their food list, search/add custom foods, and organize foods by sensory attributes.</p>
+
+                <h3>Feature 4.1: "No Longer Eats" Long-Press Menu</h3>
+
+                <div class="feature-block">
+                    <div class="feature-name">Mark Food as "No Longer Eats"</div>
+                    <p><strong>Purpose:</strong> If a kid stops eating a food they previously tried, parents can mark it as regressed.</p>
+                    <p><strong>Interaction:</strong></p>
+                    <ul>
+                        <li>Long-press on any food in the food list</li>
+                        <li>Context menu appears with options:
+                            <ul>
+                                <li>"Move to Regression" (red option)</li>
+                                <li>"Edit" (blue option)</li>
+                                <li>"Delete" (gray option)</li>
+                                <li>"Cancel" (back button)</li>
+                            </ul>
+                        </li>
+                        <li>If "Move to Regression" tapped:
+                            <ul>
+                                <li>Food moves to a "Regression Tracker" section</li>
+                                <li>Timestamp recorded (when regressed)</li>
+                                <li>Parent sees warning: "Regression detected - [Food] was previously eaten but no longer accepted. This is normal - SOS may help restore it."</li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <p><strong>Data Model:</strong></p>
+                    <div class="code-block">
+food: {
+  id: "apple_1",
+  name: "Apple",
+  currentPhase: "TASTE", // currently eating
+  previouslyEaten: true,
+  regressions: [
+    {
+      date: "2026-03-15",
+      phase: "TASTE",
+      notes: "Child refused at lunch"
+    }
+  ],
+  lastLoggedDate: "2026-03-10"
+}
+                    </div>
+                </div>
+
+                <h3>Feature 4.2: Bridge Food Suggestions</h3>
+
+                <div class="feature-block">
+                    <div class="feature-name">Smart "Bridge Foods" Recommendations</div>
+                    <p><strong>Purpose:</strong> After 10 foods logged, app suggests "bridge foods" - similar foods that might help progress.</p>
+                    <p><strong>When Triggered:</strong> After kid logs 10 foods in current planet, weekly (every Monday).</p>
+                    <p><strong>How It Works:</strong></p>
+                    <ul>
+                        <li>Algorithm analyzes logged foods by sensory attributes (texture, flavor, temperature)</li>
+                        <li>Finds foods with similar attributes kid already accepts</li>
+                        <li>Suggests 2-3 "bridge foods" in a banner notification:
+                            <ul>
+                                <li>Heading: "Ready for Bridge Foods?"</li>
+                                <li>Subheading: "Based on foods [Child] already enjoys..."</li>
+                                <li>Shows suggested foods with why (e.g., "Similar to Apple but softer")</li>
+                                <li>Button: "Add to Foods" or "Skip"</li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <p><strong>Example:</strong> Kid tried: Apple (crunchy, sweet), Carrot (crunchy, sweet). App suggests: Pear (crunchy, sweet but slightly softer).</p>
+                </div>
+
+                <h3>Feature 4.3: Food Search & Custom Food Addition</h3>
+
+                <div class="feature-block">
+                    <div class="feature-name">Search & Add Custom Foods</div>
+                    <p><strong>Purpose:</strong> Let parents search existing food database or create custom foods.</p>
+                    <p><strong>UI Flow:</strong></p>
+                    <ul>
+                        <li>Search bar at top of Foods tab: "Search or add food..."</li>
+                        <li>If user types and matching foods found: Show results (Apple, Apples - fresh, Applesauce, etc.)</li>
+                        <li>If no matches: Show "Add custom food" prompt
+                            <ul>
+                                <li>Button: "+ Add '[food name]' as custom food"</li>
+                                <li>Tapping opens dialog with fields:
+                                    <ul>
+                                        <li>Food name (pre-filled with search term)</li>
+                                        <li>Sensory attributes selector (Texture, Flavor, Temperature)</li>
+                                        <li>Cancel / Save button</li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+
+                <h3>Feature 4.4: FAB Button for Adding Foods</h3>
+
+                <div class="feature-block">
+                    <div class="feature-name">Floating Action Button (FAB) - Add Custom Food</div>
+                    <p><strong>Purpose:</strong> Quick access to add custom foods or search from anywhere in Foods tab.</p>
+                    <p><strong>Appearance:</strong></p>
+                    <ul>
+                        <li>Circular button, bottom-right corner of Foods tab</li>
+                        <li>Icon: "+" symbol in white, color: #667eea (primary purple)</li>
+                        <li>Size: 60px diameter</li>
+                        <li>Shadow: Subtle drop shadow for depth</li>
+                        <li>Animation on tap: Scale 1.1x, then back to 1.0x</li>
+                    </ul>
+                    <p><strong>On Tap:</strong> Opens search/add food dialog (same as search bar interaction).</p>
+                </div>
+
+                <h3>Feature 4.5: Sensory Attribute Selection for All Foods</h3>
+
+                <div class="feature-block">
+                    <div class="feature-name">Sensory Attributes Tagging</div>
+                    <p><strong>Purpose:</strong> Every food has sensory attributes (texture, flavor, temperature) to help with bridge food suggestions and sensory profile.</p>
+                    <p><strong>When User Adds Food:</strong> Dialog shows 3 attribute categories:</p>
+                    <ul>
+                        <li><strong>Texture:</strong> Multi-select (can choose multiple)
+                            <ul>
+                                <li>Crunchy, Soft, Chewy, Liquid, Mushy, Mixed</li>
+                            </ul>
+                        </li>
+                        <li><strong>Flavor:</strong> Multi-select
+                            <ul>
+                                <li>Sweet, Salty, Savory, Sour, Bitter, Bland</li>
+                            </ul>
+                        </li>
+                        <li><strong>Temperature:</strong> Single select
+                            <ul>
+                                <li>Hot, Cold, Room Temp</li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <p><strong>Storage:</strong></p>
+                    <div class="code-block">
+food: {
+  name: "Apple",
+  sensoryAttributes: {
+    texture: ["crunchy", "firm"],
+    flavor: ["sweet"],
+    temperature: "room_temp"
+  }
+}
+                    </div>
+                </div>
+
+                <h3>Feature 4.6: Foods List Sorting Toggle</h3>
+
+                <div class="feature-block">
+                    <div class="feature-name">Sort Foods by Category</div>
+                    <p><strong>Purpose:</strong> Toggle button to sort foods by different criteria.</p>
+                    <p><strong>Sort Options:</strong></p>
+                    <ul>
+                        <li>By Phase (LOOK → TOUCH → SMELL → LICK → TASTE)</li>
+                        <li>By Bridge (Bridge foods first)</li>
+                        <li>By Texture (Group by: Crunchy, Soft, Chewy, etc.)</li>
+                        <li>By Flavor (Group by: Sweet, Salty, Savory, etc.)</li>
+                        <li>By Date Added (Newest first or Oldest first)</li>
+                    </ul>
+                    <p><strong>UI:</strong> Toggle icon at top-right of Foods list. Tap to cycle through sort modes. Current sort shows in header.</p>
+                </div>
+
+                <div class="action-box">
+                    <h4>✓ PART 4 Deliverables</h4>
+                    <ul class="checklist">
+                        <li>Long-press menu on foods with "No Longer Eats" option</li>
+                        <li>Regression tracking system (stores regression timestamps)</li>
+                        <li>Bridge food suggestion algorithm + UI banner</li>
+                        <li>Food search with database lookup</li>
+                        <li>Custom food creation with sensory attributes</li>
+                        <li>FAB button for quick food addition</li>
+                        <li>Sensory attribute selection UI (multi-select for texture/flavor, single for temp)</li>
+                        <li>Foods list sorting by phase/bridge/texture/flavor/date</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- PART 5: PROGRESS TRACKING & STREAKS -->
+            <section>
+                <h2>PART 5: Progress Tracking & Streaks</h2>
+
+                <p><strong>Overview:</strong> Visual tracking of daily engagement, sensory progression, and streak motivation mechanics.</p>
+
+                <h3>Feature 5.1: Calendar View with Visual Coding</h3>
+
+                <div class="feature-block">
+                    <div class="feature-name">Calendar Progress Tracker</div>
+                    <p><strong>Purpose:</strong> Show kid's daily engagement over month/year with visual indicators.</p>
+                    <p><strong>Display:</strong> Tab in app: "Progress Calendar"</p>
+                    <p><strong>Layout:</strong></p>
+                    <ul>
+                        <li>Month view with day grid (standard calendar layout)</li>
+                        <li>Each day shows a colored circle indicator:</li>
+                        <li><strong>Green (#28a745):</strong> Food logged that day</li>
+                        <li><strong>Gold/Star (#d4af37):</strong> Milestone achievement that day (planet unlocked, phase completed)</li>
+                        <li><strong>Empty/Gray:</strong> No activity that day</li>
+                        <li>Tap on day to see what was logged that day (popup shows foods + phases)</li>
+                        <li>Month/year selector at top to view past months</li>
+                    </ul>
+                </div>
+
+                <h3>Feature 5.2: Streak Mechanic with Fire Icon</h3>
+
+                <div class="feature-block">
+                    <div class="feature-name">Daily Streak Counter</div>
+                    <p><strong>Purpose:</strong> Motivate consistent daily logging. Duolingo-style streak.</p>
+                    <p><strong>How It Works:</strong></p>
+                    <ul>
+                        <li>Any food logged in a day = +1 day to streak</li>
+                        <li>Miss one day (no foods logged) = streak resets to 0</li>
+                        <li>Display: Fire emoji 🔥 + number (e.g., "🔥 7" = 7-day streak)</li>
+                        <li>Location: Visible at top of Journey tab, in Quest view, and in parent dashboard</li>
+                        <li>Color changes: Gray (0 days) → Cyan (1-7 days) → Gold (8-30 days) → Rainbow gradient (30+ days)</li>
+                    </ul>
+                    <p><strong>Data Model:</strong></p>
+                    <div class="code-block">
+user: {
+  streak: {
+    currentStreak: 7,
+    longestStreak: 14,
+    lastLoggedDate: "2026-03-15",
+    streakStartDate: "2026-03-09"
+  }
+}
+                    </div>
+                </div>
+
+                <h3>Feature 5.3: Morning Notifications (8 AM)</h3>
+
+                <div class="feature-block">
+                    <div class="feature-name">Daily Streak Reminders</div>
+                    <p><strong>Purpose:</strong> Remind user to log a food to keep streak alive.</p>
+                    <p><strong>When Sent:</strong> 8 AM (device timezone, customizable by parent)</p>
+                    <p><strong>Conditions:</strong></p>
+                    <ul>
+                        <li>Only send if streak ≥ 3 days (don't nag on early streaks)</li>
+                        <li>Only send if no food logged yet today</li>
+                        <li>Don't send if streak is 0 (child isn't engaged yet)</li>
+                    </ul>
+                    <p><strong>Notification Text:</strong> "[Child's name]'s streak is at 🔥 [number]! Can you log a food today?"</p>
+                    <p><strong>Settings:</strong> Parent can customize time or disable notifications entirely.</p>
+                </div>
+
+                <h3>Feature 5.4: Weekly Recap</h3>
+
+                <div class="feature-block">
+                    <div class="feature-name">Weekly Progress Summary</div>
+                    <p><strong>Purpose:</strong> Celebrate weekly progress and show engagement metrics.</p>
+                    <p><strong>When Delivered:</strong> Sunday evening (configurable) OR in-app banner at start of week</p>
+                    <p><strong>Content:</strong></p>
+                    <ul>
+                        <li>Foods logged this week: X</li>
+                        <li>Phases progressed: [if any]</li>
+                        <li>Current streak: 🔥 [number]</li>
+                        <li>Personal best: [longest streak on record]</li>
+                        <li>Celebratory message: "Great week, [Child]! Keep exploring!"</li>
+                    </ul>
+                    <p><strong>Delivery:</strong> Push notification + in-app banner</p>
+                </div>
+
+                <h3>Feature 5.5: Monthly Detailed Report</h3>
+
+                <div class="feature-block">
+                    <div class="feature-name">Monthly Progress Report</div>
+                    <p><strong>Purpose:</strong> Detailed analytics for parents to track real progress and sensory regression patterns.</p>
+                    <p><strong>When Delivered:</strong> Auto-sent to parent on 1st of each month</p>
+                    <p><strong>Content (Parent Email/In-App Report):</strong></p>
+                    <ul>
+                        <li><strong>Engagement Metrics:</strong>
+                            <ul>
+                                <li>Foods logged this month: X (vs last month)</li>
+                                <li>Days active: X/30</li>
+                                <li>Longest streak: 🔥 [number]</li>
+                            </ul>
+                        </li>
+                        <li><strong>Sensory Profile:</strong>
+                            <ul>
+                                <li>Most common textures tried: Crunchy (12), Soft (8), Chewy (5)</li>
+                                <li>Most common flavors tried: Sweet (10), Salty (4)</li>
+                                <li>Temperature preferences: Room temp (15), Cold (3), Hot (2)</li>
+                            </ul>
+                        </li>
+                        <li><strong>Phase Progression:</strong>
+                            <ul>
+                                <li>Current phases by planet (e.g., "Base Camp: TASTE, Sensory Grove: TOUCH")</li>
+                                <li>Time spent in each phase (e.g., "LOOK: 5 days, TOUCH: 8 days")</li>
+                            </ul>
+                        </li>
+                        <li><strong>Regression Detection:</strong>
+                            <ul>
+                                <li>Foods no longer accepted: [list with dates]</li>
+                                <li>Pattern analysis: "No regression detected" OR "2 foods regressed - this is normal"</li>
+                                <li>Recommendation: If regression detected, reassure parent and suggest continuing SOS</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+
+                <h3>Feature 5.6: Therapist PDF Export</h3>
+
+                <div class="feature-block">
+                    <div class="feature-name">Export Report for SLP/OT</div>
+                    <p><strong>Purpose:</strong> Let parents download PDF to share with therapist.</p>
+                    <p><strong>Content:</strong> Same as monthly report + chart of phase progression over time</p>
+                    <p><strong>Format:</strong> PDF with Flavor Galaxy branding</p>
+                    <p><strong>Access:</strong> Button in Progress tab: "Export for Therapist" → generates PDF → opens share sheet to email/send</p>
+                </div>
+
+                <div class="action-box">
+                    <h4>✓ PART 5 Deliverables</h4>
+                    <ul class="checklist">
+                        <li>Calendar view with day-level activity indicators (green=logged, star=milestone)</li>
+                        <li>Streak counter with fire icon + color coding</li>
+                        <li>Daily 8 AM notifications (with conditions: streak ≥3, customizable time)</li>
+                        <li>Weekly recap summary (push + in-app banner)</li>
+                        <li>Monthly detailed report with sensory profile + regression detection</li>
+                        <li>Therapist PDF export functionality</li>
+                        <li>Notification settings in parent dashboard (enable/disable, time customization)</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- PART 6: BUG FIXES -->
+            <section>
+                <h2>PART 6: Bug Fixes & Improvements</h2>
+
+                <h3>Fix 6.1: "Back to Explorer" Button</h3>
+
+                <div class="feature-block">
+                    <div class="feature-name">Fix Parent Command Center Navigation</div>
+                    <p><strong>Issue:</strong> Parents can get stuck in parent dashboard with no clear way back to journey map.</p>
+                    <p><strong>Solution:</strong> Add "Back to [Child's Name]'s Journey" button at top-left of parent screens.</p>
+                    <p><strong>Appearance:</strong> Back arrow + text, blue color (#667eea), positioned top-left navigation bar</p>
+                    <p><strong>Behavior:</strong> Tapping returns to journey map (main tab view).</p>
+                </div>
+
+                <h3>Fix 6.2: Planet & Explorer Size Visibility</h3>
+
+                <div class="feature-block">
+                    <div class="feature-name">Increase Planet & Explorer Sizes for Better Visibility</div>
+                    <p><strong>Issue:</strong> Current sizes too small on mobile, explorer sometimes hidden.</p>
+                    <p><strong>Solution (Already Specified in Previous Brief):</strong></p>
+                    <ul>
+                        <li>Mobile: 300px planets, 200px explorers</li>
+                        <li>Tablet: 360px planets, 250px explorers</li>
+                        <li>Desktop: 400px planets, 300px explorers</li>
+                        <li>Explorer positioned overlapping planet edge (40-60px)</li>
+                    </ul>
+                    <p><strong>Verify:</strong> Both elements fully visible, no clipping, proper z-index stacking.</p>
+                </div>
+
+                <div class="action-box">
+                    <h4>✓ PART 6 Deliverables</h4>
+                    <ul class="checklist">
+                        <li>Add "Back to [Child]'s Journey" button on parent screens</li>
+                        <li>Verify planet and explorer sizes match specifications</li>
+                        <li>Test navigation flow (parent → journey → parent)</li>
+                        <li>QA: Both elements visible on all screen sizes</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- COMPLETE CHECKLIST -->
+            <section>
+                <h2>📋 Complete Implementation Checklist (Parts 4-6)</h2>
+
+                <div class="action-box">
+                    <h4>PART 4: Food Management (8 items)</h4>
+                    <ul class="checklist">
+                        <li>Long-press context menu on foods (Move to Regression, Edit, Delete, Cancel)</li>
+                        <li>Regression tracking system with timestamps</li>
+                        <li>Bridge food suggestion algorithm (triggers after 10 foods/weekly)</li>
+                        <li>Bridge food UI banner with suggestions</li>
+                        <li>Food search + custom food creation dialog</li>
+                        <li>FAB button (+) for quick food addition</li>
+                        <li>Sensory attribute selector (texture multi-select, flavor multi-select, temp single-select)</li>
+                        <li>Foods list sorting toggle (by phase, bridge, texture, flavor, date)</li>
+                    </ul>
+                </div>
+
+                <div class="action-box">
+                    <h4>PART 5: Progress Tracking (6 items)</h4>
+                    <ul class="checklist">
+                        <li>Calendar view with visual coding (green=logged, star=milestone, gray=nothing)</li>
+                        <li>Streak counter (🔥 + number) with color coding</li>
+                        <li>Daily 8 AM notifications (only if streak ≥3, not if already logged today)</li>
+                        <li>Weekly recap (push + in-app banner)</li>
+                        <li>Monthly detailed report (sensory profile, regression detection)</li>
+                        <li>Therapist PDF export functionality</li>
+                    </ul>
+                </div>
+
+                <div class="action-box">
+                    <h4>PART 6: Bug Fixes (2 items)</h4>
+                    <ul class="checklist">
+                        <li>Add "Back to [Child]'s Journey" button on parent screens</li>
+                        <li>Verify planet/explorer sizing (300/200 mobile, 360/250 tablet, 400/300 desktop)</li>
+                    </ul>
+                </div>
+
+                <div class="action-box">
+                    <h4>Testing Requirements</h4>
+                    <ul class="checklist">
+                        <li>Add 3 foods, mark 1 as regression → verify regression tracking</li>
+                        <li>Log 10 foods → verify bridge food suggestion appears</li>
+                        <li>Add custom food with all sensory attributes → verify storage</li>
+                        <li>Test food search (existing + custom) → verify both work</li>
+                        <li>Log food daily for 7 days → verify streak increments and notifications send</li>
+                        <li>Miss a day → verify streak resets</li>
+                        <li>Open calendar → verify colors match (green for logged, star for milestone)</li>
+                        <li>View monthly report → verify all metrics calculate correctly</li>
+                        <li>Export PDF → verify format and content</li>
+                        <li>Test parent navigation (click Back button, verify returns to journey)</li>
+                        <li>Mobile/tablet/desktop: Verify planet and explorer sizes</li>
+                    </ul>
+                </div>
+            </section>
+
+            <div class="footer-note">
+                <p><strong>Key Dates:</strong> These features are required for beta launch (March 5). Prioritize in order: Part 4 (food management) → Part 5 (progress/streaks) → Part 6 (fixes).</p>
+                <p><strong>Questions?</strong> Ping with screenshots/demo and we'll QA together.</p>
+            </div>
+
+        </div>
+    </div>
+</body>
+</html>

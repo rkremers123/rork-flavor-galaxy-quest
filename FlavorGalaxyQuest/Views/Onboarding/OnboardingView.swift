@@ -19,7 +19,7 @@ struct OnboardingView: View {
     @State private var goalNotes: String = ""
     @State private var randomExplorer: ExplorerType = ExplorerType.allCases.randomElement() ?? .nova
 
-    private let totalSteps = 7
+    private let totalSteps = 6
 
     var body: some View {
         ZStack {
@@ -35,8 +35,7 @@ struct OnboardingView: View {
                     characterStep.tag(2)
                     safeFoodsStep.tag(3)
                     goalFoodStep.tag(4)
-                    goalStep.tag(5)
-                    summaryStep.tag(6)
+                    summaryStep.tag(5)
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
                 .animation(.spring(duration: 0.4), value: currentStep)
@@ -297,71 +296,10 @@ struct OnboardingView: View {
                 viewModel.profile.goalFoodNotes = goalNotes
                 viewModel.profile.goalFoodSetDate = Date()
                 viewModel.profile.safeFoodIds = Array(selectedSafeFoods)
+                viewModel.profile.targetFoodName = goalFoodName
                 currentStep = 5
             }
             .disabled(goalFoodName.trimmingCharacters(in: .whitespaces).isEmpty)
-            .padding(.bottom, 40)
-        }
-    }
-
-    private var goalStep: some View {
-        VStack(spacing: 24) {
-            Spacer().frame(height: 20)
-
-            PaxMascotView(message: "What food would you love them to try someday?", size: 60)
-                .padding(.horizontal)
-
-            VStack(spacing: 20) {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Target Food")
-                        .font(.system(.caption, design: .rounded, weight: .semibold))
-                        .foregroundStyle(SpaceTheme.cosmicCyan)
-
-                    TextField("e.g. Broccoli", text: $targetFoodName)
-                        .font(.system(.title3, design: .rounded, weight: .medium))
-                        .foregroundStyle(.white)
-                        .padding(14)
-                        .background(
-                            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                .fill(.white.opacity(0.08))
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                        .stroke(.white.opacity(0.15), lineWidth: 1)
-                                )
-                        )
-                }
-
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Star Jar Reward")
-                        .font(.system(.caption, design: .rounded, weight: .semibold))
-                        .foregroundStyle(SpaceTheme.starGold)
-
-                    TextField("e.g. New Lego Set", text: $rewardName)
-                        .font(.system(.title3, design: .rounded, weight: .medium))
-                        .foregroundStyle(.white)
-                        .padding(14)
-                        .background(
-                            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                .fill(.white.opacity(0.08))
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                        .stroke(.white.opacity(0.15), lineWidth: 1)
-                                )
-                        )
-                }
-            }
-            .padding(.horizontal, 24)
-
-            Spacer()
-
-            nextButton("Next") {
-                viewModel.profile.targetFoodName = targetFoodName
-                if !rewardName.isEmpty {
-                    viewModel.profile.starJarRewardName = rewardName
-                }
-                viewModel.profile.safeFoodIds = Array(selectedSafeFoods)
-                currentStep = 6
-            }
             .padding(.bottom, 40)
         }
     }

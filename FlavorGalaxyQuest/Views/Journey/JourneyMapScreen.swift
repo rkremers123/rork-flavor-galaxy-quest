@@ -7,6 +7,7 @@ struct JourneyMapScreen: View {
     @State private var selectedPlanet: JourneyPlanet?
     @State private var showStreakBanner = false
     @State private var showExplorerDetail = false
+    @State private var showWeeklyRecap = true
 
     private var foodsExplored: Int { viewModel.exploredFoodsCount }
     private var currentPlanet: JourneyPlanet { viewModel.dynamicCurrentPlanet }
@@ -25,7 +26,14 @@ struct JourneyMapScreen: View {
 
                         statsRow
                             .padding(.horizontal, 20)
-                            .padding(.bottom, 16)
+                            .padding(.bottom, 12)
+
+                        if showWeeklyRecap {
+                            WeeklyRecapBanner(viewModel: viewModel, isVisible: $showWeeklyRecap)
+                                .padding(.horizontal, 20)
+                                .padding(.bottom, 12)
+                                .transition(.opacity.combined(with: .move(edge: .top)))
+                        }
 
                         zigZagJourney
                             .padding(.horizontal, 16)
@@ -228,9 +236,9 @@ struct JourneyMapScreen: View {
         let completed = viewModel.dynamicFoodsCompleted(planet)
         let total = viewModel.dynamicFoodsForPlanet(planet)
         let planetColor = SpaceTheme.planetColor(hex: planet.accentColor)
-        let planetSize: CGFloat = 300
-        let explorerSize: CGFloat = 200
-        let explorerOverlap: CGFloat = 50
+        let planetSize: CGFloat = 140
+        let explorerSize: CGFloat = 100
+        let explorerOverlap: CGFloat = 30
 
         return Button {
             if !isLocked {
@@ -293,16 +301,16 @@ struct JourneyMapScreen: View {
             ZStack {
                 if isActive {
                     Circle()
-                        .stroke(planetColor.opacity(0.4), lineWidth: 3)
-                        .frame(width: planetSize + 16, height: planetSize + 16)
+                        .stroke(planetColor.opacity(0.4), lineWidth: 2.5)
+                        .frame(width: planetSize + 12, height: planetSize + 12)
                         .modifier(PulseEffect())
                 }
 
                 if !isLocked && !isCompleted && total > 0 {
                     Circle()
                         .trim(from: 0, to: Double(completed) / Double(total))
-                        .stroke(planetColor, style: StrokeStyle(lineWidth: 4, lineCap: .round))
-                        .frame(width: planetSize + 8, height: planetSize + 8)
+                        .stroke(planetColor, style: StrokeStyle(lineWidth: 3, lineCap: .round))
+                        .frame(width: planetSize + 6, height: planetSize + 6)
                         .rotationEffect(.degrees(-90))
                 }
 
@@ -317,31 +325,31 @@ struct JourneyMapScreen: View {
 
                 if isCompleted {
                     Image(systemName: "checkmark.circle.fill")
-                        .font(.title3)
+                        .font(.callout)
                         .foregroundStyle(SpaceTheme.planetGreen)
                         .background(Circle().fill(SpaceTheme.deepNavy).padding(-3))
-                        .offset(x: planetSize / 2 - 8, y: -(planetSize / 2 - 8))
+                        .offset(x: planetSize / 2 - 6, y: -(planetSize / 2 - 6))
                 }
 
                 if isLocked {
                     Image(systemName: "lock.fill")
-                        .font(.system(size: 22))
+                        .font(.system(size: 18))
                         .foregroundStyle(.white.opacity(0.25))
                 }
             }
 
             Text(planet.name)
-                .font(.system(.subheadline, design: .rounded, weight: .bold))
+                .font(.system(.caption, design: .rounded, weight: .bold))
                 .foregroundStyle(isLocked ? .white.opacity(0.25) : .white)
                 .lineLimit(1)
 
             Text(planet.subtitle)
-                .font(.system(.caption2, design: .rounded))
+                .font(.system(size: 10, design: .rounded))
                 .foregroundStyle(isLocked ? .white.opacity(0.15) : .white.opacity(0.5))
 
             if !isLocked {
                 Text("\(completed)/\(total) foods")
-                    .font(.system(.caption, design: .rounded, weight: .bold))
+                    .font(.system(.caption2, design: .rounded, weight: .bold))
                     .foregroundStyle(isCompleted ? SpaceTheme.planetGreen : planetColor)
             }
         }
