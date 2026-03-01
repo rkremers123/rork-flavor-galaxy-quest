@@ -12,8 +12,13 @@ struct OnboardingView: View {
     @State private var rewardName: String = ""
     @State private var appeared: Bool = false
     @State private var showResetConfirmation: Bool = false
+    @State private var goalFoodName: String = ""
+    @State private var goalTextures: Set<FoodTexture> = []
+    @State private var goalFlavors: Set<FoodFlavor> = []
+    @State private var goalTemperature: FoodTemperature? = nil
+    @State private var goalNotes: String = ""
 
-    private let totalSteps = 6
+    private let totalSteps = 7
 
     var body: some View {
         ZStack {
@@ -28,8 +33,9 @@ struct OnboardingView: View {
                     profileStep.tag(1)
                     characterStep.tag(2)
                     safeFoodsStep.tag(3)
-                    goalStep.tag(4)
-                    summaryStep.tag(5)
+                    goalFoodStep.tag(4)
+                    goalStep.tag(5)
+                    summaryStep.tag(6)
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
                 .animation(.spring(duration: 0.4), value: currentStep)
@@ -219,6 +225,82 @@ struct OnboardingView: View {
         }
     }
 
+    private var goalFoodStep: some View {
+        VStack(spacing: 16) {
+            Spacer().frame(height: 12)
+
+            PaxMascotView(message: "What's your goal food?", size: 50)
+                .padding(.horizontal)
+
+            Text("What food would your child love to eat someday?")
+                .font(.system(.subheadline, design: .rounded))
+                .foregroundStyle(.white.opacity(0.6))
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 24)
+
+            ScrollView {
+                VStack(alignment: .leading, spacing: 20) {
+                    onboardingTextField(label: "Goal Food", placeholder: "e.g., Pizza", text: $goalFoodName, accent: SpaceTheme.warningOrange)
+
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text("What challenges does it have?")
+                            .font(.system(.caption, design: .rounded, weight: .bold))
+                            .foregroundStyle(.white.opacity(0.7))
+
+                        sensorySection(title: "TEXTURE", icon: "waveform") {
+                            FlowLayout(spacing: 8) {
+                                ForEach(FoodTexture.allCases, id: \.self) { texture in
+                                    sensoryChip(texture.label, selected: goalTextures.contains(texture)) {
+                                        if goalTextures.contains(texture) { goalTextures.remove(texture) }
+                                        else { goalTextures.insert(texture) }
+                                    }
+                                }
+                            }
+                        }
+
+                        sensorySection(title: "FLAVOR", icon: "drop.fill") {
+                            FlowLayout(spacing: 8) {
+                                ForEach(FoodFlavor.allCases, id: \.self) { flavor in
+                                    sensoryChip(flavor.label, selected: goalFlavors.contains(flavor)) {
+                                        if goalFlavors.contains(flavor) { goalFlavors.remove(flavor) }
+                                        else { goalFlavors.insert(flavor) }
+                                    }
+                                }
+                            }
+                        }
+
+                        sensorySection(title: "TEMPERATURE", icon: "thermometer.medium") {
+                            HStack(spacing: 8) {
+                                ForEach(FoodTemperature.allCases, id: \.self) { temp in
+                                    sensoryChip(temp.label, selected: goalTemperature == temp) {
+                                        goalTemperature = goalTemperature == temp ? nil : temp
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    onboardingTextField(label: "Any other notes?", placeholder: "Optional", text: $goalNotes, accent: .white.opacity(0.4))
+                }
+                .padding(.horizontal, 24)
+            }
+            .scrollIndicators(.hidden)
+
+            nextButton("Continue") {
+                viewModel.profile.goalFoodName = goalFoodName
+                viewModel.profile.goalFoodTextures = Array(goalTextures)
+                viewModel.profile.goalFoodFlavors = Array(goalFlavors)
+                viewModel.profile.goalFoodTemperature = goalTemperature
+                viewModel.profile.goalFoodNotes = goalNotes
+                viewModel.profile.goalFoodSetDate = Date()
+                viewModel.profile.safeFoodIds = Array(selectedSafeFoods)
+                currentStep = 5
+            }
+            .disabled(goalFoodName.trimmingCharacters(in: .whitespaces).isEmpty)
+            .padding(.bottom, 40)
+        }
+    }
+
     private var goalStep: some View {
         VStack(spacing: 24) {
             Spacer().frame(height: 20)
@@ -275,7 +357,7 @@ struct OnboardingView: View {
                     viewModel.profile.starJarRewardName = rewardName
                 }
                 viewModel.profile.safeFoodIds = Array(selectedSafeFoods)
-                currentStep = 5
+                currentStep = 6
             }
             .padding(.bottom, 40)
         }
@@ -453,5 +535,99 @@ struct OnboardingView: View {
                 )
         }
         .padding(.horizontal, 24)
+    }
+
+    private func onboardingTextField(label: String, placeholder: String, text: Binding<String>, accent: Color) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(label)
+                .font(.system(.caption, design: .rounded, weight: .semibold))
+                .foregroundStyle(accent)
+
+            TextField(placeholder, text: text)
+                .font(.system(.title3, design: .rounded, weight: .medium))
+                .foregroundStyle(.white)
+                .padding(14)
+                .background(
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .fill(.white.opacity(0.08))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                .stroke(.white.opacity(0.15), lineWidth: 1)
+                        )
+                )
+        }
+    }
+
+    private func sensorySection<Content: View>(title: String, icon: String, @ViewBuilder content: () -> Content) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 6) {
+                Image(systemName: icon)
+                    .font(.caption2)
+                    .foregroundStyle(SpaceTheme.cosmicCyan)
+                Text(title)
+                    .font(.system(.caption2, design: .rounded, weight: .heavy))
+                    .foregroundStyle(.white.opacity(0.5))
+                    .tracking(1)
+            }
+            content()
+        }
+    }
+
+    private func sensoryChip(_ label: String, selected: Bool, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Text(label)
+                .font(.system(.caption, design: .rounded, weight: .semibold))
+                .foregroundStyle(selected ? SpaceTheme.deepNavy : .white.opacity(0.7))
+                .padding(.horizontal, 14)
+                .padding(.vertical, 8)
+                .background(
+                    Capsule()
+                        .fill(selected ? SpaceTheme.cosmicCyan : .white.opacity(0.08))
+                )
+                .overlay(
+                    Capsule()
+                        .stroke(selected ? SpaceTheme.cosmicCyan : .white.opacity(0.12), lineWidth: 1)
+                )
+        }
+    }
+}
+
+struct FlowLayout: Layout {
+    let spacing: CGFloat
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        let result = layout(proposal: proposal, subviews: subviews)
+        return result.size
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        let result = layout(proposal: proposal, subviews: subviews)
+        for (index, position) in result.positions.enumerated() {
+            subviews[index].place(at: CGPoint(x: bounds.minX + position.x, y: bounds.minY + position.y), proposal: .unspecified)
+        }
+    }
+
+    private func layout(proposal: ProposedViewSize, subviews: Subviews) -> (size: CGSize, positions: [CGPoint]) {
+        let maxWidth = proposal.width ?? .infinity
+        var positions: [CGPoint] = []
+        var x: CGFloat = 0
+        var y: CGFloat = 0
+        var rowHeight: CGFloat = 0
+        var totalHeight: CGFloat = 0
+
+        for subview in subviews {
+            let size = subview.sizeThatFits(.unspecified)
+            if x + size.width > maxWidth && x > 0 {
+                x = 0
+                y += rowHeight + spacing
+                rowHeight = 0
+            }
+            positions.append(CGPoint(x: x, y: y))
+            rowHeight = max(rowHeight, size.height)
+            x += size.width + spacing
+            totalHeight = y + rowHeight
+        }
+
+        return (CGSize(width: maxWidth, height: totalHeight), positions)
     }
 }

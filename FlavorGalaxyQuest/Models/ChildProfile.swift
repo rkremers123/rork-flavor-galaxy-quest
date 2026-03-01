@@ -31,6 +31,13 @@ class ChildProfileModel {
     var excludedAllergenValues: [String] = []
     var hardestSensoryZoneRawValue: Int?
 
+    var goalFoodName: String = ""
+    var goalFoodTextureValues: [String] = []
+    var goalFoodFlavorValues: [String] = []
+    var goalFoodTemperatureRawValue: String = ""
+    var goalFoodNotes: String = ""
+    var goalFoodSetDate: Date?
+
     @Relationship(deleteRule: .cascade) var questProgressItems: [QuestProgressModel] = []
     @Relationship(deleteRule: .cascade) var interactions: [SensoryInteractionModel] = []
     @Relationship(deleteRule: .cascade) var bridgeRecords: [BridgeRecordModel] = []
@@ -107,5 +114,20 @@ class ChildProfileModel {
 
     var activeBridges: [BridgeRecordModel] {
         bridgeRecords.filter { $0.statusRawValue == BridgeStatus.active.rawValue }
+    }
+
+    var goalFoodTextures: [FoodTexture] {
+        get { goalFoodTextureValues.compactMap { FoodTexture(rawValue: $0) } }
+        set { goalFoodTextureValues = newValue.map(\.rawValue) }
+    }
+
+    var goalFoodFlavors: [FoodFlavor] {
+        get { goalFoodFlavorValues.compactMap { FoodFlavor(rawValue: $0) } }
+        set { goalFoodFlavorValues = newValue.map(\.rawValue) }
+    }
+
+    var goalFoodTemperature: FoodTemperature? {
+        get { FoodTemperature(rawValue: goalFoodTemperatureRawValue) }
+        set { goalFoodTemperatureRawValue = newValue?.rawValue ?? "" }
     }
 }
