@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flavor Galaxy - Explorer Cosmetics Design Specification</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+            line-height: 1.6;
+            color: #1a1a1a;
+            background: linear-gradient(135deg, #0a0a1e 0%, #1a1a3e 100%);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 36px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        header p {
+            font-size: 16px;
+            opacity: 0.95;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        section {
+            margin-bottom: 50px;
+        }
+
+        h2 {
+            color: #667eea;
+            font-size: 28px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        h3 {
+            color: #764ba2;
+            font-size: 20px;
+            margin-top: 25px;
+            margin-bottom: 15px;
+        }
+
+        p {
+            margin-bottom: 15px;
+            font-size: 16px;
+            line-height: 1.8;
+        }
+
+        .priority-badge {
+            display: inline-block;
+            background: #e91e63;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-right: 8px;
+            margin-bottom: 15px;
+        }
+
+        .code-block {
+            background: #f0f0f0;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 6px;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            overflow-x: auto;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            border-left: 4px solid #d4af37;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .action-box {
+            background: #e8f5e9;
+            border-left: 4px solid #28a745;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .action-box h4 {
+            color: #1b5e20;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .remove-box {
+            background: #ffebee;
+            border-left: 4px solid #d32f2f;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .remove-box h4 {
+            color: #b71c1c;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        ul, ol {
+            margin-left: 30px;
+            margin-bottom: 15px;
+        }
+
+        li {
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        strong {
+            color: #667eea;
+        }
+
+        .cosmetic-card {
+            background: #f5f5ff;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .cosmetic-name {
+            color: #667eea;
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .cosmetic-detail {
+            margin: 8px 0;
+            font-size: 15px;
+        }
+
+        .cosmetic-detail strong {
+            color: #764ba2;
+            display: inline-block;
+            min-width: 120px;
+        }
+
+        .spec-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: #f9f9f9;
+        }
+
+        .spec-table th {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .spec-table td {
+            padding: 12px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .spec-table tr:hover {
+            background: #f0f4ff;
+        }
+
+        .checklist {
+            list-style: none;
+            margin-left: 0;
+        }
+
+        .checklist li {
+            padding: 10px 0;
+            padding-left: 30px;
+            position: relative;
+            font-size: 16px;
+        }
+
+        .checklist li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .footer-note {
+            background: #fafafa;
+            border-top: 2px solid #eee;
+            padding: 30px;
+            margin-top: 50px;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                padding: 20px;
+            }
+
+            h2 {
+                font-size: 22px;
+            }
+
+            h3 {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚀 Flavor Galaxy Explorer Cosmetics</h1>
+            <p>Design Specification - Cosmetics to Create</p>
+        </header>
+
+        <div class="content">
+
+            <section>
+                <h2><span class="priority-badge">SPEC</span>Cosmetics Revision & Creation</h2>
+                <p><strong>Action 1:</strong> Remove all head-worn cosmetics (hats, helmets, masks, glasses) from the existing database. These don't align properly.</p>
+                <p><strong>Action 2:</strong> Design and create 26 new cosmetics following the specifications below. These should work across all 4 explorers (Nova, Cosmo, Star, Orbit).</p>
+            </section>
+
+            <!-- REMOVE SECTION -->
+            <section>
+                <h2>Delete from Database: Head-Worn Items</h2>
+
+                <div class="remove-box">
+                    <h4>❌ Remove All Of These:</h4>
+                    <ul>
+                        <li>Hats, helmets, headgear, crowns, caps, visors</li>
+                        <li>Masks, face paint, monocles, glasses, sunglasses</li>
+                        <li>Ear items: headphones, ear covers, hair bows worn in hair</li>
+                        <li>Any cosmetic currently positioned on the character's head</li>
+                    </ul>
+                </div>
+
+                <div class="action-box">
+                    <h4>✓ Complete This First</h4>
+                    <p>Search the cosmetics database for items in these categories and delete them. Keep everything else (badges, accessories, effects).</p>
+                </div>
+            </section>
+
+            <!-- NEW COSMETICS -->
+            <section>
+                <h2>New Cosmetics to Create (26 Total)</h2>
+
+                <h3>CATEGORY 1: ACHIEVEMENT BADGES (5 items)</h3>
+
+                <p><strong>Purpose:</strong> Unlock when kids hit specific gameplay milestones. Display on explorer's chest as a badge overlay.</p>
+
+                <div class="cosmetic-card">
+                    <div class="cosmetic-name">1. Speed Explorer Badge</div>
+                    <div class="cosmetic-detail"><strong>Unlock:</strong> Log 50 foods</div>
+                    <div class="cosmetic-detail"><strong>Description:</strong> Circular badge (shield-shaped) with rocket ship + lightning bolt imagery. Colors: cyan (#00d9ff) + gold (#d4af37). Center has a rocket silhouette with motion lines. Outer rim has gold border with slight 3D depth. Style: illustrated, kid-friendly, bold.</div>
+                    <div class="cosmetic-detail"><strong>Size:</strong> 200x200px</div>
+                    <div class="cosmetic-detail"><strong>Attachment:</strong> Chest (center-right of explorer's body)</div>
+                    <div class="cosmetic-detail"><strong>Background:</strong> Transparent PNG</div>
+                </div>
+
+                <div class="cosmetic-card">
+                    <div class="cosmetic-name">2. Science Master Badge</div>
+                    <div class="cosmetic-detail"><strong>Unlock:</strong> Reach Taste Phase</div>
+                    <div class="cosmetic-detail"><strong>Description:</strong> Circular badge with telescope + atom/molecules imagery. Colors: purple (#667eea) + teal (#4CA5FF). Center shows a telescope pointing up with atoms orbiting around it. Rim decorated with small stars and scientific symbols.</div>
+                    <div class="cosmetic-detail"><strong>Size:</strong> 200x200px</div>
+                    <div class="cosmetic-detail"><strong>Attachment:</strong> Chest (center-right of explorer's body)</div>
+                    <div class="cosmetic-detail"><strong>Background:</strong> Transparent PNG</div>
+                </div>
+
+                <div class="cosmetic-card">
+                    <div class="cosmetic-name">3. Flavor Pioneer Badge</div>
+                    <div class="cosmetic-detail"><strong>Unlock:</strong> Try 5 different food families (fruits, veggies, proteins, etc.)</div>
+                    <div class="cosmetic-detail"><strong>Description:</strong> Circular badge with food + map/compass imagery. Colors: pink (#e91e63) + gold (#d4af37). Center shows a fork and colorful food items arranged in compass points. Rim has gold border with small food icons (apple, carrot, etc.).</div>
+                    <div class="cosmetic-detail"><strong>Size:</strong> 200x200px</div>
+                    <div class="cosmetic-detail"><strong>Attachment:</strong> Chest (center-right of explorer's body)</div>
+                    <div class="cosmetic-detail"><strong>Background:</strong> Transparent PNG</div>
+                </div>
+
+                <div class="cosmetic-card">
+                    <div class="cosmetic-name">4. Sensory Wizard Badge</div>
+                    <div class="cosmetic-detail"><strong>Unlock:</strong> Complete all 5 SOS phases</div>
+                    <div class="cosmetic-detail"><strong>Description:</strong> Circular badge with wand + sensory waves. Colors: cyan (#00d9ff) + pink (#e91e63). Center shows a magical wand with sparkles and concentric sensory waves radiating outward (representing touch, smell, taste sensations). Rim decorated with twinkling stars.</div>
+                    <div class="cosmetic-detail"><strong>Size:</strong> 200x200px</div>
+                    <div class="cosmetic-detail"><strong>Attachment:</strong> Chest (center-right of explorer's body)</div>
+                    <div class="cosmetic-detail"><strong>Background:</strong> Transparent PNG</div>
+                </div>
+
+                <div class="cosmetic-card">
+                    <div class="cosmetic-name">5. Galaxy Legend Badge</div>
+                    <div class="cosmetic-detail"><strong>Unlock:</strong> Unlock all 8 planets</div>
+                    <div class="cosmetic-detail"><strong>Description:</strong> Circular badge with cosmic crown + galaxy imagery. Colors: gold (#d4af37) + purple (#667eea). Center shows a stylized cosmic crown with all brand colors (cyan, gold, pink, purple) integrated. Background has swirling galaxy pattern with stars. Rim has thick gold border with celestial shine.</div>
+                    <div class="cosmetic-detail"><strong>Size:</strong> 200x200px</div>
+                    <div class="cosmetic-detail"><strong>Attachment:</strong> Chest (center-right of explorer's body)</div>
+                    <div class="cosmetic-detail"><strong>Background:</strong> Transparent PNG</div>
+                </div>
+
+                <h3>CATEGORY 2: MILESTONE BADGES (5 items)</h3>
+
+                <p><strong>Purpose:</strong> Celebrate time-based achievements. Display on chest alongside achievement badges.</p>
+
+                <div class="cosmetic-card">
+                    <div class="cosmetic-name">6. Day 7 Explorer Badge</div>
+                    <div class="cosmetic-detail"><strong>Unlock:</strong> 7 days of logging</div>
+                    <div class="cosmetic-detail"><strong>Description:</strong> Square badge with large number "7" + calendar/sun imagery. Colors: cyan (#00d9ff) + gold (#d4af37). Shows a week calendar page with day 7 highlighted, sun rising in background. Simple, clean design.</div>
+                    <div class="cosmetic-detail"><strong>Size:</strong> 180x180px</div>
+                    <div class="cosmetic-detail"><strong>Attachment:</strong> Chest (left of achievement badges)</div>
+                    <div class="cosmetic-detail"><strong>Background:</strong> Transparent PNG</div>
+                </div>
+
+                <div class="cosmetic-card">
+                    <div class="cosmetic-name">7. Week 2 Navigator Badge</div>
+                    <div class="cosmetic-detail"><strong>Unlock:</strong> 14 days of logging</div>
+                    <div class="cosmetic-detail"><strong>Description:</strong> Square badge with number "2" + compass/navigation imagery. Colors: purple (#667eea) + teal (#4CA5FF). Shows a compass pointing upward with "2 weeks" text, waves flowing around suggesting motion and progress.</div>
+                    <div class="cosmetic-detail"><strong>Size:</strong> 180x180px</div>
+                    <div class="cosmetic-detail"><strong>Attachment:</strong> Chest (left of achievement badges)</div>
+                    <div class="cosmetic-detail"><strong>Background:</strong> Transparent PNG</div>
+                </div>
+
+                <div class="cosmetic-card">
+                    <div class="cosmetic-name">8. Month 1 Master Badge</div>
+                    <div class="cosmetic-detail"><strong>Unlock:</strong> 30 days of logging</div>
+                    <div class="cosmetic-detail"><strong>Description:</strong> Square badge with "1 MONTH" text + calendar page. Colors: pink (#e91e63) + gold (#d4af37). Shows a month calendar page filled in, stars or checkmarks marking each day, celebratory sparkles around.</div>
+                    <div class="cosmetic-detail"><strong>Size:</strong> 180x180px</div>
+                    <div class="cosmetic-detail"><strong>Attachment:</strong> Chest (left of achievement badges)</div>
+                    <div class="cosmetic-detail"><strong>Background:</strong> Transparent PNG</div>
+                </div>
+
+                <div class="cosmetic-card">
+                    <div class="cosmetic-name">9. 100 Days Unstoppable Badge</div>
+                    <div class="cosmetic-detail"><strong>Unlock:</strong> 100 days of logging</div>
+                    <div class="cosmetic-detail"><strong>Description:</strong> Square badge with large "100" + lightning/power imagery. Colors: cyan (#00d9ff) + purple (#667eea). Shows "100" with lightning bolts striking through or around it. Intense, celebratory energy. Small flame icons optional.</div>
+                    <div class="cosmetic-detail"><strong>Size:</strong> 180x180px</div>
+                    <div class="cosmetic-detail"><strong>Attachment:</strong> Chest (left of achievement badges)</div>
+                    <div class="cosmetic-detail"><strong>Background:</strong> Transparent PNG</div>
+                </div>
+
+                <div class="cosmetic-card">
+                    <div class="cosmetic-name">10. Year 1 Galaxy Guardian Badge</div>
+                    <div class="cosmetic-detail"><strong>Unlock:</strong> 365 days of logging</div>
+                    <div class="cosmetic-detail"><strong>Description:</strong> Square badge with "1 YEAR" + guardian/shield imagery. Colors: gold (#d4af37) + all brand colors (cyan, pink, purple). Shows a shield with a galaxy spinning inside it, or a cosmic crown above "1 YEAR." Premium feel - this is the ultimate milestone.</div>
+                    <div class="cosmetic-detail"><strong>Size:</strong> 180x180px</div>
+                    <div class="cosmetic-detail"><strong>Attachment:</strong> Chest (left of achievement badges)</div>
+                    <div class="cosmetic-detail"><strong>Background:</strong> Transparent PNG</div>
+                </div>
+
+                <h3>CATEGORY 3: BACKPACKS & BAGS (4 items)</h3>
+
+                <p><strong>Purpose:</strong> Worn on explorer's back. Add to explorer's outfit, not just overlay.</p>
+
+                <div class="cosmetic-card">
+                    <div class="cosmetic-name">11. Cosmic Backpack</div>
+                    <div class="cosmetic-detail"><strong>Unlock:</strong> Level 3</div>
+                    <div class="cosmetic-detail"><strong>Description:</strong> Dark purple/black backpack with stars, nebula swirls, and neon cyan accents. Has two shoulder straps (not too thick), pocket details on front. Should look proportional to a cartoon kid (not oversized).</div>
+                    <div class="cosmetic-detail"><strong>Size:</strong> 250x300px (taller than wide to fit on back)</div>
+                    <div class="cosmetic-detail"><strong>Attachment:</strong> Back (z-index behind explorer body)</div>
+                    <div class="cosmetic-detail"><strong>Background:</strong> Transparent PNG</div>
+                </div>
+
+                <div class="cosmetic-card">
+                    <div class="cosmetic-name">12. Sensory Explorer Pack</div>
+                    <div class="cosmetic-detail"><strong>Unlock:</strong> Complete Touch Phase</div>
+                    <div class="cosmetic-detail"><strong>Description:</strong> Cyan and gold backpack with texture patterns (ripples, waves, dotted patterns representing different textures). Has texture details sewn on - bumpy patches, smooth panels, wavy elements. Practical explorer look.</div>
+                    <div class="cosmetic-detail"><strong>Size:</strong> 250x300px</div>
+                    <div class="cosmetic-detail"><strong>Attachment:</strong> Back (z-index behind explorer body)</div>
+                    <div class="cosmetic-detail"><strong>Background:</strong> Transparent PNG</div>
+                </div>
+
+                <div class="cosmetic-card">
+                    <div class="cosmetic-name">13. Flavor Quest Satchel</div>
+                    <div class="cosmetic-detail"><strong>Unlock:</strong> Complete Smell Phase</div>
+                    <div class="cosmetic-detail"><strong>Description:</strong> Pink and purple shoulder satchel with food motifs (apple, carrot, broccoli silhouettes). Has hanging pouches or compartments suggesting it holds food samples. Embroidered food patterns on front pocket.</div>
+                    <div class="cosmetic-detail"><strong>Size:</strong> 240x280px</div>
+                    <div class="cosmetic-detail"><strong>Attachment:</strong> Back (z-index behind explorer body)</div>
+                    <div class="cosmetic-detail"><strong>Background:</strong> Transparent PNG</div>
+                </div>
+
+                <div class="cosmetic-card">
+                    <div class="cosmetic-name">14. Scientist's Bag</div>
+                    <div class="cosmetic-detail"><strong>Unlock:</strong> Complete Taste Phase</div>
+                    <div class="cosmetic-detail"><strong>Description:</strong> Teal and gold canvas bag with science symbols: atoms, molecules, test tubes, beakers, gears. Professional explorer/scientist aesthetic. Pockets and compartments for carrying tools.</div>
+                    <div class="cosmetic-detail"><strong>Size:</strong> 250x300px</div>
+                    <div class="cosmetic-detail"><strong>Attachment:</strong> Back (z-index behind explorer body)</div>
+                    <div class="cosmetic-detail"><strong>Background:</strong> Transparent PNG</div>
+                </div>
+
+                <h3>CATEGORY 4: HANDHELD ITEMS (5 items)</h3>
+
+                <p><strong>Purpose:</strong> Held in explorer's hand. Positioned right side of explorer or in hand.</p>
+
+                <div class="cosmetic-card">
+                    <div class="cosmetic-name">15. Cosmic Compass</div>
+                    <div class="cosmetic-detail"><strong>Unlock:</strong> Level 2</div>
+                    <div class="cosmetic-detail"><strong>Description:</strong> Ornate compass with glowing cyan face, gold rim, purple needle. Cosmic/space aesthetic - shows constellations or stars inside. Handheld size, looks like a real explorer's tool.</div>
+                    <div class="cosmetic-detail"><strong>Size:</strong> 200x200px</div>
+                    <div class="cosmetic-detail"><strong>Attachment:</strong> Hand (right side of explorer)</div>
+                    <div class="cosmetic-detail"><strong>Background:</strong> Transparent PNG</div>
+                </div>
+
+                <div class="cosmetic-card">
+                    <div class="cosmetic-name">16. Flavor Telescope</div>
+                    <div class="cosmetic-detail"><strong>Unlock:</strong> Level 4</div>
+                    <div class="cosmetic-detail"><strong>Description:</strong> Brass-colored telescope with food imagery visible through lens (apple, carrot, taste buds). Pink and gold accents. Suggesting it's used to "see" flavors. Proportional for kid character to hold.</div>
+                    <div class="cosmetic-detail"><strong>Size:</strong> 200x180px (taller)</div>
+                    <div class="cosmetic-detail"><strong>Attachment:</strong> Hand (right side of explorer)</div>
+                    <div class="cosmetic-detail"><strong>Background:</strong> Transparent PNG</div>
+                </div>
+
+                <div class="cosmetic-card">
+                    <div class="cosmetic-name">17. Explorer's Staff</div>
+                    <div class="cosmetic-detail"><strong>Unlock:</strong> Unlock 5 planets</div>
+                    <div class="cosmetic-detail"><strong>Description:</strong> Magical staff with floating stars and cyan glowing orb at top. Purple and gold accents along shaft. Sparkles and light effects around orb. Looks powerful and magical without being threatening.</div>
+                    <div class="cosmetic-detail"><strong>Size:</strong> 150x280px (tall staff)</div>
+                    <div class="cosmetic-detail"><strong>Attachment:</strong> Hand (right side of explorer)</div>
+                    <div class="cosmetic-detail"><strong>Background:</strong> Transparent PNG</div>
+                </div>
+
+                <div class="cosmetic-card">
+                    <div class="cosmetic-name">18. Discovery Wand</div>
+                    <div class="cosmetic-detail"><strong>Unlock:</strong> Log 75 foods</div>
+                    <div class="cosmetic-detail"><strong>Description:</strong> Elegant wand with pink and gold colors, trailing sparkles and stars. Star-shaped top with small heart shapes. Celebratory, encouraging feel. Suggests "discovering" new flavors.</div>
+                    <div class="cosmetic-detail"><strong>Size:</strong> 120x220px (thin wand)</div>
+                    <div class="cosmetic-detail"><strong>Attachment:</strong> Hand (right side of explorer)</div>
+                    <div class="cosmetic-detail"><strong>Background:</strong> Transparent PNG</div>
+                </div>
+
+                <div class="cosmetic-card">
+                    <div class="cosmetic-name">19. Sensory Scanner</div>
+                    <div class="cosmetic-detail"><strong>Unlock:</strong> Unlock all 8 planets</div>
+                    <div class="cosmetic-detail"><strong>Description:</strong> Futuristic handheld device (like a tricorder) with glowing cyan and purple screen. Shows waves and patterns suggesting it's scanning sensory data. Tech aesthetic, holographic elements. Most premium handheld item.</div>
+                    <div class="cosmetic-detail"><strong>Size:</strong> 160x180px</div>
+                    <div class="cosmetic-detail"><strong>Attachment:</strong> Hand (right side of explorer)</div>
+                    <div class="cosmetic-detail"><strong>Background:</strong> Transparent PNG</div>
+                </div>
+
+                <h3>CATEGORY 5: GLOWING AURAS (4 items)</h3>
+
+                <p><strong>Purpose:</strong> Procedural glow effect around explorer. Overlay on all cosmetics. Semi-transparent, animated.</p>
+
+                <div class="cosmetic-card">
+                    <div class="cosmetic-name">20. Cyan Nebula Aura</div>
+                    <div class="cosmetic-detail"><strong>Unlock:</strong> Level 2</div>
+                    <div class="cosmetic-detail"><strong>Description:</strong> Soft cyan glow (#00d9ff) surrounding explorer with swirling nebula cloud patterns. Semi-transparent (40-50% opacity). Gentle floating particles within glow.</div>
+                    <div class="cosmetic-detail"><strong>Size:</strong> 400x400px (explorer in center)</div>
+                    <div class="cosmetic-detail"><strong>Attachment:</strong> Aura (behind explorer, z-index -10)</div>
+                    <div class="cosmetic-detail"><strong>Animated:</strong> Yes (subtle swirl, ~3-4s loop)</div>
+                    <div class="cosmetic-detail"><strong>Background:</strong> Transparent PNG</div>
+                </div>
+
+                <div class="cosmetic-card">
+                    <div class="cosmetic-name">21. Gold Cosmic Aura</div>
+                    <div class="cosmetic-detail"><strong>Unlock:</strong> Complete Lick Phase</div>
+                    <div class="cosmetic-detail"><strong>Description:</strong> Warm golden glow (#d4af37) with star patterns radiating outward. Semi-transparent, creates a "shining explorer" effect. Small stars twinkle within and around aura.</div>
+                    <div class="cosmetic-detail"><strong>Size:</strong> 400x400px</div>
+                    <div class="cosmetic-detail"><strong>Attachment:</strong> Aura (behind explorer, z-index -10)</div>
+                    <div class="cosmetic-detail"><strong>Animated:</strong> Yes (stars twinkle, glow pulses gently, ~2s loop)</div>
+                    <div class="cosmetic-detail"><strong>Background:</strong> Transparent PNG</div>
+                </div>
+
+                <div class="cosmetic-card">
+                    <div class="cosmetic-name">22. Purple Mystic Aura</div>
+                    <div class="cosmetic-detail"><strong>Unlock:</strong> 50 days of logging</div>
+                    <div class="cosmetic-detail"><strong>Description:</strong> Deep purple/indigo glow (#667eea, #764ba2) with magical wave patterns. Ethereal, mystical feel. Waves flow outward in concentric circles.</div>
+                    <div class="cosmetic-detail"><strong>Size:</strong> 400x400px</div>
+                    <div class="cosmetic-detail"><strong>Attachment:</strong> Aura (behind explorer, z-index -10)</div>
+                    <div class="cosmetic-detail"><strong>Animated:</strong> Yes (waves flow outward continuously, ~3s loop)</div>
+                    <div class="cosmetic-detail"><strong>Background:</strong> Transparent PNG</div>
+                </div>
+
+                <div class="cosmetic-card">
+                    <div class="cosmetic-name">23. Rainbow Galaxy Aura</div>
+                    <div class="cosmetic-detail"><strong>Unlock:</strong> Unlock all 8 planets</div>
+                    <div class="cosmetic-detail"><strong>Description:</strong> Gradient aura cycling through all brand colors (cyan → gold → pink → purple). Most premium aura. Suggests "you've seen it all." Swirling galaxy pattern with stars.</div>
+                    <div class="cosmetic-detail"><strong>Size:</strong> 400x400px</div>
+                    <div class="cosmetic-detail"><strong>Attachment:</strong> Aura (behind explorer, z-index -10)</div>
+                    <div class="cosmetic-detail"><strong>Animated:</strong> Yes (colors shift/cycle, stars rotate, ~4s loop)</div>
+                    <div class="cosmetic-detail"><strong>Background:</strong> Transparent PNG</div>
+                </div>
+
+                <h3>CATEGORY 6: PARTICLE EFFECTS (3 items)</h3>
+
+                <p><strong>Purpose:</strong> Floating particles around explorer. Optional cosmetics, very premium feel.</p>
+
+                <div class="cosmetic-card">
+                    <div class="cosmetic-name">24. Stardust Trail</div>
+                    <div class="cosmetic-detail"><strong>Unlock:</strong> Level 5</div>
+                    <div class="cosmetic-detail"><strong>Description:</strong> Small cyan and gold stars (10-20px each) floating around explorer. Stars twinkle on/off. Leaves a trail when explorer moves. Magical, sparkly effect.</div>
+                    <div class="cosmetic-detail"><strong>Size:</strong> 500x500px (particles spread around)</div>
+                    <div class="cosmetic-detail"><strong>Attachment:</strong> Particle effect (layered around explorer)</div>
+                    <div class="cosmetic-detail"><strong>Animated:</strong> Yes (stars twinkle and float, ~2-3s loops)</div>
+                    <div class="cosmetic-detail"><strong>Background:</strong> Transparent PNG spritesheet or looping animation</div>
+                </div>
+
+                <div class="cosmetic-card">
+                    <div class="cosmetic-name">25. Cosmic Sparkles</div>
+                    <div class="cosmetic-detail"><strong>Unlock:</strong> 100 days of logging</div>
+                    <div class="cosmetic-detail"><strong>Description:</strong> Larger sparkles and bursts (15-30px) in pink and purple. More intense "magical moment" feeling. Sparkles appear and fade continuously around explorer.</div>
+                    <div class="cosmetic-detail"><strong>Size:</strong> 500x500px</div>
+                    <div class="cosmetic-detail"><strong>Attachment:</strong> Particle effect (layered around explorer)</div>
+                    <div class="cosmetic-detail"><strong>Animated:</strong> Yes (sparkles burst and fade, ~1.5-2s loops)</div>
+                    <div class="cosmetic-detail"><strong>Background:</strong> Transparent PNG spritesheet or looping animation</div>
+                </div>
+
+                <div class="cosmetic-card">
+                    <div class="cosmetic-name">26. Galaxy Shimmer</div>
+                    <div class="cosmetic-detail"><strong>Unlock:</strong> 365 days of logging</div>
+                    <div class="cosmetic-detail"><strong>Description:</strong> Small particle bursts with all brand colors (cyan, gold, pink, purple gradient). Premium feel. Particles shimmer and fade in waves around explorer. Ultimate cosmetic effect.</div>
+                    <div class="cosmetic-detail"><strong>Size:</strong> 500x500px</div>
+                    <div class="cosmetic-detail"><strong>Attachment:</strong> Particle effect (layered around explorer)</div>
+                    <div class="cosmetic-detail"><strong>Animated:</strong> Yes (particles shimmer in waves, color gradients shift, ~3-4s loops)</div>
+                    <div class="cosmetic-detail"><strong>Background:</strong> Transparent PNG spritesheet or looping animation</div>
+                </div>
+            </section>
+
+            <!-- IMPLEMENTATION -->
+            <section>
+                <h2>Implementation Instructions for Rork</h2>
+
+                <div class="action-box">
+                    <h4>Step 1: Create All 26 Cosmetics</h4>
+                    <p>Using the specifications above, design and render all 26 cosmetics. Each should be a high-quality PNG with transparent background. Ensure colors match brand palette exactly.</p>
+                </div>
+
+                <div class="action-box">
+                    <h4>Step 2: Organize File Structure</h4>
+                    <div class="code-block">
+/assets/cosmetics/
+├── /badges/
+│   ├── achievement_speed_explorer.png
+│   ├── achievement_science_master.png
+│   ├── achievement_flavor_pioneer.png
+│   ├── achievement_sensory_wizard.png
+│   ├── achievement_galaxy_legend.png
+│   ├── milestone_day7.png
+│   ├── milestone_week2.png
+│   ├── milestone_month1.png
+│   ├── milestone_100days.png
+│   └── milestone_year1.png
+├── /accessories/
+│   ├── backpack_cosmic.png
+│   ├── backpack_sensory.png
+│   ├── satchel_flavor.png
+│   ├── bag_scientist.png
+│   ├── item_compass.png
+│   ├── item_telescope.png
+│   ├── item_staff.png
+│   ├── item_wand.png
+│   └── item_scanner.png
+└── /effects/
+    ├── aura_cyan_nebula.png (animated)
+    ├── aura_gold_cosmic.png (animated)
+    ├── aura_purple_mystic.png (animated)
+    ├── aura_rainbow_galaxy.png (animated)
+    ├── particles_stardust.png (spritesheet, animated)
+    ├── particles_sparkles.png (spritesheet, animated)
+    └── particles_shimmer.png (spritesheet, animated)
+                    </div>
+                </div>
+
+                <div class="action-box">
+                    <h4>Step 3: Update Cosmetics Database</h4>
+                    <p>Add all 26 cosmetics to the database with proper attachment points, unlock conditions, animation specs, and z-index values. See cosmetic card details for each spec.</p>
+                </div>
+
+                <div class="action-box">
+                    <h4>Step 4: Test on All Explorers</h4>
+                    <ul class="checklist">
+                        <li>Equip each cosmetic on all 4 explorers (Nova, Cosmo, Star, Orbit)</li>
+                        <li>Verify alignment (badges on chest, backpacks on back, items in hand)</li>
+                        <li>Verify no overlapping or clipping issues</li>
+                        <li>Test animations (auras should glow/pulse, particles should float)</li>
+                        <li>Test combinations (can wear badge + backpack + aura together)</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- SUMMARY TABLE -->
+            <section>
+                <h2>Cosmetics Summary</h2>
+
+                <table class="spec-table">
+                    <tr>
+                        <th>Category</th>
+                        <th>Item Count</th>
+                        <th>Attachment Point</th>
+                        <th>Size</th>
+                    </tr>
+                    <tr>
+                        <td>Achievement Badges</td>
+                        <td>5</td>
+                        <td>Chest</td>
+                        <td>200x200px</td>
+                    </tr>
+                    <tr>
+                        <td>Milestone Badges</td>
+                        <td>5</td>
+                        <td>Chest</td>
+                        <td>180x180px</td>
+                    </tr>
+                    <tr>
+                        <td>Backpacks/Bags</td>
+                        <td>4</td>
+                        <td>Back</td>
+                        <td>240-250 x 280-300px</td>
+                    </tr>
+                    <tr>
+                        <td>Handheld Items</td>
+                        <td>5</td>
+                        <td>Hand</td>
+                        <td>120-200 x 180-280px</td>
+                    </tr>
+                    <tr>
+                        <td>Glowing Auras</td>
+                        <td>4</td>
+                        <td>Background Aura</td>
+                        <td>400x400px</td>
+                    </tr>
+                    <tr>
+                        <td>Particle Effects</td>
+                        <td>3</td>
+                        <td>Floating Around</td>
+                        <td>500x500px (spritesheet)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>TOTAL</strong></td>
+                        <td><strong>26</strong></td>
+                        <td>Multiple</td>
+                        <td>Varies</td>
+                    </tr>
+                </table>
+            </section>
+
+            <div class="footer-note">
+                <p><strong>Key Points:</strong> All sizes are in pixels. All backgrounds should be transparent PNGs. Colors should exactly match the hex codes provided (#667eea, #764ba2, #00d9ff, #d4af37, #e91e63). Test alignment on all 4 explorers.</p>
+            </div>
+
+        </div>
+    </div>
+</body>
+</html>

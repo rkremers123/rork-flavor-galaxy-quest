@@ -59,7 +59,10 @@ struct LevelUpCelebrationView: View {
                 .scaleEffect(showContent ? 1.0 : 0.5)
                 .opacity(showContent ? 1 : 0)
 
-                let newCosmetics = Cosmetic.allCases.filter { $0.requiredLevel == level }
+                let newCosmetics = Cosmetic.allCases.filter {
+                    if case .level(let req) = $0.unlockCondition, req == level { return true }
+                    return false
+                }
                 if !newCosmetics.isEmpty {
                     VStack(spacing: 8) {
                         Text("New Cosmetics Unlocked!")

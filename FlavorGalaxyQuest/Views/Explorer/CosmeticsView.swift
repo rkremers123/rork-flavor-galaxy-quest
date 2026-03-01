@@ -3,6 +3,7 @@ import SwiftUI
 struct CosmeticsView: View {
     let viewModel: AppViewModel
     @Environment(\.dismiss) private var dismiss
+    @State private var selectedCategory: CosmeticCategory = .achievementBadge
 
     var body: some View {
         NavigationStack {
@@ -10,9 +11,9 @@ struct CosmeticsView: View {
                 VStack(spacing: 24) {
                     avatarPreview
 
-                    ForEach(CosmeticCategory.allCases, id: \.self) { category in
-                        cosmeticSection(category)
-                    }
+                    categoryPicker
+
+                    cosmeticGrid
                 }
                 .padding(20)
             }
@@ -44,19 +45,79 @@ struct CosmeticsView: View {
                 level: viewModel.profile.currentLevel,
                 progress: viewModel.profile.levelProgress
             )
+
+            let equipped = viewModel.profile.equippedCosmetics
+            if !equipped.isEmpty {
+                HStack(spacing: 6) {
+                    ForEach(Array(equipped).sorted(by: { $0.rawValue < $1.rawValue }), id: \.self) { cosmetic in
+                        Text(cosmetic.emoji)
+                            .font(.caption)
+                            .padding(4)
+                            .background(.white.opacity(0.1))
+                            .clipShape(.rect(cornerRadius: 6))
+                    }
+                }
+            }
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 20)
     }
 
-    private func cosmeticSection(_ category: CosmeticCategory) -> some View {
-        let items = Cosmetic.allCases.filter { $0.category == category }
-        return VStack(alignment: .leading, spacing: 12) {
-            Text(category.label)
-                .font(.system(.subheadline, design: .rounded, weight: .bold))
-                .foregroundStyle(.white)
+    private var categoryPicker: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                ForEach(CosmeticCategory.allCases, id: \.self) { category in
+                    let isSelected = selectedCategory == category
+                    let unlockedCount = Cosmetic.allCases.filter { $0.category == category && viewModel.profile.unlockedCosmetics.contains($0) }.count
+                    let totalCount = Cosmetic.allCases.filter { $0.category == category }.count
 
-            LazyVGrid(columns: [GridItem(.adaptive(minimum: 90), spacing: 12)], spacing: 12) {
+                    Button {
+                        withAnimation(.spring(duration: 0.3)) {
+                            selectedCategory = category
+                        }
+                    } label: {
+                        VStack(spacing: 4) {
+                            Image(systemName: category.icon)
+                                .font(.system(size: 16, weight: .semibold))
+
+                            Text(category.label)
+                                .font(.system(size: 10, weight: .semibold, design: .rounded))
+                                .lineLimit(1)
+
+                            Text("\(unlockedCount)/\(totalCount)")
+                                .font(.system(size: 9, weight: .bold, design: .rounded))
+                                .foregroundStyle(isSelected ? .white.opacity(0.8) : .white.opacity(0.4))
+                        }
+                        .foregroundStyle(isSelected ? .white : .white.opacity(0.6))
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 10)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                .fill(isSelected ? SpaceTheme.cosmicCyan.opacity(0.25) : .white.opacity(0.05))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                        .stroke(isSelected ? SpaceTheme.cosmicCyan.opacity(0.5) : .clear, lineWidth: 1.5)
+                                )
+                        )
+                    }
+                }
+            }
+        }
+        .contentMargins(.horizontal, 0)
+    }
+
+    private var cosmeticGrid: some View {
+        let items = Cosmetic.allCases.filter { $0.category == selectedCategory }
+        return VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Image(systemName: selectedCategory.icon)
+                    .foregroundStyle(SpaceTheme.cosmicCyan)
+                Text(selectedCategory.label)
+                    .font(.system(.subheadline, design: .rounded, weight: .bold))
+                    .foregroundStyle(.white)
+            }
+
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 100), spacing: 12)], spacing: 12) {
                 ForEach(items, id: \.self) { cosmetic in
                     cosmeticCard(cosmetic)
                 }
@@ -67,51 +128,79 @@ struct CosmeticsView: View {
     private func cosmeticCard(_ cosmetic: Cosmetic) -> some View {
         let isUnlocked = viewModel.profile.unlockedCosmetics.contains(cosmetic)
         let isEquipped = viewModel.profile.equippedCosmetics.contains(cosmetic)
-        let bgColor: Color = isEquipped ? SpaceTheme.cosmicCyan.opacity(0.2) : .white.opacity(0.05)
-        let borderColor: Color = isEquipped ? SpaceTheme.cosmicCyan.opacity(0.6) : .white.opacity(0.1)
-        let borderWidth: CGFloat = isEquipped ? 2 : 1
+        let primary = SpaceTheme.planetColor(hex: cosmetic.primaryColorHex)
 
         return Button {
             if isUnlocked {
-                viewModel.toggleCosmetic(cosmetic)
+                withAnimation(.spring(duration: 0.3)) {
+                    viewModel.toggleCosmetic(cosmetic)
+                }
             }
         } label: {
-            VStack(spacing: 6) {
+            VStack(spacing: 8) {
                 ZStack {
+                    Circle()
+                        .fill(
+                            isEquipped
+                            ? primary.opacity(0.2)
+                            : .white.opacity(0.05)
+                        )
+                        .frame(width: 48, height: 48)
+
+                    if isEquipped {
+                        Circle()
+                            .stroke(primary.opacity(0.6), lineWidth: 2)
+                            .frame(width: 48, height: 48)
+                    }
+
                     Text(cosmetic.emoji)
-                        .font(.title)
+                        .font(.title2)
                         .opacity(isUnlocked ? 1.0 : 0.3)
 
                     if !isUnlocked {
                         Image(systemName: "lock.fill")
-                            .font(.caption2)
-                            .foregroundStyle(.white.opacity(0.5))
-                            .offset(x: 14, y: 14)
+                            .font(.system(size: 10))
+                            .foregroundStyle(.white.opacity(0.6))
+                            .padding(3)
+                            .background(.black.opacity(0.5))
+                            .clipShape(Circle())
+                            .offset(x: 16, y: 16)
+                    }
+
+                    if isEquipped {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.system(size: 12))
+                            .foregroundStyle(.green)
+                            .offset(x: -16, y: -16)
                     }
                 }
 
                 Text(cosmetic.name)
-                    .font(.system(.caption2, design: .rounded, weight: .medium))
+                    .font(.system(.caption2, design: .rounded, weight: .semibold))
                     .foregroundStyle(isUnlocked ? .white : .white.opacity(0.4))
                     .lineLimit(1)
 
-                if !isUnlocked {
-                    Text("Lv\(cosmetic.requiredLevel.rawValue)")
-                        .font(.system(size: 9, weight: .bold, design: .rounded))
-                        .foregroundStyle(.white.opacity(0.3))
-                }
+                Text(cosmetic.unlockDescription)
+                    .font(.system(size: 8, weight: .medium, design: .rounded))
+                    .foregroundStyle(isUnlocked ? primary.opacity(0.8) : .white.opacity(0.3))
+                    .lineLimit(1)
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 12)
+            .padding(.horizontal, 4)
             .background(
                 RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .fill(bgColor)
+                    .fill(isEquipped ? primary.opacity(0.1) : .white.opacity(0.04))
                     .overlay(
                         RoundedRectangle(cornerRadius: 14, style: .continuous)
-                            .stroke(borderColor, lineWidth: borderWidth)
+                            .stroke(
+                                isEquipped ? primary.opacity(0.5) : .white.opacity(0.08),
+                                lineWidth: isEquipped ? 2 : 1
+                            )
                     )
             )
         }
         .disabled(!isUnlocked)
+        .sensoryFeedback(.impact(flexibility: .soft), trigger: isEquipped)
     }
 }

@@ -225,77 +225,262 @@ nonisolated enum JourneyPlanet: Int, Codable, CaseIterable, Sendable, Identifiab
     }
 }
 
+nonisolated enum CosmeticCategory: String, Codable, CaseIterable, Sendable {
+    case achievementBadge
+    case milestoneBadge
+    case backpack
+    case handheld
+    case aura
+    case particle
+
+    var label: String {
+        switch self {
+        case .achievementBadge: "Achievement Badges"
+        case .milestoneBadge: "Milestone Badges"
+        case .backpack: "Backpacks & Bags"
+        case .handheld: "Handheld Items"
+        case .aura: "Glowing Auras"
+        case .particle: "Particle Effects"
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .achievementBadge: "star.circle.fill"
+        case .milestoneBadge: "calendar.badge.checkmark"
+        case .backpack: "bag.fill"
+        case .handheld: "wand.and.stars"
+        case .aura: "sparkle"
+        case .particle: "bubbles.and.sparkles.fill"
+        }
+    }
+}
+
+nonisolated enum CosmeticUnlockCondition: Sendable {
+    case level(ExplorerLevel)
+    case foodsLogged(Int)
+    case daysLogged(Int)
+    case reachPhase(SensoryStep)
+    case completeAllPhases
+    case foodFamilies(Int)
+    case planetsUnlocked(Int)
+}
+
 nonisolated enum Cosmetic: String, Codable, CaseIterable, Sendable, Hashable {
-    case explorerHat
-    case flavorBackpack
-    case crystalBadge
-    case glowAura
-    case victoryCrown
-    case scienceCap
-    case scannerTech
-    case sparkleTrail
-    case rainbowAura
-    case powerGlow
+    case speedExplorerBadge
+    case scienceMasterBadge
+    case flavorPioneerBadge
+    case sensoryWizardBadge
+    case galaxyLegendBadge
+
+    case day7Badge
+    case week2Badge
+    case month1Badge
+    case days100Badge
+    case year1Badge
+
+    case cosmicBackpack
+    case sensoryExplorerPack
+    case flavorQuestSatchel
+    case scientistBag
+
+    case cosmicCompass
+    case flavorTelescope
+    case explorerStaff
+    case discoveryWand
+    case sensoryScanner
+
+    case cyanNebulaAura
+    case goldCosmicAura
+    case purpleMysticAura
+    case rainbowGalaxyAura
+
+    case stardustTrail
+    case cosmicSparkles
+    case galaxyShimmer
 
     var name: String {
         switch self {
-        case .explorerHat: "Explorer Hat"
-        case .flavorBackpack: "Flavor Backpack"
-        case .crystalBadge: "Crystal Badge"
-        case .glowAura: "Glow Aura"
-        case .victoryCrown: "Victory Crown"
-        case .scienceCap: "Science Cap"
-        case .scannerTech: "Scanner Tech"
-        case .sparkleTrail: "Sparkle Trail"
-        case .rainbowAura: "Rainbow Aura"
-        case .powerGlow: "Power Glow"
+        case .speedExplorerBadge: "Speed Explorer"
+        case .scienceMasterBadge: "Science Master"
+        case .flavorPioneerBadge: "Flavor Pioneer"
+        case .sensoryWizardBadge: "Sensory Wizard"
+        case .galaxyLegendBadge: "Galaxy Legend"
+        case .day7Badge: "Day 7 Explorer"
+        case .week2Badge: "Week 2 Navigator"
+        case .month1Badge: "Month 1 Master"
+        case .days100Badge: "100 Days!"
+        case .year1Badge: "Galaxy Guardian"
+        case .cosmicBackpack: "Cosmic Backpack"
+        case .sensoryExplorerPack: "Sensory Pack"
+        case .flavorQuestSatchel: "Flavor Satchel"
+        case .scientistBag: "Scientist's Bag"
+        case .cosmicCompass: "Cosmic Compass"
+        case .flavorTelescope: "Flavor Telescope"
+        case .explorerStaff: "Explorer's Staff"
+        case .discoveryWand: "Discovery Wand"
+        case .sensoryScanner: "Sensory Scanner"
+        case .cyanNebulaAura: "Cyan Nebula"
+        case .goldCosmicAura: "Gold Cosmic"
+        case .purpleMysticAura: "Purple Mystic"
+        case .rainbowGalaxyAura: "Rainbow Galaxy"
+        case .stardustTrail: "Stardust Trail"
+        case .cosmicSparkles: "Cosmic Sparkles"
+        case .galaxyShimmer: "Galaxy Shimmer"
         }
     }
 
     var emoji: String {
         switch self {
-        case .explorerHat: "🎩"
-        case .flavorBackpack: "🎒"
-        case .crystalBadge: "💎"
-        case .glowAura: "✨"
-        case .victoryCrown: "👑"
-        case .scienceCap: "🎓"
-        case .scannerTech: "🔭"
-        case .sparkleTrail: "⭐️"
-        case .rainbowAura: "🌈"
-        case .powerGlow: "⚡"
+        case .speedExplorerBadge: "🚀"
+        case .scienceMasterBadge: "🔬"
+        case .flavorPioneerBadge: "🍴"
+        case .sensoryWizardBadge: "🪄"
+        case .galaxyLegendBadge: "👑"
+        case .day7Badge: "7️⃣"
+        case .week2Badge: "🧭"
+        case .month1Badge: "📅"
+        case .days100Badge: "💯"
+        case .year1Badge: "🛡️"
+        case .cosmicBackpack: "🎒"
+        case .sensoryExplorerPack: "🌊"
+        case .flavorQuestSatchel: "👜"
+        case .scientistBag: "🧪"
+        case .cosmicCompass: "🧭"
+        case .flavorTelescope: "🔭"
+        case .explorerStaff: "✨"
+        case .discoveryWand: "💫"
+        case .sensoryScanner: "📡"
+        case .cyanNebulaAura: "🫧"
+        case .goldCosmicAura: "☀️"
+        case .purpleMysticAura: "🔮"
+        case .rainbowGalaxyAura: "🌈"
+        case .stardustTrail: "⭐"
+        case .cosmicSparkles: "💖"
+        case .galaxyShimmer: "🌌"
         }
     }
 
     var category: CosmeticCategory {
         switch self {
-        case .explorerHat, .scienceCap, .victoryCrown: .hat
-        case .flavorBackpack, .crystalBadge, .scannerTech: .badge
-        case .glowAura, .sparkleTrail, .rainbowAura, .powerGlow: .effect
+        case .speedExplorerBadge, .scienceMasterBadge, .flavorPioneerBadge,
+             .sensoryWizardBadge, .galaxyLegendBadge:
+            .achievementBadge
+        case .day7Badge, .week2Badge, .month1Badge, .days100Badge, .year1Badge:
+            .milestoneBadge
+        case .cosmicBackpack, .sensoryExplorerPack, .flavorQuestSatchel, .scientistBag:
+            .backpack
+        case .cosmicCompass, .flavorTelescope, .explorerStaff, .discoveryWand, .sensoryScanner:
+            .handheld
+        case .cyanNebulaAura, .goldCosmicAura, .purpleMysticAura, .rainbowGalaxyAura:
+            .aura
+        case .stardustTrail, .cosmicSparkles, .galaxyShimmer:
+            .particle
         }
     }
 
-    var requiredLevel: ExplorerLevel {
+    var unlockCondition: CosmeticUnlockCondition {
         switch self {
-        case .explorerHat: .level1
-        case .flavorBackpack, .scienceCap: .level2
-        case .crystalBadge, .sparkleTrail: .level3
-        case .glowAura, .scannerTech, .rainbowAura: .level4
-        case .victoryCrown, .powerGlow: .level5
+        case .speedExplorerBadge: .foodsLogged(50)
+        case .scienceMasterBadge: .reachPhase(.taste)
+        case .flavorPioneerBadge: .foodFamilies(5)
+        case .sensoryWizardBadge: .completeAllPhases
+        case .galaxyLegendBadge: .planetsUnlocked(8)
+        case .day7Badge: .daysLogged(7)
+        case .week2Badge: .daysLogged(14)
+        case .month1Badge: .daysLogged(30)
+        case .days100Badge: .daysLogged(100)
+        case .year1Badge: .daysLogged(365)
+        case .cosmicBackpack: .level(.level3)
+        case .sensoryExplorerPack: .reachPhase(.touch)
+        case .flavorQuestSatchel: .reachPhase(.smell)
+        case .scientistBag: .reachPhase(.taste)
+        case .cosmicCompass: .level(.level2)
+        case .flavorTelescope: .level(.level4)
+        case .explorerStaff: .planetsUnlocked(5)
+        case .discoveryWand: .foodsLogged(75)
+        case .sensoryScanner: .planetsUnlocked(8)
+        case .cyanNebulaAura: .level(.level2)
+        case .goldCosmicAura: .reachPhase(.lick)
+        case .purpleMysticAura: .daysLogged(50)
+        case .rainbowGalaxyAura: .planetsUnlocked(8)
+        case .stardustTrail: .level(.level5)
+        case .cosmicSparkles: .daysLogged(100)
+        case .galaxyShimmer: .daysLogged(365)
         }
     }
-}
 
-nonisolated enum CosmeticCategory: String, Codable, CaseIterable, Sendable {
-    case hat
-    case badge
-    case effect
+    var unlockDescription: String {
+        switch unlockCondition {
+        case .level(let lvl): "Reach Level \(lvl.rawValue)"
+        case .foodsLogged(let n): "Log \(n) foods"
+        case .daysLogged(let n): "\(n) days logging"
+        case .reachPhase(let step): "Complete \(step.label) Phase"
+        case .completeAllPhases: "Complete all 5 SOS phases"
+        case .foodFamilies(let n): "Try \(n) food families"
+        case .planetsUnlocked(let n): "Unlock \(n) planets"
+        }
+    }
 
-    var label: String {
+    var primaryColorHex: String {
         switch self {
-        case .hat: "Hats & Headgear"
-        case .badge: "Badges & Accessories"
-        case .effect: "Visual Effects"
+        case .speedExplorerBadge: "00d9ff"
+        case .scienceMasterBadge: "667eea"
+        case .flavorPioneerBadge: "e91e63"
+        case .sensoryWizardBadge: "00d9ff"
+        case .galaxyLegendBadge: "d4af37"
+        case .day7Badge: "00d9ff"
+        case .week2Badge: "667eea"
+        case .month1Badge: "e91e63"
+        case .days100Badge: "00d9ff"
+        case .year1Badge: "d4af37"
+        case .cosmicBackpack: "667eea"
+        case .sensoryExplorerPack: "00d9ff"
+        case .flavorQuestSatchel: "e91e63"
+        case .scientistBag: "4CA5FF"
+        case .cosmicCompass: "00d9ff"
+        case .flavorTelescope: "d4af37"
+        case .explorerStaff: "667eea"
+        case .discoveryWand: "e91e63"
+        case .sensoryScanner: "00d9ff"
+        case .cyanNebulaAura: "00d9ff"
+        case .goldCosmicAura: "d4af37"
+        case .purpleMysticAura: "667eea"
+        case .rainbowGalaxyAura: "00d9ff"
+        case .stardustTrail: "00d9ff"
+        case .cosmicSparkles: "e91e63"
+        case .galaxyShimmer: "667eea"
+        }
+    }
+
+    var secondaryColorHex: String {
+        switch self {
+        case .speedExplorerBadge: "d4af37"
+        case .scienceMasterBadge: "4CA5FF"
+        case .flavorPioneerBadge: "d4af37"
+        case .sensoryWizardBadge: "e91e63"
+        case .galaxyLegendBadge: "667eea"
+        case .day7Badge: "d4af37"
+        case .week2Badge: "4CA5FF"
+        case .month1Badge: "d4af37"
+        case .days100Badge: "667eea"
+        case .year1Badge: "667eea"
+        case .cosmicBackpack: "00d9ff"
+        case .sensoryExplorerPack: "d4af37"
+        case .flavorQuestSatchel: "667eea"
+        case .scientistBag: "d4af37"
+        case .cosmicCompass: "d4af37"
+        case .flavorTelescope: "e91e63"
+        case .explorerStaff: "d4af37"
+        case .discoveryWand: "d4af37"
+        case .sensoryScanner: "667eea"
+        case .cyanNebulaAura: "667eea"
+        case .goldCosmicAura: "FFD700"
+        case .purpleMysticAura: "764ba2"
+        case .rainbowGalaxyAura: "e91e63"
+        case .stardustTrail: "d4af37"
+        case .cosmicSparkles: "667eea"
+        case .galaxyShimmer: "d4af37"
         }
     }
 }

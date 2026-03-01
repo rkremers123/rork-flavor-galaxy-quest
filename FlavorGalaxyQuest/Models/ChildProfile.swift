@@ -8,8 +8,8 @@ class ChildProfileModel {
     var avatarEmoji: String = "👨‍🚀"
     var explorerTypeRawValue: String = ExplorerType.nova.rawValue
     var explorerCustomName: String = ""
-    var equippedCosmeticValues: [String] = [Cosmetic.explorerHat.rawValue]
-    var unlockedCosmeticValues: [String] = [Cosmetic.explorerHat.rawValue]
+    var equippedCosmeticValues: [String] = []
+    var unlockedCosmeticValues: [String] = []
     var safeFoodIds: [UUID] = []
     var targetFoodName: String = ""
     var targetFoodId: UUID?

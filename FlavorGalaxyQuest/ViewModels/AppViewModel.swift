@@ -489,13 +489,36 @@ class AppViewModel {
         }
     }
 
-    private func checkCosmeticUnlocks() {
+    func checkCosmeticUnlocks() {
         let level = profile.currentLevel
+        let foodsLogged = exploredFoodsCount
+        let daysLogged = profile.longestStreak
+        let planetsUnlocked = JourneyPlanet.allCases.filter { dynamicIsPlanetCompleted($0) }.count
+
+        let completedFoodIds = Set(profile.questProgressItems.filter { $0.isComplete }.map { $0.foodId })
+        let allFoods = FoodDatabase.allFoods + customFoodItems
+        let completedCategories = Set(allFoods.filter { completedFoodIds.contains($0.id) }.map { $0.category })
+
+        var phaseCompletion: [SensoryStep: Bool] = [:]
+        for step in SensoryStep.allCases {
+            let count = profile.questProgressItems.filter { $0.completedSteps.contains(step) }.count
+            phaseCompletion[step] = count > 0
+        }
+        let allPhasesComplete = SensoryStep.allCases.allSatisfy { phaseCompletion[$0] == true }
+
         var unlocked = profile.unlockedCosmetics
         for cosmetic in Cosmetic.allCases {
-            if cosmetic.requiredLevel.rawValue <= level.rawValue {
-                unlocked.insert(cosmetic)
+            let met: Bool
+            switch cosmetic.unlockCondition {
+            case .level(let req): met = level.rawValue >= req.rawValue
+            case .foodsLogged(let n): met = foodsLogged >= n
+            case .daysLogged(let n): met = daysLogged >= n
+            case .reachPhase(let step): met = phaseCompletion[step] == true
+            case .completeAllPhases: met = allPhasesComplete
+            case .foodFamilies(let n): met = completedCategories.count >= n
+            case .planetsUnlocked(let n): met = planetsUnlocked >= n
             }
+            if met { unlocked.insert(cosmetic) }
         }
         profile.unlockedCosmetics = unlocked
     }
