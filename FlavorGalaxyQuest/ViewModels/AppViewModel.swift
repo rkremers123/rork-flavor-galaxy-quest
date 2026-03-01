@@ -75,6 +75,7 @@ class AppViewModel {
             refreshBridgeSuggestions()
             refreshSensoryProfile()
             refreshRegressionPatterns()
+            Task { await subscription.checkSubscriptionStatus() }
         } else {
             mode = .parentOnboarding
         }

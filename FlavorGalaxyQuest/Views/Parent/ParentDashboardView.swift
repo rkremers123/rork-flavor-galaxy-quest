@@ -44,9 +44,7 @@ struct ParentDashboardView: View {
                 Text("This will erase all progress, profiles, and settings. This cannot be undone.")
             }
             .sheet(isPresented: $showPaywall) {
-                PaywallView(subscription: viewModel.subscription) {
-                    viewModel.subscription.startFreeTrial()
-                }
+                PaywallView(subscription: viewModel.subscription)
             }
             .sheet(isPresented: $showShareSheet) {
                 if let data = pdfData {
@@ -809,7 +807,7 @@ struct ParentDashboardView: View {
                 }
 
                 Button("Restore Purchases") {
-                    viewModel.subscription.restorePurchases()
+                    Task { await viewModel.subscription.restorePurchases() }
                 }
                 .font(.caption.weight(.medium))
                 .foregroundStyle(.secondary)

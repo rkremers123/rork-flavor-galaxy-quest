@@ -41,9 +41,7 @@ struct SettingsScreen: View {
                 .presentationDragIndicator(.visible)
         }
         .sheet(isPresented: $showPaywall) {
-            PaywallView(subscription: viewModel.subscription) {
-                viewModel.subscription.startFreeTrial()
-            }
+            PaywallView(subscription: viewModel.subscription)
         }
         .alert("Reset All Data?", isPresented: $showResetConfirmation) {
             Button("Reset", role: .destructive) { viewModel.resetApp() }
@@ -476,7 +474,7 @@ struct SettingsScreen: View {
             }
 
             Button {
-                viewModel.subscription.restorePurchases()
+                Task { await viewModel.subscription.restorePurchases() }
             } label: {
                 Text("Restore Purchases")
                     .font(.system(.caption2, design: .rounded, weight: .medium))
