@@ -10,11 +10,9 @@ struct JourneyMapScreen: View {
 
     private var foodsExplored: Int { viewModel.exploredFoodsCount }
     private var currentPlanet: JourneyPlanet { viewModel.dynamicCurrentPlanet }
-    private var distribution: [Int] { viewModel.planetDistribution }
 
-    private let nodeSize: CGFloat = 140
-    private let spaceNodeSize: CGFloat = 36
-    private let pathSpacing: CGFloat = 56
+    private let nodeSize: CGFloat = 160
+    private let columns = 2
 
     var body: some View {
         ZStack {
@@ -29,14 +27,10 @@ struct JourneyMapScreen: View {
 
                     statsRow
                         .padding(.horizontal, 20)
-                        .padding(.bottom, 16)
-
-                    currentProgressCard
-                        .padding(.horizontal, 20)
                         .padding(.bottom, 20)
 
-                    duolingoPath
-                        .padding(.horizontal, 20)
+                    boardgameGrid
+                        .padding(.horizontal, 12)
 
                     Spacer().frame(height: 100)
                 }
@@ -77,6 +71,8 @@ struct JourneyMapScreen: View {
                 .presentationBackground(SpaceTheme.deepNavy)
         }
     }
+
+    // MARK: - Header
 
     private var explorerHeader: some View {
         HStack(spacing: 14) {
@@ -162,6 +158,8 @@ struct JourneyMapScreen: View {
         }
     }
 
+    // MARK: - Stats
+
     private var statsRow: some View {
         HStack(spacing: 12) {
             journeyStat(icon: "globe.americas.fill", value: "\(foodsExplored)", label: "Explored", color: SpaceTheme.cosmicCyan)
@@ -199,270 +197,111 @@ struct JourneyMapScreen: View {
         .background(Capsule().fill(.white.opacity(0.06)))
     }
 
-    private var currentProgressCard: some View {
-        let planet = currentPlanet
-        let completed = viewModel.dynamicFoodsCompleted(planet)
-        let total = viewModel.dynamicFoodsForPlanet(planet)
-        let planetColor = SpaceTheme.planetColor(hex: planet.accentColor)
-        let progress = total > 0 ? Double(completed) / Double(total) : 0
+    // MARK: - Boardgame Grid
 
-        return HStack(spacing: 16) {
-            Image(planet.imageName)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 56, height: 56)
-                .clipShape(Circle())
-                .shadow(color: planetColor.opacity(0.4), radius: 8)
-
-            VStack(alignment: .leading, spacing: 6) {
-                Text(planet.name)
-                    .font(.system(.subheadline, design: .rounded, weight: .bold))
-                    .foregroundStyle(.white)
-
-                HStack(spacing: 8) {
-                    GeometryReader { geo in
-                        ZStack(alignment: .leading) {
-                            Capsule()
-                                .fill(.white.opacity(0.1))
-                                .frame(height: 6)
-                            Capsule()
-                                .fill(planetColor)
-                                .frame(width: geo.size.width * progress, height: 6)
-                        }
-                    }
-                    .frame(height: 6)
-
-                    Text("\(completed)/\(total)")
-                        .font(.system(.caption2, design: .rounded, weight: .bold))
-                        .foregroundStyle(planetColor)
-                        .frame(width: 36, alignment: .trailing)
-                }
-
-                Text("\(total - completed) food\(total - completed == 1 ? "" : "s") to next planet")
-                    .font(.system(.caption2, design: .rounded))
-                    .foregroundStyle(.white.opacity(0.4))
-            }
-
-            Spacer(minLength: 0)
-
-            ZStack {
-                Circle()
-                    .fill(SpaceTheme.planetColor(hex: viewModel.profile.explorerType.accentHex).opacity(0.2))
-                    .frame(width: 44, height: 44)
-                Image(viewModel.profile.explorerType.imageName)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 36, height: 36)
-            }
-        }
-        .padding(16)
-        .background(
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .fill(.white.opacity(0.04))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 18, style: .continuous)
-                        .stroke(planetColor.opacity(0.15), lineWidth: 1)
-                )
-        )
-    }
-
-    // MARK: - Duolingo Path
-
-    private var duolingoPath: some View {
-        VStack(spacing: 0) {
+    private var boardgameGrid: some View {
+        VStack(spacing: 24) {
             ForEach(Array(JourneyPlanet.allCases.enumerated()), id: \.element) { index, planet in
-                let isCompleted = viewModel.dynamicIsPlanetCompleted(planet)
-                let isLocked = viewModel.dynamicIsPlanetLocked(planet)
-                let isActive = planet == currentPlanet
-                let planetFoods = viewModel.dynamicFoodsForPlanet(planet)
-                let completed = viewModel.dynamicFoodsCompleted(planet)
-                let planetColor = SpaceTheme.planetColor(hex: planet.accentColor)
+                let isEvenRow = index % 2 == 0
 
-                planetRow(
-                    planet: planet,
-                    planetColor: planetColor,
-                    isCompleted: isCompleted,
-                    isLocked: isLocked,
-                    isActive: isActive,
-                    planetFoods: planetFoods,
-                    completed: completed,
-                    index: index
-                )
+                HStack {
+                    if !isEvenRow { Spacer() }
 
-                if isActive || (isCompleted && index < JourneyPlanet.allCases.count - 1) {
-                    spacesRow(
-                        planet: planet,
-                        planetColor: planetColor,
-                        completed: completed,
-                        total: planetFoods,
-                        isActive: isActive,
-                        isCompleted: isCompleted
-                    )
+                    planetNode(planet)
+                        .opacity(appeared ? 1 : 0)
+                        .offset(y: appeared ? 0 : 20)
+                        .animation(.spring(duration: 0.5).delay(Double(index) * 0.08), value: appeared)
+
+                    if isEvenRow { Spacer() }
                 }
 
                 if index < JourneyPlanet.allCases.count - 1 {
-                    connectorLine(isLit: !viewModel.dynamicIsPlanetLocked(JourneyPlanet.allCases[index + 1]))
+                    connectorDots(from: index)
                 }
             }
         }
     }
 
-    private func planetRow(
-        planet: JourneyPlanet,
-        planetColor: Color,
-        isCompleted: Bool,
-        isLocked: Bool,
-        isActive: Bool,
-        planetFoods: Int,
-        completed: Int,
-        index: Int
-    ) -> some View {
-        Button { selectedPlanet = planet } label: {
-            HStack(spacing: 16) {
+    private func planetNode(_ planet: JourneyPlanet) -> some View {
+        let isActive = planet == currentPlanet
+        let isCompleted = viewModel.dynamicIsPlanetCompleted(planet)
+        let isLocked = viewModel.dynamicIsPlanetLocked(planet)
+        let completed = viewModel.dynamicFoodsCompleted(planet)
+        let total = viewModel.dynamicFoodsForPlanet(planet)
+        let planetColor = SpaceTheme.planetColor(hex: planet.accentColor)
+
+        return Button {
+            selectedPlanet = planet
+        } label: {
+            VStack(spacing: 8) {
                 ZStack {
                     if isActive {
                         Circle()
-                            .stroke(planetColor.opacity(0.4), lineWidth: 2.5)
-                            .frame(width: 76, height: 76)
+                            .stroke(planetColor.opacity(0.5), lineWidth: 3)
+                            .frame(width: nodeSize + 16, height: nodeSize + 16)
                             .modifier(PulseEffect())
                     }
 
                     Image(planet.imageName)
                         .resizable()
                         .scaledToFit()
-                        .frame(width: 68, height: 68)
+                        .frame(width: nodeSize, height: nodeSize)
                         .clipShape(Circle())
-                        .opacity(isLocked ? 0.2 : 1.0)
-                        .shadow(color: isLocked ? .clear : planetColor.opacity(0.35), radius: 10)
+                        .opacity(isLocked ? 0.25 : 1.0)
+                        .shadow(color: isLocked ? .clear : planetColor.opacity(0.4), radius: 12)
 
                     if isCompleted {
                         Image(systemName: "checkmark.circle.fill")
-                            .font(.system(size: 18))
+                            .font(.title3)
                             .foregroundStyle(SpaceTheme.planetGreen)
-                            .background(Circle().fill(SpaceTheme.deepNavy).padding(-2))
-                            .offset(x: 26, y: -26)
+                            .background(Circle().fill(SpaceTheme.deepNavy).padding(-3))
+                            .offset(x: nodeSize / 2 - 6, y: -(nodeSize / 2 - 6))
                     }
 
                     if isLocked {
                         Image(systemName: "lock.fill")
-                            .font(.system(size: 14))
-                            .foregroundStyle(.white.opacity(0.25))
+                            .font(.system(size: 20))
+                            .foregroundStyle(.white.opacity(0.3))
                     }
-                }
-                .frame(width: 80, height: 80)
 
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(planet.name)
-                        .font(.system(.headline, design: .rounded, weight: .bold))
-                        .foregroundStyle(isLocked ? .white.opacity(0.2) : .white)
-
-                    Text(planet.subtitle)
-                        .font(.system(.caption, design: .rounded))
-                        .foregroundStyle(isLocked ? .white.opacity(0.1) : .white.opacity(0.4))
-
-                    if !isLocked {
-                        HStack(spacing: 6) {
-                            Text("\(completed)/\(planetFoods) foods")
-                                .font(.system(.caption2, design: .rounded, weight: .bold))
-                                .foregroundStyle(isCompleted ? SpaceTheme.planetGreen : planetColor)
-
-                            if isActive {
-                                Text("ACTIVE")
-                                    .font(.system(size: 9, weight: .heavy, design: .rounded))
-                                    .foregroundStyle(SpaceTheme.deepNavy)
-                                    .padding(.horizontal, 6)
-                                    .padding(.vertical, 2)
-                                    .background(Capsule().fill(planetColor))
-                            }
-                        }
+                    if !isLocked && !isCompleted && total > 0 {
+                        Circle()
+                            .trim(from: 0, to: Double(completed) / Double(total))
+                            .stroke(planetColor, style: StrokeStyle(lineWidth: 3.5, lineCap: .round))
+                            .frame(width: nodeSize + 6, height: nodeSize + 6)
+                            .rotationEffect(.degrees(-90))
                     }
                 }
 
-                Spacer()
+                Text(planet.name)
+                    .font(.system(.subheadline, design: .rounded, weight: .bold))
+                    .foregroundStyle(isLocked ? .white.opacity(0.2) : .white.opacity(0.9))
+                    .lineLimit(1)
 
                 if !isLocked {
-                    Image(systemName: "chevron.right")
-                        .font(.caption)
-                        .foregroundStyle(.white.opacity(0.2))
+                    Text("\(completed)/\(total)")
+                        .font(.system(size: 14, weight: .bold, design: .rounded))
+                        .foregroundStyle(isCompleted ? SpaceTheme.planetGreen : planetColor)
                 }
             }
-            .padding(14)
-            .background(
-                RoundedRectangle(cornerRadius: 18, style: .continuous)
-                    .fill(isActive ? planetColor.opacity(0.06) : .white.opacity(0.02))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 18, style: .continuous)
-                            .stroke(isActive ? planetColor.opacity(0.2) : .clear, lineWidth: 1)
-                    )
-            )
         }
         .buttonStyle(.plain)
-        .opacity(appeared ? 1 : 0)
-        .offset(y: appeared ? 0 : 15)
-        .animation(.spring(duration: 0.5).delay(Double(index) * 0.06), value: appeared)
     }
 
-    private func spacesRow(
-        planet: JourneyPlanet,
-        planetColor: Color,
-        completed: Int,
-        total: Int,
-        isActive: Bool,
-        isCompleted: Bool
-    ) -> some View {
-        HStack(spacing: 6) {
-            Spacer().frame(width: 22)
+    private func connectorDots(from index: Int) -> some View {
+        let nextPlanet = JourneyPlanet.allCases[index + 1]
+        let isLit = !viewModel.dynamicIsPlanetLocked(nextPlanet)
 
-            ForEach(0..<total, id: \.self) { i in
-                let isFilled = i < completed
-                let isExplorerHere = isActive && i == completed && !isCompleted
-
-                ZStack {
-                    if isExplorerHere {
-                        Circle()
-                            .fill(SpaceTheme.planetColor(hex: viewModel.profile.explorerType.accentHex).opacity(0.3))
-                            .frame(width: spaceNodeSize + 8, height: spaceNodeSize + 8)
-
-                        Image(viewModel.profile.explorerType.imageName)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: spaceNodeSize, height: spaceNodeSize)
-                            .modifier(FloatEffect())
-                    } else if isFilled {
-                        Image("cosmic_connector_star")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: spaceNodeSize - 4, height: spaceNodeSize - 4)
-                            .opacity(0.8)
-                    } else {
-                        Circle()
-                            .fill(.white.opacity(0.06))
-                            .frame(width: spaceNodeSize - 8, height: spaceNodeSize - 8)
-                            .overlay(
-                                Circle()
-                                    .stroke(.white.opacity(0.08), lineWidth: 1)
-                            )
-                    }
-                }
-                .frame(width: spaceNodeSize, height: spaceNodeSize)
-                .animation(.spring(duration: 0.5), value: completed)
+        return HStack(spacing: 8) {
+            ForEach(0..<3, id: \.self) { dot in
+                Circle()
+                    .fill(isLit ? .white.opacity(0.25) : .white.opacity(0.06))
+                    .frame(width: 6, height: 6)
             }
-
-            Spacer()
-        }
-        .padding(.vertical, 8)
-        .padding(.leading, 14)
-    }
-
-    private func connectorLine(isLit: Bool) -> some View {
-        HStack {
-            Spacer().frame(width: 54)
-            Rectangle()
-                .fill(isLit ? .white.opacity(0.1) : .white.opacity(0.03))
-                .frame(width: 2, height: 16)
-            Spacer()
         }
     }
+
+    // MARK: - Reward Overlay
 
     private var rewardOverlay: some View {
         ZStack {
@@ -504,22 +343,7 @@ struct JourneyMapScreen: View {
     }
 }
 
-struct CurveConnector: Shape {
-    let from: CGPoint
-    let to: CGPoint
-
-    func path(in rect: CGRect) -> Path {
-        var path = Path()
-        path.move(to: from)
-        let midY = (from.y + to.y) / 2
-        path.addCurve(
-            to: to,
-            control1: CGPoint(x: from.x, y: midY),
-            control2: CGPoint(x: to.x, y: midY)
-        )
-        return path
-    }
-}
+// MARK: - Planet Detail Sheet
 
 struct PlanetDetailSheet: View {
     let planet: JourneyPlanet
@@ -724,16 +548,5 @@ struct PulseEffect: ViewModifier {
             .opacity(pulse ? 0.5 : 1.0)
             .animation(.easeInOut(duration: 1.8).repeatForever(autoreverses: true), value: pulse)
             .onAppear { pulse = true }
-    }
-}
-
-struct FloatEffect: ViewModifier {
-    @State private var floating = false
-
-    func body(content: Content) -> some View {
-        content
-            .offset(y: floating ? -5 : 5)
-            .animation(.easeInOut(duration: 2.2).repeatForever(autoreverses: true), value: floating)
-            .onAppear { floating = true }
     }
 }
