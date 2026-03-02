@@ -17,29 +17,31 @@ struct ParentDashboardView: View {
                 tabSelector
                     .padding(.top, 8)
 
-                TabView(selection: $selectedTab) {
-                    overviewTab.tag(ParentTab.overview)
-                    progressTab.tag(ParentTab.progress)
-                    foodLibraryTab.tag(ParentTab.foodLibrary)
-                    regressionsTab.tag(ParentTab.regressions)
-                    analyticsTab.tag(ParentTab.analytics)
-                    recommendationsTab.tag(ParentTab.recommendations)
-                    settingsTab.tag(ParentTab.settings)
+                Group {
+                    switch selectedTab {
+                    case .overview: overviewTab
+                    case .progress: progressTab
+                    case .foodLibrary: foodLibraryTab
+                    case .regressions: regressionsTab
+                    case .analytics: analyticsTab
+                    case .recommendations: recommendationsTab
+                    case .settings: settingsTab
+                    }
                 }
-                .tabViewStyle(.page(indexDisplayMode: .never))
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
             .background(Color(.systemGroupedBackground))
             .navigationTitle("Command Center")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
+                ToolbarItem(placement: .topBarLeading) {
                     Button {
                         viewModel.switchToExplorerMode()
                     } label: {
                         HStack(spacing: 4) {
                             Image(systemName: "chevron.left")
                                 .font(.caption.weight(.semibold))
-                            Text("Back to \(viewModel.profile.explorerDisplayName)'s Journey")
+                            Text("\(viewModel.profile.explorerDisplayName)'s Journey")
                                 .font(.subheadline)
                         }
                     }

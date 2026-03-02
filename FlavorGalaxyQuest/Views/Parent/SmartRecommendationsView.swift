@@ -34,6 +34,7 @@ struct SmartRecommendationsView: View {
                 if recommendations.isEmpty {
                     emptyState
                 } else {
+                    bridgeFoodEducationBox
                     filterToggle
                     ForEach(groupedByTier, id: \.0) { tier, items in
                         tierSection(tier: tier, items: items)
@@ -42,6 +43,27 @@ struct SmartRecommendationsView: View {
             }
             .padding(16)
         }
+    }
+
+    private var bridgeFoodEducationBox: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 8) {
+                Image(systemName: "info.circle.fill")
+                    .font(.callout)
+                    .foregroundStyle(.blue)
+                Text("What are bridge foods?")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.blue)
+            }
+
+            Text("Bridge foods share similar textures and flavors to foods \(childName) already enjoys. They're designed to help expand their diet naturally, without overwhelming their sensory preferences.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .lineSpacing(3)
+        }
+        .padding(14)
+        .background(Color.blue.opacity(0.06))
+        .clipShape(.rect(cornerRadius: 12))
     }
 
     private var headerSection: some View {

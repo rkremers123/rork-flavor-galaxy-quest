@@ -9,16 +9,124 @@ struct SensoryProfileDashboardView: View {
         ScrollView {
             VStack(spacing: 20) {
                 profileSummaryCard
+                insightsAndSuccessSection
                 textureChartSection
                 flavorChartSection
                 temperatureChartSection
                 successZoneBadges
                 avoidanceZoneCard
-                insightsSection
                 exportButton
             }
             .padding(16)
         }
+    }
+
+    private var insightsAndSuccessSection: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            Label("Strengths & Growth Areas", systemImage: "chart.line.uptrend.xyaxis")
+                .font(.headline)
+
+            if sensoryProfile.totalFoodsConsumed == 0 {
+                HStack(spacing: 10) {
+                    Image(systemName: "info.circle.fill")
+                        .foregroundStyle(.secondary)
+                    Text("Complete a few food quests to see personalized insights here.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                .padding(14)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Color(.secondarySystemGroupedBackground))
+                .clipShape(.rect(cornerRadius: 12))
+            } else {
+                VStack(spacing: 10) {
+                    if let strongest = sensoryProfile.textureAggregates.max(by: { $0.value.count < $1.value.count }) {
+                        insightCard(
+                            type: .strength,
+                            title: "Strength: \(strongest.key.label) Textures",
+                            text: "\(sensoryProfile.childName) has explored \(strongest.value.count) \(strongest.key.label.lowercased()) foods. This is a strong foundation — \(strongest.key.label.lowercased()) textures are a reliable comfort zone."
+                        )
+                    }
+
+                    let unexploredFlavors = FoodFlavor.allCases.filter { (sensoryProfile.flavorAggregates[$0]?.count ?? 0) == 0 }
+                    if !unexploredFlavors.isEmpty {
+                        insightCard(
+                            type: .growth,
+                            title: "Growth Area: \(unexploredFlavors.map(\.label).joined(separator: " & "))",
+                            text: "\(sensoryProfile.childName) hasn't explored \(unexploredFlavors.map(\.label).joined(separator: " or ").lowercased()) flavors yet. These are typically later-stage in SOS therapy. No rush — they'll come naturally as confidence builds."
+                        )
+                    }
+
+                    if let topFlavor = sensoryProfile.flavorAggregates.max(by: { $0.value.count < $1.value.count }),
+                       let nextTexture = FoodTexture.allCases.first(where: { (sensoryProfile.textureAggregates[$0]?.count ?? 0) == 0 }) ?? sensoryProfile.textureAggregates.min(by: { $0.value.count < $1.value.count })?.key {
+                        insightCard(
+                            type: .challenge,
+                            title: "Ready for: \(nextTexture.label) + \(topFlavor.key.label)",
+                            text: "\(sensoryProfile.childName) is comfortable with \(topFlavor.key.label.lowercased()) flavors. Combining that with \(nextTexture.label.lowercased()) textures could be a natural next step."
+                        )
+                    }
+
+                    progressionNote
+                }
+            }
+        }
+    }
+
+    private enum InsightType {
+        case strength, growth, challenge
+
+        var color: Color {
+            switch self {
+            case .strength: .green
+            case .growth: Color(red: 0.83, green: 0.69, blue: 0.22)
+            case .challenge: .blue
+            }
+        }
+
+        var icon: String {
+            switch self {
+            case .strength: "checkmark.seal.fill"
+            case .growth: "leaf.fill"
+            case .challenge: "flame.fill"
+            }
+        }
+    }
+
+    private func insightCard(type: InsightType, title: String, text: String) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 8) {
+                Image(systemName: type.icon)
+                    .font(.caption)
+                    .foregroundStyle(type.color)
+                Text(title)
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(type.color)
+            }
+            Text(text)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .lineSpacing(3)
+        }
+        .padding(14)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color(.secondarySystemGroupedBackground))
+        .clipShape(.rect(cornerRadius: 12))
+    }
+
+    private var progressionNote: some View {
+        HStack(spacing: 10) {
+            Image(systemName: "chart.line.uptrend.xyaxis")
+                .font(.caption)
+                .foregroundStyle(.blue)
+            Text("\(sensoryProfile.childName) has tried \(sensoryProfile.totalFoodsConsumed) food\(sensoryProfile.totalFoodsConsumed == 1 ? "" : "s") in \(sensoryProfile.daysActive) day\(sensoryProfile.daysActive == 1 ? "" : "s"). Keep the momentum going!")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .lineSpacing(2)
+        }
+        .padding(14)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color.blue.opacity(0.06))
+        .clipShape(.rect(cornerRadius: 12))
     }
 
     private var profileSummaryCard: some View {
@@ -212,35 +320,6 @@ struct SensoryProfileDashboardView: View {
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                         .italic()
-                }
-                .padding(16)
-                .background(Color(.secondarySystemGroupedBackground))
-                .clipShape(.rect(cornerRadius: 14))
-            }
-        }
-    }
-
-    private var insightsSection: some View {
-        Group {
-            if !insights.isEmpty {
-                VStack(alignment: .leading, spacing: 12) {
-                    Label("Insights", systemImage: "lightbulb.fill")
-                        .font(.headline)
-                        .foregroundStyle(.yellow)
-
-                    VStack(alignment: .leading, spacing: 10) {
-                        ForEach(Array(insights.enumerated()), id: \.offset) { _, insight in
-                            HStack(alignment: .top, spacing: 10) {
-                                Image(systemName: "sparkle")
-                                    .font(.caption)
-                                    .foregroundStyle(.yellow)
-                                    .padding(.top, 2)
-                                Text(insight)
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            }
-                        }
-                    }
                 }
                 .padding(16)
                 .background(Color(.secondarySystemGroupedBackground))
