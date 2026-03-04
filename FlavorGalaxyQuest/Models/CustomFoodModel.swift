@@ -8,16 +8,20 @@ class CustomFoodModel {
     var textureRawValue: String = FoodTexture.soft.rawValue
     var flavorRawValue: String = FoodFlavor.bland.rawValue
     var temperatureRawValue: String = FoodTemperature.roomTemp.rawValue
+    var colorRawValue: String = FoodColor.brown.rawValue
+    var foodGroupRawValue: String = FoodGroup.other.rawValue
     var createdDate: Date = Date()
 
     init() {}
 
-    init(name: String, texture: FoodTexture, flavor: FoodFlavor, temperature: FoodTemperature) {
+    init(name: String, texture: FoodTexture, flavor: FoodFlavor, temperature: FoodTemperature, color: FoodColor = .brown, foodGroup: FoodGroup = .other) {
         self.foodId = UUID()
         self.name = name
         self.textureRawValue = texture.rawValue
         self.flavorRawValue = flavor.rawValue
         self.temperatureRawValue = temperature.rawValue
+        self.colorRawValue = color.rawValue
+        self.foodGroupRawValue = foodGroup.rawValue
         self.createdDate = Date()
     }
 
@@ -36,6 +40,16 @@ class CustomFoodModel {
         set { temperatureRawValue = newValue.rawValue }
     }
 
+    var color: FoodColor {
+        get { FoodColor(rawValue: colorRawValue) ?? .brown }
+        set { colorRawValue = newValue.rawValue }
+    }
+
+    var foodGroup: FoodGroup {
+        get { FoodGroup(rawValue: foodGroupRawValue) ?? .other }
+        set { foodGroupRawValue = newValue.rawValue }
+    }
+
     func toFoodItem() -> FoodItem {
         FoodItem(
             id: foodId,
@@ -46,7 +60,9 @@ class CustomFoodModel {
             temperature: temperature,
             aroma: .mild,
             category: .protein,
-            planetColorHex: generateColorHex()
+            planetColorHex: generateColorHex(),
+            color: color,
+            foodGroup: foodGroup
         )
     }
 

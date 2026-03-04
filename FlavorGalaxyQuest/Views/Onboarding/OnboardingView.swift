@@ -182,37 +182,7 @@ struct OnboardingView: View {
             ScrollView {
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 90), spacing: 12)], spacing: 12) {
                     ForEach(FoodDatabase.allFoods) { food in
-                        Button {
-                            if selectedSafeFoods.contains(food.id) {
-                                selectedSafeFoods.remove(food.id)
-                            } else {
-                                selectedSafeFoods.insert(food.id)
-                            }
-                        } label: {
-                            VStack(spacing: 6) {
-                                Text(food.emoji)
-                                    .font(.title2)
-                                Text(food.name)
-                                    .font(.system(.caption2, design: .rounded, weight: .medium))
-                                    .foregroundStyle(.white)
-                                    .lineLimit(1)
-                            }
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 12)
-                            .background(
-                                RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                    .fill(selectedSafeFoods.contains(food.id)
-                                        ? SpaceTheme.planetColor(hex: food.planetColorHex).opacity(0.3)
-                                        : .white.opacity(0.06))
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                            .stroke(selectedSafeFoods.contains(food.id)
-                                                ? SpaceTheme.planetColor(hex: food.planetColorHex).opacity(0.6)
-                                                : .white.opacity(0.1), lineWidth: 1.5)
-                                    )
-                            )
-                        }
-                        .sensoryFeedback(.selection, trigger: selectedSafeFoods.contains(food.id))
+                        safeFoodCell(food)
                     }
                 }
                 .padding(.horizontal, 20)
@@ -243,6 +213,32 @@ struct OnboardingView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
                     onboardingTextField(label: "Goal Food", placeholder: "e.g., Pizza", text: $goalFoodName, accent: SpaceTheme.warningOrange)
+
+                    if let matchedFood = FoodDatabase.food(byName: goalFoodName) {
+                        HStack(spacing: 8) {
+                            Text(matchedFood.color.emoji)
+                                .font(.caption)
+                            Text(matchedFood.name)
+                                .font(.system(.caption, design: .rounded, weight: .semibold))
+                                .foregroundStyle(.white)
+                            Text("(\(matchedFood.foodGroup.label))")
+                                .font(.system(.caption2, design: .rounded))
+                                .foregroundStyle(.white.opacity(0.5))
+                            Spacer()
+                            Image(systemName: "checkmark.circle.fill")
+                                .font(.caption)
+                                .foregroundStyle(SpaceTheme.planetGreen)
+                        }
+                        .padding(10)
+                        .background(
+                            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                .fill(SpaceTheme.planetGreen.opacity(0.08))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                        .stroke(SpaceTheme.planetGreen.opacity(0.2), lineWidth: 1)
+                                )
+                        )
+                    }
 
                     VStack(alignment: .leading, spacing: 10) {
                         Text("What challenges does it have?")
@@ -404,6 +400,10 @@ struct OnboardingView: View {
             }
             .padding(.horizontal, 24)
 
+            if !selectedSafeFoods.isEmpty {
+                safeFoodDiversitySummary
+            }
+
             Spacer()
 
             Button {
@@ -431,6 +431,53 @@ struct OnboardingView: View {
             .padding(.horizontal, 24)
             .padding(.bottom, 40)
         }
+    }
+
+    private var safeFoodDiversitySummary: some View {
+        let safeFoods = FoodDatabase.allFoods.filter { selectedSafeFoods.contains($0.id) }
+        let groupCounts = Dictionary(grouping: safeFoods, by: \.foodGroup).mapValues(\.count)
+        let uniqueColors = Set(safeFoods.map(\.color))
+
+        return VStack(alignment: .leading, spacing: 8) {
+            Text("Your safe foods cover:")
+                .font(.system(.caption, design: .rounded, weight: .semibold))
+                .foregroundStyle(SpaceTheme.cosmicCyan)
+
+            HStack(spacing: 4) {
+                Image(systemName: "checkmark")
+                    .font(.caption2)
+                    .foregroundStyle(SpaceTheme.planetGreen)
+                Text("Food Groups: " + groupCounts.sorted(by: { $0.key.rawValue < $1.key.rawValue }).map { "\($0.key.label) (\($0.value))" }.joined(separator: ", "))
+                    .font(.system(.caption2, design: .rounded))
+                    .foregroundStyle(.white.opacity(0.6))
+            }
+
+            HStack(spacing: 4) {
+                Image(systemName: "checkmark")
+                    .font(.caption2)
+                    .foregroundStyle(SpaceTheme.planetGreen)
+                HStack(spacing: 2) {
+                    Text("Colors:")
+                        .font(.system(.caption2, design: .rounded))
+                        .foregroundStyle(.white.opacity(0.6))
+                    ForEach(Array(uniqueColors).sorted(by: { $0.rawValue < $1.rawValue }), id: \.self) { color in
+                        Text(color.emoji)
+                            .font(.system(size: 10))
+                    }
+                }
+            }
+        }
+        .padding(14)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .fill(.white.opacity(0.04))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .stroke(SpaceTheme.cosmicCyan.opacity(0.15), lineWidth: 1)
+                )
+        )
+        .padding(.horizontal, 24)
     }
 
     private func summaryCard(count: Int, label: String, icon: String, color: Color) -> some View {
@@ -476,6 +523,48 @@ struct OnboardingView: View {
                 )
         }
         .padding(.horizontal, 24)
+    }
+
+    private func safeFoodCell(_ food: FoodItem) -> some View {
+        let isSelected = selectedSafeFoods.contains(food.id)
+        let fillColor: Color = isSelected ? SpaceTheme.planetColor(hex: food.planetColorHex).opacity(0.3) : .white.opacity(0.06)
+        let strokeColor: Color = isSelected ? SpaceTheme.planetColor(hex: food.planetColorHex).opacity(0.6) : .white.opacity(0.1)
+
+        return Button {
+            if isSelected {
+                selectedSafeFoods.remove(food.id)
+            } else {
+                selectedSafeFoods.insert(food.id)
+            }
+        } label: {
+            VStack(spacing: 4) {
+                Text(food.emoji)
+                    .font(.title2)
+                HStack(spacing: 2) {
+                    Text(food.color.emoji)
+                        .font(.system(size: 8))
+                    Text(food.name)
+                        .font(.system(.caption2, design: .rounded, weight: .medium))
+                        .foregroundStyle(.white)
+                        .lineLimit(1)
+                }
+                Text(food.foodGroup.label)
+                    .font(.system(size: 9, weight: .medium, design: .rounded))
+                    .foregroundStyle(.white.opacity(0.4))
+                    .lineLimit(1)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 10)
+            .background(
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .fill(fillColor)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                            .stroke(strokeColor, lineWidth: 1.5)
+                    )
+            )
+        }
+        .sensoryFeedback(.selection, trigger: isSelected)
     }
 
     private func onboardingTextField(label: String, placeholder: String, text: Binding<String>, accent: Color) -> some View {

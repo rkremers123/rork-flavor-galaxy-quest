@@ -601,8 +601,8 @@ class AppViewModel {
     }
 
     @discardableResult
-    func createCustomFood(name: String, texture: FoodTexture, flavor: FoodFlavor, temperature: FoodTemperature) -> FoodItem {
-        let custom = CustomFoodModel(name: name, texture: texture, flavor: flavor, temperature: temperature)
+    func createCustomFood(name: String, texture: FoodTexture, flavor: FoodFlavor, temperature: FoodTemperature, color: FoodColor = .brown, foodGroup: FoodGroup = .other) -> FoodItem {
+        let custom = CustomFoodModel(name: name, texture: texture, flavor: flavor, temperature: temperature, color: color, foodGroup: foodGroup)
         modelContext.insert(custom)
         try? modelContext.save()
         loadCustomFoods()

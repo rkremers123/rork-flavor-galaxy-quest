@@ -62,6 +62,80 @@ nonisolated enum FoodAroma: String, Codable, CaseIterable, Sendable, Hashable {
     }
 }
 
+nonisolated enum FoodColor: String, Codable, CaseIterable, Sendable, Hashable {
+    case red, orange, yellow, green, blue, purple, brown, white, golden, pink, mixed
+
+    var emoji: String {
+        switch self {
+        case .red: "🔴"
+        case .orange: "🟠"
+        case .yellow: "🟡"
+        case .green: "🟢"
+        case .blue: "🔵"
+        case .purple: "🟣"
+        case .brown: "🟤"
+        case .white: "⚪"
+        case .golden: "🟡"
+        case .pink: "🩷"
+        case .mixed: "🌈"
+        }
+    }
+
+    var label: String {
+        switch self {
+        case .red: "Red"
+        case .orange: "Orange"
+        case .yellow: "Yellow"
+        case .green: "Green"
+        case .blue: "Blue"
+        case .purple: "Purple"
+        case .brown: "Brown"
+        case .white: "White"
+        case .golden: "Golden"
+        case .pink: "Pink"
+        case .mixed: "Mixed"
+        }
+    }
+}
+
+nonisolated enum FoodGroup: String, Codable, CaseIterable, Sendable, Hashable {
+    case fruit, vegetable, protein, grain, dairy, mixed, other
+
+    var label: String {
+        switch self {
+        case .fruit: "Fruit"
+        case .vegetable: "Vegetable"
+        case .protein: "Protein"
+        case .grain: "Grain"
+        case .dairy: "Dairy"
+        case .mixed: "Mixed"
+        case .other: "Other"
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .fruit: "leaf.fill"
+        case .vegetable: "carrot.fill"
+        case .grain: "birthday.cake.fill"
+        case .protein: "fish.fill"
+        case .dairy: "cup.and.saucer.fill"
+        case .mixed: "square.stack.3d.up.fill"
+        case .other: "questionmark.circle.fill"
+        }
+    }
+
+    static func fromCategory(_ category: FoodCategory) -> FoodGroup {
+        switch category {
+        case .fruit: .fruit
+        case .vegetable: .vegetable
+        case .grain: .grain
+        case .protein: .protein
+        case .dairy: .dairy
+        }
+    }
+}
+
 nonisolated enum FoodCategory: String, Codable, CaseIterable, Sendable, Hashable {
     case fruit, vegetable, grain, protein, dairy
 
@@ -96,6 +170,8 @@ nonisolated struct FoodItem: Codable, Identifiable, Hashable, Sendable {
     let aroma: FoodAroma
     let category: FoodCategory
     let planetColorHex: String
+    let color: FoodColor
+    let foodGroup: FoodGroup
     let allergens: Set<Allergen>
     let commonBrands: [String]
 
@@ -109,6 +185,8 @@ nonisolated struct FoodItem: Codable, Identifiable, Hashable, Sendable {
         aroma: FoodAroma,
         category: FoodCategory,
         planetColorHex: String,
+        color: FoodColor = .brown,
+        foodGroup: FoodGroup? = nil,
         allergens: Set<Allergen> = [],
         commonBrands: [String] = []
     ) {
@@ -121,6 +199,8 @@ nonisolated struct FoodItem: Codable, Identifiable, Hashable, Sendable {
         self.aroma = aroma
         self.category = category
         self.planetColorHex = planetColorHex
+        self.color = color
+        self.foodGroup = foodGroup ?? FoodGroup.fromCategory(category)
         self.allergens = allergens
         self.commonBrands = commonBrands
     }

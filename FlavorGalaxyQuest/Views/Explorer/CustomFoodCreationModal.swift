@@ -9,6 +9,8 @@ struct CustomFoodCreationModal: View {
     @State private var selectedTexture: FoodTexture = .soft
     @State private var selectedFlavor: FoodFlavor = .bland
     @State private var selectedTemperature: FoodTemperature = .roomTemp
+    @State private var selectedColor: FoodColor = .brown
+    @State private var selectedFoodGroup: FoodGroup = .other
     @State private var showConfirmation: Bool = false
 
     var body: some View {
@@ -20,6 +22,8 @@ struct CustomFoodCreationModal: View {
                     VStack(spacing: 24) {
                         previewCard
                         nameSection
+                        colorSection
+                        foodGroupSection
                         textureSection
                         flavorSection
                         temperatureSection
@@ -78,9 +82,16 @@ struct CustomFoodCreationModal: View {
             }
 
             if !foodName.trimmingCharacters(in: .whitespaces).isEmpty {
-                Text(foodName)
-                    .font(.system(.headline, design: .rounded, weight: .bold))
-                    .foregroundStyle(.white)
+                HStack(spacing: 6) {
+                    Text(selectedColor.emoji)
+                        .font(.caption)
+                    Text(foodName)
+                        .font(.system(.headline, design: .rounded, weight: .bold))
+                        .foregroundStyle(.white)
+                    Text("(\(selectedFoodGroup.label))")
+                        .font(.system(.caption, design: .rounded))
+                        .foregroundStyle(.white.opacity(0.5))
+                }
             }
 
             HStack(spacing: 12) {
@@ -131,6 +142,44 @@ struct CustomFoodCreationModal: View {
                         )
                 )
                 .autocorrectionDisabled()
+        }
+    }
+
+    private var colorSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            sectionHeader("Color", icon: "paintpalette.fill")
+
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 70), spacing: 8)], spacing: 8) {
+                ForEach(FoodColor.allCases, id: \.self) { color in
+                    selectionChip(
+                        label: "\(color.emoji) \(color.label)",
+                        isSelected: selectedColor == color
+                    ) {
+                        withAnimation(.spring(duration: 0.25)) {
+                            selectedColor = color
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private var foodGroupSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            sectionHeader("Food Group", icon: "square.stack.3d.up.fill")
+
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 85), spacing: 8)], spacing: 8) {
+                ForEach(FoodGroup.allCases, id: \.self) { group in
+                    selectionChip(
+                        label: group.label,
+                        isSelected: selectedFoodGroup == group
+                    ) {
+                        withAnimation(.spring(duration: 0.25)) {
+                            selectedFoodGroup = group
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -241,6 +290,8 @@ struct CustomFoodCreationModal: View {
 
                 VStack(spacing: 8) {
                     confirmationRow("Name", value: foodName)
+                    confirmationRow("Color", value: "\(selectedColor.emoji) \(selectedColor.label)")
+                    confirmationRow("Food Group", value: selectedFoodGroup.label)
                     confirmationRow("Texture", value: selectedTexture.label)
                     confirmationRow("Flavor", value: selectedFlavor.label)
                     confirmationRow("Temperature", value: selectedTemperature.label)
@@ -272,7 +323,9 @@ struct CustomFoodCreationModal: View {
                             name: foodName.trimmingCharacters(in: .whitespaces),
                             texture: selectedTexture,
                             flavor: selectedFlavor,
-                            temperature: selectedTemperature
+                            temperature: selectedTemperature,
+                            color: selectedColor,
+                            foodGroup: selectedFoodGroup
                         )
                         dismiss()
                         if let onFoodCreated {

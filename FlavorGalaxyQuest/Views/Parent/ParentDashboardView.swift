@@ -11,6 +11,8 @@ struct ParentDashboardView: View {
     @State private var pdfData: Data?
     @State private var showUpgradePrompt: Bool = false
 
+    @Environment(\.dismiss) private var dismiss
+
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
@@ -36,6 +38,7 @@ struct ParentDashboardView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
+                        dismiss()
                         viewModel.switchToExplorerMode()
                     } label: {
                         HStack(spacing: 4) {
