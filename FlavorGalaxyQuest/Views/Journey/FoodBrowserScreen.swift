@@ -590,7 +590,14 @@ struct FoodBrowserScreen: View {
                         }
                     }
 
-                    HStack(spacing: 8) {
+                    HStack(spacing: 6) {
+                        Text(food.color.emoji)
+                            .font(.system(size: 10))
+                        Text(food.foodGroup.label)
+                            .font(.system(.caption2, design: .rounded, weight: .medium))
+                            .foregroundStyle(.white.opacity(0.5))
+                        Text("·")
+                            .foregroundStyle(.white.opacity(0.2))
                         Text("\(food.texture.label) · \(food.flavor.label)")
                             .font(.system(.caption2, design: .rounded))
                             .foregroundStyle(.white.opacity(0.4))

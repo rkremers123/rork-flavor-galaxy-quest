@@ -6,6 +6,7 @@ struct ActiveQuestScreen: View {
     @State private var celebrateTrigger = 0
     @State private var showVerification = false
     @State private var showEducation = false
+    @State private var showFoodProfile = false
     @State private var completedStep: SensoryStep?
 
     private var food: FoodItem? { viewModel.activeQuestFood }
@@ -15,6 +16,33 @@ struct ActiveQuestScreen: View {
 
     private var currentStep: SensoryStep? {
         SensoryStep.allCases.first { !completedSteps.contains($0) && !skippedSteps.contains($0) }
+    }
+
+    private var isGoalFood: Bool {
+        guard let food else { return false }
+        return viewModel.profile.targetFoodId == food.id
+    }
+
+    private var isSafeFood: Bool {
+        guard let food else { return false }
+        return viewModel.profile.safeFoodIds.contains(food.id)
+    }
+
+    private var similarFoods: [FoodItem] {
+        guard let food else { return [] }
+        let allFoods = FoodDatabase.allFoods + viewModel.customFoodItems
+        return allFoods.filter { $0.id != food.id && ($0.color == food.color || $0.foodGroup == food.foodGroup) }.prefix(4).map { $0 }
+    }
+
+    private var whyThisFood: String? {
+        guard let food else { return nil }
+        if isGoalFood { return "This is \(viewModel.profile.explorerDisplayName)'s goal food!" }
+        if let bridge = viewModel.profile.activeBridges.first(where: { $0.bridgeFoodId == food.id }),
+           let safeFood = FoodDatabase.food(byId: bridge.safeFoodId) {
+            return "Bridge from \(safeFood.name) — shares similar sensory traits."
+        }
+        if isSafeFood { return "A safe food \(viewModel.profile.explorerDisplayName) already enjoys." }
+        return nil
     }
 
     var body: some View {
@@ -39,6 +67,14 @@ struct ActiveQuestScreen: View {
         }
         .sheet(isPresented: $showEducation) {
             SensoryEducationModal()
+        }
+        .sheet(isPresented: $showFoodProfile) {
+            if let food {
+                FoodProfileModal(food: food, viewModel: viewModel)
+                    .presentationDetents([.medium, .large])
+                    .presentationDragIndicator(.visible)
+                    .presentationBackground(SpaceTheme.deepNavy)
+            }
         }
         .sheet(isPresented: $showVerification) {
             ParentVerificationSheet(
@@ -66,6 +102,9 @@ struct ActiveQuestScreen: View {
                 } else if progress?.isComplete ?? false {
                     completedArea(food)
                 }
+                if !similarFoods.isEmpty {
+                    similarFoodsSection
+                }
             }
             .padding(.horizontal, 20)
             .padding(.top, 16)
@@ -89,15 +128,41 @@ struct ActiveQuestScreen: View {
                             endRadius: 120
                         )
                     )
-                    .frame(width: 220, height: 220)
+                    .frame(width: 200, height: 200)
 
                 Text(food.emoji)
-                    .font(.system(size: 100))
+                    .font(.system(size: 90))
             }
 
-            Text(food.name)
-                .font(.system(.title, design: .rounded, weight: .bold))
-                .foregroundStyle(.white)
+            Button { showFoodProfile = true } label: {
+                HStack(spacing: 6) {
+                    Text(food.name)
+                        .font(.system(.title2, design: .rounded, weight: .bold))
+                        .foregroundStyle(.white)
+                    Image(systemName: "info.circle")
+                        .font(.caption)
+                        .foregroundStyle(.white.opacity(0.4))
+                }
+            }
+
+            HStack(spacing: 8) {
+                Text(food.color.emoji)
+                    .font(.caption)
+                Text(food.color.label)
+                    .font(.system(.caption2, design: .rounded, weight: .semibold))
+                    .foregroundStyle(.white.opacity(0.6))
+                Text("·")
+                    .foregroundStyle(.white.opacity(0.3))
+                Image(systemName: food.foodGroup.icon)
+                    .font(.caption2)
+                    .foregroundStyle(.white.opacity(0.5))
+                Text(food.foodGroup.label)
+                    .font(.system(.caption2, design: .rounded, weight: .semibold))
+                    .foregroundStyle(.white.opacity(0.6))
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 6)
+            .background(Capsule().fill(.white.opacity(0.06)))
 
             if viewModel.profile.currentStreak > 0 {
                 HStack(spacing: 6) {
@@ -113,10 +178,22 @@ struct ActiveQuestScreen: View {
                 .background(Capsule().fill(.orange.opacity(0.1)))
             }
 
-            HStack(spacing: 14) {
-                sensoryPill(food.texture.label, icon: "waveform")
-                sensoryPill(food.flavor.label, icon: "drop.fill")
-                sensoryPill(food.temperature.label, icon: "thermometer.medium")
+            sensoryProfilePills(food)
+
+            if let reason = whyThisFood {
+                HStack(spacing: 8) {
+                    Image(systemName: isGoalFood ? "target" : isSafeFood ? "checkmark.shield.fill" : "arrow.triangle.branch")
+                        .font(.caption)
+                        .foregroundStyle(isGoalFood ? SpaceTheme.starGold : isSafeFood ? SpaceTheme.planetGreen : SpaceTheme.cosmicCyan)
+                    Text(reason)
+                        .font(.system(.caption, design: .rounded, weight: .medium))
+                        .foregroundStyle(isGoalFood ? SpaceTheme.starGold : isSafeFood ? SpaceTheme.planetGreen : SpaceTheme.cosmicCyan)
+                }
+                .padding(.horizontal, 14)
+                .padding(.vertical, 8)
+                .background(
+                    Capsule().fill((isGoalFood ? SpaceTheme.starGold : isSafeFood ? SpaceTheme.planetGreen : SpaceTheme.cosmicCyan).opacity(0.1))
+                )
             }
 
             if let bridge = viewModel.profile.activeBridges.first(where: { $0.bridgeFoodId == food.id }) {
@@ -134,6 +211,14 @@ struct ActiveQuestScreen: View {
                     Capsule().fill(SpaceTheme.cosmicCyan.opacity(0.1))
                 )
             }
+        }
+    }
+
+    private func sensoryProfilePills(_ food: FoodItem) -> some View {
+        HStack(spacing: 10) {
+            sensoryPill("👅 \(food.texture.label)", icon: nil)
+            sensoryPill("🍍 \(food.flavor.label)", icon: nil)
+            sensoryPill("🌡️ \(food.temperature.label)", icon: nil)
         }
     }
 
@@ -410,10 +495,12 @@ struct ActiveQuestScreen: View {
         }
     }
 
-    private func sensoryPill(_ text: String, icon: String) -> some View {
+    private func sensoryPill(_ text: String, icon: String?) -> some View {
         HStack(spacing: 4) {
-            Image(systemName: icon)
-                .font(.caption2)
+            if let icon {
+                Image(systemName: icon)
+                    .font(.caption2)
+            }
             Text(text)
                 .font(.system(.caption2, design: .rounded, weight: .medium))
         }
@@ -443,6 +530,62 @@ struct ActiveQuestScreen: View {
                 }
             }
         }
+    }
+
+    private var similarFoodsSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 6) {
+                Image(systemName: "sparkle.magnifyingglass")
+                    .font(.caption)
+                    .foregroundStyle(SpaceTheme.cosmicCyan)
+                Text("Similar Foods")
+                    .font(.system(.subheadline, design: .rounded, weight: .bold))
+                    .foregroundStyle(.white)
+            }
+
+            ScrollView(.horizontal) {
+                HStack(spacing: 12) {
+                    ForEach(similarFoods) { similar in
+                        Button {
+                            viewModel.setActiveQuest(food: similar)
+                        } label: {
+                            VStack(spacing: 6) {
+                                Text(similar.emoji)
+                                    .font(.title2)
+                                Text(similar.name)
+                                    .font(.system(.caption2, design: .rounded, weight: .semibold))
+                                    .foregroundStyle(.white)
+                                    .lineLimit(1)
+                                HStack(spacing: 2) {
+                                    Text(similar.color.emoji)
+                                        .font(.system(size: 8))
+                                    Text(similar.foodGroup.label)
+                                        .font(.system(size: 9, design: .rounded))
+                                        .foregroundStyle(.white.opacity(0.4))
+                                }
+                            }
+                            .frame(width: 80)
+                            .padding(.vertical, 10)
+                            .background(
+                                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                    .fill(.white.opacity(0.04))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                            .stroke(.white.opacity(0.06), lineWidth: 1)
+                                    )
+                            )
+                        }
+                    }
+                }
+            }
+            .contentMargins(.horizontal, 0)
+            .scrollIndicators(.hidden)
+        }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(.white.opacity(0.03))
+        )
     }
 
     private func stepCelebrationOverlay(_ step: SensoryStep) -> some View {

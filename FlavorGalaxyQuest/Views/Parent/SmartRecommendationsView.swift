@@ -35,6 +35,7 @@ struct SmartRecommendationsView: View {
                     emptyState
                 } else {
                     bridgeFoodEducationBox
+                    tryNextSection
                     filterToggle
                     ForEach(groupedByTier, id: \.0) { tier, items in
                         tierSection(tier: tier, items: items)
@@ -149,12 +150,15 @@ struct SmartRecommendationsView: View {
                                 .font(.subheadline.weight(.medium))
                                 .foregroundStyle(.primary)
 
-                            Text(tier.label)
+                            Text(rec.food.color.emoji)
+                                .font(.caption2)
+
+                            Text(rec.food.foodGroup.label)
                                 .font(.system(.caption2, weight: .bold))
-                                .foregroundStyle(tierColor(tier))
-                                .padding(.horizontal, 6)
-                                .padding(.vertical, 2)
-                                .background(Capsule().fill(tierColor(tier).opacity(0.12)))
+                                .foregroundStyle(.secondary)
+                                .padding(.horizontal, 5)
+                                .padding(.vertical, 1)
+                                .background(Capsule().fill(Color(.tertiarySystemFill)))
                         }
 
                         Text("\(rec.food.texture.label) · \(rec.food.flavor.label) · \(rec.food.temperature.label)")
@@ -164,9 +168,7 @@ struct SmartRecommendationsView: View {
 
                     Spacer()
 
-                    Text("\(Int(rec.score))%")
-                        .font(.caption.bold())
-                        .foregroundStyle(tierColor(tier))
+                    riskBadge(for: rec)
 
                     Image(systemName: expandedId == rec.id ? "chevron.up" : "chevron.down")
                         .font(.caption2.weight(.semibold))
@@ -229,6 +231,82 @@ struct SmartRecommendationsView: View {
                 .padding(.horizontal, 14)
                 .padding(.bottom, 12)
                 .transition(.opacity.combined(with: .move(edge: .top)))
+            }
+        }
+    }
+
+    private func riskBadge(for rec: FoodRecommendation) -> some View {
+        let risk: (String, Color) = {
+            switch rec.tier {
+            case .perfectMatch: ("LOW", .green)
+            case .greatMatch: ("LOW", .green)
+            case .goodChallenge: ("MED", .orange)
+            case .expertChallenge: ("HIGH", .red)
+            }
+        }()
+        return Text(risk.0)
+            .font(.system(.caption2, weight: .bold))
+            .foregroundStyle(risk.1)
+            .padding(.horizontal, 6)
+            .padding(.vertical, 2)
+            .background(Capsule().fill(risk.1.opacity(0.12)))
+    }
+
+    private var tryNextSection: some View {
+        Group {
+            let topRecs = Array(filteredRecommendations.prefix(3))
+            if !topRecs.isEmpty {
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "star.circle.fill")
+                            .font(.callout)
+                            .foregroundStyle(.yellow)
+                        Text("Try Next")
+                            .font(.subheadline.weight(.bold))
+                    }
+
+                    VStack(spacing: 0) {
+                        ForEach(Array(topRecs.enumerated()), id: \.element.id) { index, rec in
+                            HStack(spacing: 12) {
+                                Text("#\(index + 1)")
+                                    .font(.caption.bold())
+                                    .foregroundStyle(.secondary)
+                                    .frame(width: 24)
+
+                                Text(rec.food.emoji)
+                                    .font(.title3)
+
+                                VStack(alignment: .leading, spacing: 3) {
+                                    HStack(spacing: 4) {
+                                        Text(rec.food.name)
+                                            .font(.subheadline.weight(.semibold))
+                                        Text(rec.food.color.emoji)
+                                            .font(.caption2)
+                                        Text(rec.food.foodGroup.label)
+                                            .font(.system(.caption2, weight: .medium))
+                                            .foregroundStyle(.secondary)
+                                    }
+                                    Text(rec.explanation)
+                                        .font(.caption2)
+                                        .foregroundStyle(.secondary)
+                                        .lineLimit(2)
+                                }
+
+                                Spacer()
+
+                                riskBadge(for: rec)
+                            }
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 10)
+
+                            if index < topRecs.count - 1 {
+                                Divider().padding(.leading, 52)
+                            }
+                        }
+                    }
+                    .background(Color(.secondarySystemGroupedBackground))
+                    .clipShape(.rect(cornerRadius: 14))
+                }
             }
         }
     }

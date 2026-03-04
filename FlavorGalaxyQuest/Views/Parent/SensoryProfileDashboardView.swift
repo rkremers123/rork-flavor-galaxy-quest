@@ -10,6 +10,8 @@ struct SensoryProfileDashboardView: View {
             VStack(spacing: 20) {
                 profileSummaryCard
                 insightsAndSuccessSection
+                foodGroupDistributionCard
+                colorVarietyCard
                 textureChartSection
                 flavorChartSection
                 temperatureChartSection
@@ -183,6 +185,180 @@ struct SensoryProfileDashboardView: View {
                 .foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity)
+    }
+
+    private var foodGroupDistributionCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Label("Food Group Distribution", systemImage: "chart.bar.fill")
+                .font(.headline)
+
+            if sensoryProfile.totalFoodsConsumed == 0 {
+                HStack(spacing: 10) {
+                    Image(systemName: "info.circle.fill")
+                        .foregroundStyle(.secondary)
+                    Text("Start exploring foods to see group distribution.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                .padding(14)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Color(.secondarySystemGroupedBackground))
+                .clipShape(.rect(cornerRadius: 12))
+            } else {
+                let groupCounts = foodGroupCounts
+                let total = max(groupCounts.values.reduce(0, +), 1)
+
+                VStack(spacing: 10) {
+                    ForEach(FoodGroup.allCases, id: \.self) { group in
+                        let count = groupCounts[group] ?? 0
+                        let pct = Double(count) / Double(total) * 100
+                        HStack(spacing: 10) {
+                            HStack(spacing: 4) {
+                                Image(systemName: group.icon)
+                                    .font(.caption2)
+                                    .foregroundStyle(foodGroupColor(group))
+                                Text(group.label)
+                                    .font(.caption.weight(.medium))
+                            }
+                            .frame(width: 90, alignment: .leading)
+
+                            GeometryReader { geo in
+                                ZStack(alignment: .leading) {
+                                    Capsule()
+                                        .fill(Color(.tertiarySystemFill))
+                                        .frame(height: 10)
+                                    Capsule()
+                                        .fill(foodGroupColor(group))
+                                        .frame(width: max(geo.size.width * pct / 100.0, count > 0 ? 4 : 0), height: 10)
+                                }
+                            }
+                            .frame(height: 10)
+
+                            Text("\(count)")
+                                .font(.caption.bold())
+                                .foregroundStyle(count > 0 ? foodGroupColor(group) : .secondary)
+                                .frame(width: 24, alignment: .trailing)
+                        }
+                    }
+
+                    let missingGroups = FoodGroup.allCases.filter { group in
+                        group != .other && group != .mixed && (groupCounts[group] ?? 0) == 0
+                    }
+                    if !missingGroups.isEmpty {
+                        HStack(spacing: 8) {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .font(.caption)
+                                .foregroundStyle(.orange)
+                            Text("Missing: \(missingGroups.map(\.label).joined(separator: ", "))")
+                                .font(.caption)
+                                .foregroundStyle(.orange)
+                        }
+                        .padding(10)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(Color.orange.opacity(0.06))
+                        .clipShape(.rect(cornerRadius: 8))
+                    }
+                }
+                .padding(16)
+                .background(Color(.secondarySystemGroupedBackground))
+                .clipShape(.rect(cornerRadius: 14))
+            }
+        }
+    }
+
+    private var colorVarietyCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Label("Color Variety", systemImage: "paintpalette.fill")
+                    .font(.headline)
+                Spacer()
+                let unlocked = colorUnlockedCount
+                Text("\(unlocked)/\(FoodColor.allCases.count) colors")
+                    .font(.caption.bold())
+                    .foregroundStyle(unlocked >= 9 ? .green : .secondary)
+            }
+
+            let colorCounts = foodColorCounts
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 60), spacing: 8)], spacing: 8) {
+                ForEach(FoodColor.allCases, id: \.self) { color in
+                    let count = colorCounts[color] ?? 0
+                    let isUnlocked = count > 0
+                    VStack(spacing: 4) {
+                        Text(color.emoji)
+                            .font(.title3)
+                            .opacity(isUnlocked ? 1.0 : 0.25)
+                        Text(color.label)
+                            .font(.system(size: 9, weight: .semibold))
+                            .foregroundStyle(isUnlocked ? .primary : .secondary)
+                        if isUnlocked {
+                            Text("\(count)")
+                                .font(.system(size: 8, weight: .bold))
+                                .foregroundStyle(.green)
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 8)
+                    .background(
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(isUnlocked ? Color.green.opacity(0.06) : Color(.tertiarySystemFill))
+                    )
+                }
+            }
+            .padding(16)
+            .background(Color(.secondarySystemGroupedBackground))
+            .clipShape(.rect(cornerRadius: 14))
+
+            if colorUnlockedCount >= 7 {
+                HStack(spacing: 8) {
+                    Text("🌈")
+                    Text(colorUnlockedCount >= 9 ? "Rainbow Master! All colors explored!" : "Almost a Rainbow Week! Keep going!")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.green)
+                }
+                .padding(10)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Color.green.opacity(0.06))
+                .clipShape(.rect(cornerRadius: 8))
+            }
+        }
+    }
+
+    private var foodGroupCounts: [FoodGroup: Int] {
+        let allFoods = FoodDatabase.allFoods
+        var counts: [FoodGroup: Int] = [:]
+        for foodId in sensoryProfile.successfulFoodIds {
+            if let food = allFoods.first(where: { $0.id == foodId }) {
+                counts[food.foodGroup, default: 0] += 1
+            }
+        }
+        return counts
+    }
+
+    private var foodColorCounts: [FoodColor: Int] {
+        let allFoods = FoodDatabase.allFoods
+        var counts: [FoodColor: Int] = [:]
+        for foodId in sensoryProfile.successfulFoodIds {
+            if let food = allFoods.first(where: { $0.id == foodId }) {
+                counts[food.color, default: 0] += 1
+            }
+        }
+        return counts
+    }
+
+    private var colorUnlockedCount: Int {
+        foodColorCounts.filter { $0.value > 0 }.count
+    }
+
+    private func foodGroupColor(_ group: FoodGroup) -> Color {
+        switch group {
+        case .fruit: .pink
+        case .vegetable: .green
+        case .protein: .red
+        case .grain: .orange
+        case .dairy: .blue
+        case .mixed: .purple
+        case .other: .gray
+        }
     }
 
     private var textureChartSection: some View {

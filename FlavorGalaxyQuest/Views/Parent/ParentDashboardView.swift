@@ -39,7 +39,6 @@ struct ParentDashboardView: View {
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
                         dismiss()
-                        viewModel.switchToExplorerMode()
                     } label: {
                         HStack(spacing: 4) {
                             Image(systemName: "chevron.left")
