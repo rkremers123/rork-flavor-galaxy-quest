@@ -174,7 +174,7 @@ class AppViewModel {
     }
 
     func completeStep(_ step: SensoryStep, for foodId: UUID) {
-        let previousExplored = exploredFoodsCount
+        let previousExplored = activeExploredFoodsCount
         let previousPlanet = DynamicDifficultyService.currentPlanet(for: previousExplored, distribution: planetDistribution)
 
         let progress = getOrCreateQuestProgress(for: foodId)
@@ -225,7 +225,7 @@ class AppViewModel {
             resolveRegression(foodId: foodId)
         }
 
-        let newExplored = exploredFoodsCount
+        let newExplored = activeExploredFoodsCount
         let newPlanet = DynamicDifficultyService.currentPlanet(for: newExplored, distribution: planetDistribution)
         if newPlanet.rawValue > previousPlanet.rawValue {
             celebratedPlanet = newPlanet
@@ -288,6 +288,10 @@ class AppViewModel {
 
     var exploredFoodsCount: Int {
         profile.questProgressItems.filter { !$0.completedStepValues.isEmpty }.count
+    }
+
+    var activeExploredFoodsCount: Int {
+        profile.questProgressItems.filter { !$0.completedStepValues.isEmpty && !$0.isPreCompleted }.count
     }
 
     var completedQuestsCount: Int {
@@ -617,7 +621,7 @@ class AppViewModel {
 
     func foodsForPlanet(_ planet: JourneyPlanet) -> [FoodItem] {
         let explored = profile.questProgressItems
-            .filter { !$0.completedStepValues.isEmpty }
+            .filter { !$0.completedStepValues.isEmpty && !$0.isPreCompleted }
             .sorted { ($0.lastAttemptDate ?? .distantPast) < ($1.lastAttemptDate ?? .distantPast) }
 
         let start = DynamicDifficultyService.foodsRequiredForPlanet(planet, distribution: planetDistribution)
@@ -636,19 +640,19 @@ class AppViewModel {
     }
 
     func dynamicFoodsCompleted(_ planet: JourneyPlanet) -> Int {
-        DynamicDifficultyService.foodsCompletedInPlanet(planet, totalExplored: exploredFoodsCount, distribution: planetDistribution)
+        DynamicDifficultyService.foodsCompletedInPlanet(planet, totalExplored: activeExploredFoodsCount, distribution: planetDistribution)
     }
 
     func dynamicIsPlanetCompleted(_ planet: JourneyPlanet) -> Bool {
-        DynamicDifficultyService.isPlanetCompleted(planet, totalExplored: exploredFoodsCount, distribution: planetDistribution)
+        DynamicDifficultyService.isPlanetCompleted(planet, totalExplored: activeExploredFoodsCount, distribution: planetDistribution)
     }
 
     func dynamicIsPlanetLocked(_ planet: JourneyPlanet) -> Bool {
-        DynamicDifficultyService.isPlanetLocked(planet, totalExplored: exploredFoodsCount, distribution: planetDistribution)
+        DynamicDifficultyService.isPlanetLocked(planet, totalExplored: activeExploredFoodsCount, distribution: planetDistribution)
     }
 
     var dynamicCurrentPlanet: JourneyPlanet {
-        DynamicDifficultyService.currentPlanet(for: exploredFoodsCount, distribution: planetDistribution)
+        DynamicDifficultyService.currentPlanet(for: activeExploredFoodsCount, distribution: planetDistribution)
     }
 
     func allDisplayFoods(for category: FoodCategory?) -> [FoodItem] {

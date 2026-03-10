@@ -59,12 +59,11 @@ struct SensoryProfileDashboardView: View {
                         )
                     }
 
-                    if let topFlavor = sensoryProfile.flavorAggregates.max(by: { $0.value.count < $1.value.count }),
-                       let nextTexture = FoodTexture.allCases.first(where: { (sensoryProfile.textureAggregates[$0]?.count ?? 0) == 0 }) ?? sensoryProfile.textureAggregates.min(by: { $0.value.count < $1.value.count })?.key {
+                    if let challengeInsight = readyForInsight {
                         insightCard(
                             type: .challenge,
-                            title: "Ready for: \(nextTexture.label) + \(topFlavor.key.label)",
-                            text: "\(sensoryProfile.childName) is comfortable with \(topFlavor.key.label.lowercased()) flavors. Combining that with \(nextTexture.label.lowercased()) textures could be a natural next step."
+                            title: challengeInsight.title,
+                            text: challengeInsight.text
                         )
                     }
 
@@ -321,6 +320,40 @@ struct SensoryProfileDashboardView: View {
                 .clipShape(.rect(cornerRadius: 8))
             }
         }
+    }
+
+    private var readyForInsight: (title: String, text: String)? {
+        guard sensoryProfile.totalFoodsConsumed > 0 else { return nil }
+        let triedFoodIds = Set(sensoryProfile.successfulFoodIds)
+        let allFoods = FoodDatabase.allFoods
+        let candidates = allFoods.filter { !triedFoodIds.contains($0.id) }
+        guard !candidates.isEmpty else { return nil }
+
+        let topFlavor = sensoryProfile.flavorAggregates.max(by: { $0.value.count < $1.value.count })
+        let nextTexture = FoodTexture.allCases.first(where: { (sensoryProfile.textureAggregates[$0]?.count ?? 0) == 0 })
+            ?? sensoryProfile.textureAggregates.min(by: { $0.value.count < $1.value.count })?.key
+
+        guard let flavor = topFlavor?.key, let texture = nextTexture else { return nil }
+
+        let matchingFoods = candidates.filter { $0.texture == texture && $0.flavor == flavor }
+        if !matchingFoods.isEmpty {
+            let examples = matchingFoods.prefix(3).map(\.name).joined(separator: ", ")
+            return (
+                title: "Ready for: \(texture.label) + \(flavor.label)",
+                text: "\(sensoryProfile.childName) is comfortable with \(flavor.label.lowercased()) flavors. Combining that with \(texture.label.lowercased()) textures could be a natural next step. Try: \(examples)"
+            )
+        }
+
+        let partialMatches = candidates.filter { $0.texture == texture || $0.flavor == flavor }
+        if let best = partialMatches.first {
+            let attr = best.texture == texture ? texture.label : flavor.label
+            return (
+                title: "Ready for: \(best.texture.label) + \(best.flavor.label)",
+                text: "\(sensoryProfile.childName) is familiar with \(attr.lowercased()). \(best.name) could be a great next step."
+            )
+        }
+
+        return nil
     }
 
     private var foodGroupCounts: [FoodGroup: Int] {

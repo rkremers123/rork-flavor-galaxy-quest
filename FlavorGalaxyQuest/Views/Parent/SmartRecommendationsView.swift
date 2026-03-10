@@ -8,6 +8,8 @@ struct SmartRecommendationsView: View {
 
     @State private var filterByConfidence: Bool = false
     @State private var expandedId: UUID?
+    @State private var showBridgeEducation: Bool = false
+    @State private var sortMode: RecommendationSortMode = .tier
 
     private var filteredRecommendations: [FoodRecommendation] {
         if filterByConfidence {
@@ -37,8 +39,20 @@ struct SmartRecommendationsView: View {
                     bridgeFoodEducationBox
                     tryNextSection
                     filterToggle
-                    ForEach(groupedByTier, id: \.0) { tier, items in
-                        tierSection(tier: tier, items: items)
+                    sortPicker
+                    switch sortMode {
+                    case .tier:
+                        ForEach(groupedByTier, id: \.0) { tier, items in
+                            tierSection(tier: tier, items: items)
+                        }
+                    case .texture:
+                        ForEach(groupedByTexture, id: \.0) { texture, items in
+                            attributeSection(title: texture.label, icon: "hand.raised.fill", color: textureGroupColor(texture), items: items)
+                        }
+                    case .flavor:
+                        ForEach(groupedByFlavor, id: \.0) { flavor, items in
+                            attributeSection(title: flavor.label, icon: "drop.fill", color: flavorGroupColor(flavor), items: items)
+                        }
                     }
                 }
             }
@@ -47,22 +61,37 @@ struct SmartRecommendationsView: View {
     }
 
     private var bridgeFoodEducationBox: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(spacing: 8) {
-                Image(systemName: "info.circle.fill")
-                    .font(.callout)
-                    .foregroundStyle(.blue)
-                Text("What are bridge foods?")
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(.blue)
+        VStack(alignment: .leading, spacing: 0) {
+            Button {
+                withAnimation(.spring(duration: 0.3)) {
+                    showBridgeEducation.toggle()
+                }
+            } label: {
+                HStack(spacing: 8) {
+                    Image(systemName: "info.circle.fill")
+                        .font(.callout)
+                        .foregroundStyle(.blue)
+                    Text("What are bridge foods?")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(.blue)
+                    Spacer()
+                    Image(systemName: showBridgeEducation ? "chevron.up" : "chevron.down")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.blue.opacity(0.6))
+                }
+                .padding(14)
             }
 
-            Text("Bridge foods share similar textures and flavors to foods \(childName) already enjoys. They're designed to help expand their diet naturally, without overwhelming their sensory preferences.")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .lineSpacing(3)
+            if showBridgeEducation {
+                Text("Bridge foods share similar textures and flavors to foods \(childName) already enjoys. They're designed to help expand their diet naturally, without overwhelming their sensory preferences.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineSpacing(3)
+                    .padding(.horizontal, 14)
+                    .padding(.bottom, 14)
+                    .transition(.opacity.combined(with: .move(edge: .top)))
+            }
         }
-        .padding(14)
         .background(Color.blue.opacity(0.06))
         .clipShape(.rect(cornerRadius: 12))
     }
@@ -289,7 +318,7 @@ struct SmartRecommendationsView: View {
                                     Text(rec.explanation)
                                         .font(.caption2)
                                         .foregroundStyle(.secondary)
-                                        .lineLimit(2)
+                                        .fixedSize(horizontal: false, vertical: true)
                                 }
 
                                 Spacer()
@@ -331,12 +360,109 @@ struct SmartRecommendationsView: View {
         .clipShape(.rect(cornerRadius: 14))
     }
 
+    private var sortPicker: some View {
+        HStack(spacing: 6) {
+            Text("Sort by")
+                .font(.caption.weight(.medium))
+                .foregroundStyle(.secondary)
+            Picker("", selection: $sortMode) {
+                ForEach(RecommendationSortMode.allCases, id: \.self) { mode in
+                    Text(mode.label).tag(mode)
+                }
+            }
+            .pickerStyle(.segmented)
+        }
+    }
+
+    private var groupedByTexture: [(FoodTexture, [FoodRecommendation])] {
+        var grouped: [FoodTexture: [FoodRecommendation]] = [:]
+        for rec in filteredRecommendations {
+            grouped[rec.food.texture, default: []].append(rec)
+        }
+        return FoodTexture.allCases.compactMap { texture in
+            guard let items = grouped[texture], !items.isEmpty else { return nil }
+            return (texture, items)
+        }
+    }
+
+    private var groupedByFlavor: [(FoodFlavor, [FoodRecommendation])] {
+        var grouped: [FoodFlavor: [FoodRecommendation]] = [:]
+        for rec in filteredRecommendations {
+            grouped[rec.food.flavor, default: []].append(rec)
+        }
+        return FoodFlavor.allCases.compactMap { flavor in
+            guard let items = grouped[flavor], !items.isEmpty else { return nil }
+            return (flavor, items)
+        }
+    }
+
+    private func attributeSection(title: String, icon: String, color: Color, items: [FoodRecommendation]) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 8) {
+                Image(systemName: icon)
+                    .font(.callout)
+                    .foregroundStyle(color)
+                Text(title.uppercased())
+                    .font(.subheadline.weight(.bold))
+                    .foregroundStyle(color)
+                Text("(\(items.count))")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            VStack(spacing: 0) {
+                ForEach(items.prefix(8)) { rec in
+                    let tier = rec.tier
+                    recommendationRow(rec, tier: tier)
+                    if rec.id != items.prefix(8).last?.id {
+                        Divider()
+                            .padding(.leading, 52)
+                    }
+                }
+            }
+            .background(Color(.secondarySystemGroupedBackground))
+            .clipShape(.rect(cornerRadius: 14))
+        }
+    }
+
+    private func textureGroupColor(_ texture: FoodTexture) -> Color {
+        switch texture {
+        case .crunchy: .orange
+        case .soft: .blue
+        case .mushy: .purple
+        case .liquid: .cyan
+        case .mixedTexture: .indigo
+        }
+    }
+
+    private func flavorGroupColor(_ flavor: FoodFlavor) -> Color {
+        switch flavor {
+        case .bland: .gray
+        case .salty: .orange
+        case .sweet: .pink
+        case .sour: .yellow
+        case .bitter: .green
+        }
+    }
+
     private func tierColor(_ tier: RecommendationTier) -> Color {
         switch tier {
         case .perfectMatch: .green
         case .greatMatch: .blue
         case .goodChallenge: .orange
         case .expertChallenge: .red
+        }
+    }
+}
+
+enum RecommendationSortMode: String, CaseIterable {
+    case tier, texture, flavor
+
+    var label: String {
+        switch self {
+        case .tier: "Tier"
+        case .texture: "Texture"
+        case .flavor: "Flavor"
         }
     }
 }

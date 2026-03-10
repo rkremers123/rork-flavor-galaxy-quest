@@ -88,6 +88,16 @@ struct FoodDatabase {
         FoodItem(name: "Mozzarella Sticks", emoji: "🧀", texture: .soft, flavor: .salty, temperature: .hot, aroma: .mild, category: .dairy, planetColorHex: "FFA500", color: .golden, foodGroup: .mixed, allergens: [.dairy, .gluten]),
         FoodItem(name: "Cheese Slices", emoji: "🧀", texture: .soft, flavor: .salty, temperature: .cold, aroma: .mild, category: .dairy, planetColorHex: "FFD700", color: .yellow, foodGroup: .dairy, allergens: [.dairy]),
         FoodItem(name: "String Cheese", emoji: "🧀", texture: .soft, flavor: .bland, temperature: .cold, aroma: .noOdor, category: .dairy, planetColorHex: "FFFFF0", color: .white, foodGroup: .dairy, allergens: [.dairy]),
+
+        // MARK: - Liquids & Soups
+        FoodItem(name: "Chicken Broth", emoji: "🍲", texture: .liquid, flavor: .salty, temperature: .hot, aroma: .strong, category: .protein, planetColorHex: "DAA520", color: .golden, foodGroup: .protein),
+        FoodItem(name: "Tomato Soup", emoji: "🍅", texture: .liquid, flavor: .salty, temperature: .hot, aroma: .strong, category: .vegetable, planetColorHex: "FF6347", color: .red, foodGroup: .vegetable),
+        FoodItem(name: "Miso Soup", emoji: "🍜", texture: .liquid, flavor: .salty, temperature: .hot, aroma: .strong, category: .protein, planetColorHex: "C8A96E", color: .brown, foodGroup: .protein, allergens: [.soy]),
+        FoodItem(name: "Smoothie", emoji: "🥤", texture: .liquid, flavor: .sweet, temperature: .cold, aroma: .mild, category: .fruit, planetColorHex: "FF69B4", color: .pink, foodGroup: .fruit, allergens: [.dairy]),
+        FoodItem(name: "Orange Juice", emoji: "🧃", texture: .liquid, flavor: .sour, temperature: .cold, aroma: .strong, category: .fruit, planetColorHex: "FFA500", color: .orange, foodGroup: .fruit),
+        FoodItem(name: "Apple Juice", emoji: "🧃", texture: .liquid, flavor: .sweet, temperature: .cold, aroma: .mild, category: .fruit, planetColorHex: "FFD700", color: .yellow, foodGroup: .fruit),
+        FoodItem(name: "Chocolate Milk", emoji: "🥛", texture: .liquid, flavor: .sweet, temperature: .cold, aroma: .mild, category: .dairy, planetColorHex: "8B4513", color: .brown, foodGroup: .dairy, allergens: [.dairy]),
+        FoodItem(name: "Lemonade", emoji: "🍋", texture: .liquid, flavor: .sour, temperature: .cold, aroma: .mild, category: .fruit, planetColorHex: "FFFACD", color: .yellow, foodGroup: .fruit),
     ]
 
     static func food(byId id: UUID) -> FoodItem? {

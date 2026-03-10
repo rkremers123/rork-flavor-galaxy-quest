@@ -156,8 +156,8 @@ struct TherapistExportService {
             yOffset += 22
 
             let quests = profile.questProgressItems
+                .filter { !$0.completedStepValues.isEmpty }
                 .sorted { ($0.lastAttemptDate ?? .distantPast) > ($1.lastAttemptDate ?? .distantPast) }
-                .prefix(15)
 
             for quest in quests {
                 guard let food = allFoods.first(where: { $0.id == quest.foodId }) else { continue }
