@@ -9,7 +9,6 @@ struct SmartRecommendationsView: View {
     @State private var filterByConfidence: Bool = false
     @State private var expandedId: UUID?
     @State private var showBridgeEducation: Bool = false
-    @State private var sortMode: RecommendationSortMode = .tier
 
     private var filteredRecommendations: [FoodRecommendation] {
         if filterByConfidence {
@@ -18,16 +17,6 @@ struct SmartRecommendationsView: View {
         return recommendations
     }
 
-    private var groupedByTier: [(RecommendationTier, [FoodRecommendation])] {
-        var grouped: [RecommendationTier: [FoodRecommendation]] = [:]
-        for rec in filteredRecommendations {
-            grouped[rec.tier, default: []].append(rec)
-        }
-        return RecommendationTier.allCases.compactMap { tier in
-            guard let items = grouped[tier], !items.isEmpty else { return nil }
-            return (tier, items)
-        }
-    }
 
     var body: some View {
         ScrollView {
@@ -39,21 +28,7 @@ struct SmartRecommendationsView: View {
                     bridgeFoodEducationBox
                     tryNextSection
                     filterToggle
-                    sortPicker
-                    switch sortMode {
-                    case .tier:
-                        ForEach(groupedByTier, id: \.0) { tier, items in
-                            tierSection(tier: tier, items: items)
-                        }
-                    case .texture:
-                        ForEach(groupedByTexture, id: \.0) { texture, items in
-                            attributeSection(title: texture.label, icon: "hand.raised.fill", color: textureGroupColor(texture), items: items)
-                        }
-                    case .flavor:
-                        ForEach(groupedByFlavor, id: \.0) { flavor, items in
-                            attributeSection(title: flavor.label, icon: "drop.fill", color: flavorGroupColor(flavor), items: items)
-                        }
-                    }
+                    bestBridgeList
                 }
             }
             .padding(16)
@@ -134,32 +109,6 @@ struct SmartRecommendationsView: View {
         .clipShape(.rect(cornerRadius: 10))
     }
 
-    private func tierSection(tier: RecommendationTier, items: [FoodRecommendation]) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack(spacing: 8) {
-                Image(systemName: tier.icon)
-                    .font(.callout)
-                    .foregroundStyle(tierColor(tier))
-                Text(tier.label)
-                    .font(.subheadline.weight(.semibold))
-                Text("(\(items.count))")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-
-            VStack(spacing: 0) {
-                ForEach(items.prefix(8)) { rec in
-                    recommendationRow(rec, tier: tier)
-                    if rec.id != items.prefix(8).last?.id {
-                        Divider()
-                            .padding(.leading, 52)
-                    }
-                }
-            }
-            .background(Color(.secondarySystemGroupedBackground))
-            .clipShape(.rect(cornerRadius: 14))
-        }
-    }
 
     private func recommendationRow(_ rec: FoodRecommendation, tier: RecommendationTier) -> some View {
         VStack(spacing: 0) {
@@ -283,7 +232,7 @@ struct SmartRecommendationsView: View {
 
     private var tryNextSection: some View {
         Group {
-            let topRecs = Array(filteredRecommendations.prefix(3))
+            let topRecs = Array(sortedByBridge.prefix(3))
             if !topRecs.isEmpty {
                 VStack(alignment: .leading, spacing: 12) {
                     HStack(spacing: 8) {
@@ -360,89 +309,22 @@ struct SmartRecommendationsView: View {
         .clipShape(.rect(cornerRadius: 14))
     }
 
-    private var sortPicker: some View {
-        HStack(spacing: 6) {
-            Text("Sort by")
-                .font(.caption.weight(.medium))
-                .foregroundStyle(.secondary)
-            Picker("", selection: $sortMode) {
-                ForEach(RecommendationSortMode.allCases, id: \.self) { mode in
-                    Text(mode.label).tag(mode)
+    private var sortedByBridge: [FoodRecommendation] {
+        filteredRecommendations.sorted { $0.bridgeScore > $1.bridgeScore }
+    }
+
+    private var bestBridgeList: some View {
+        VStack(spacing: 0) {
+            ForEach(sortedByBridge) { rec in
+                recommendationRow(rec, tier: rec.tier)
+                if rec.id != sortedByBridge.last?.id {
+                    Divider()
+                        .padding(.leading, 52)
                 }
             }
-            .pickerStyle(.segmented)
         }
-    }
-
-    private var groupedByTexture: [(FoodTexture, [FoodRecommendation])] {
-        var grouped: [FoodTexture: [FoodRecommendation]] = [:]
-        for rec in filteredRecommendations {
-            grouped[rec.food.texture, default: []].append(rec)
-        }
-        return FoodTexture.allCases.compactMap { texture in
-            guard let items = grouped[texture], !items.isEmpty else { return nil }
-            return (texture, items)
-        }
-    }
-
-    private var groupedByFlavor: [(FoodFlavor, [FoodRecommendation])] {
-        var grouped: [FoodFlavor: [FoodRecommendation]] = [:]
-        for rec in filteredRecommendations {
-            grouped[rec.food.flavor, default: []].append(rec)
-        }
-        return FoodFlavor.allCases.compactMap { flavor in
-            guard let items = grouped[flavor], !items.isEmpty else { return nil }
-            return (flavor, items)
-        }
-    }
-
-    private func attributeSection(title: String, icon: String, color: Color, items: [FoodRecommendation]) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack(spacing: 8) {
-                Image(systemName: icon)
-                    .font(.callout)
-                    .foregroundStyle(color)
-                Text(title.uppercased())
-                    .font(.subheadline.weight(.bold))
-                    .foregroundStyle(color)
-                Text("(\(items.count))")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-
-            VStack(spacing: 0) {
-                ForEach(items.prefix(8)) { rec in
-                    let tier = rec.tier
-                    recommendationRow(rec, tier: tier)
-                    if rec.id != items.prefix(8).last?.id {
-                        Divider()
-                            .padding(.leading, 52)
-                    }
-                }
-            }
-            .background(Color(.secondarySystemGroupedBackground))
-            .clipShape(.rect(cornerRadius: 14))
-        }
-    }
-
-    private func textureGroupColor(_ texture: FoodTexture) -> Color {
-        switch texture {
-        case .crunchy: .orange
-        case .soft: .blue
-        case .mushy: .purple
-        case .liquid: .cyan
-        case .mixedTexture: .indigo
-        }
-    }
-
-    private func flavorGroupColor(_ flavor: FoodFlavor) -> Color {
-        switch flavor {
-        case .bland: .gray
-        case .salty: .orange
-        case .sweet: .pink
-        case .sour: .yellow
-        case .bitter: .green
-        }
+        .background(Color(.secondarySystemGroupedBackground))
+        .clipShape(.rect(cornerRadius: 14))
     }
 
     private func tierColor(_ tier: RecommendationTier) -> Color {
@@ -451,18 +333,6 @@ struct SmartRecommendationsView: View {
         case .greatMatch: .blue
         case .goodChallenge: .orange
         case .expertChallenge: .red
-        }
-    }
-}
-
-enum RecommendationSortMode: String, CaseIterable {
-    case tier, texture, flavor
-
-    var label: String {
-        switch self {
-        case .tier: "Tier"
-        case .texture: "Texture"
-        case .flavor: "Flavor"
         }
     }
 }
