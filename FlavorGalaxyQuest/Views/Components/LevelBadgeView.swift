@@ -26,7 +26,7 @@ struct LevelBadgeView: View {
             }
 
             Text(level.title)
-                .font(.system(size: 9, weight: .semibold, design: .rounded))
+                .font(.system(size: 9, design: .rounded, weight: .semibold))
                 .foregroundStyle(.white.opacity(0.7))
                 .lineLimit(1)
                 .fixedSize(horizontal: true, vertical: false)
