@@ -109,30 +109,14 @@ class AppViewModel {
     }
 
     func preCompleteSafeFoods() {
-        let setupDate = Date()
         for foodId in profile.safeFoodIds {
             guard profile.questProgressItems.first(where: { $0.foodId == foodId }) == nil else { continue }
             let progress = QuestProgressModel(foodId: foodId)
-            progress.completedSteps = SensoryStep.allCases
-            progress.lastAttemptDate = setupDate
-            progress.starDustEarned = SensoryStep.allCases.reduce(0) { $0 + $1.starDustReward }
+            progress.completedSteps = []
+            progress.starDustEarned = 0
             progress.isPreCompleted = true
             modelContext.insert(progress)
             profile.questProgressItems.append(progress)
-
-            for step in SensoryStep.allCases {
-                let interaction = SensoryInteractionModel(
-                    foodId: foodId,
-                    sensoryStep: step,
-                    completed: true,
-                    parentVerified: true
-                )
-                interaction.timestamp = setupDate
-                modelContext.insert(interaction)
-                profile.interactions.append(interaction)
-            }
-
-            profile.totalStarDust += SensoryStep.allCases.reduce(0) { $0 + $1.starDustReward }
         }
     }
 
