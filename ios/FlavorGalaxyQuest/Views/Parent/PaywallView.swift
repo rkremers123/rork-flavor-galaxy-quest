@@ -107,7 +107,7 @@ struct PaywallView: View {
                 .foregroundStyle(.white)
                 .multilineTextAlignment(.center)
 
-            Text("Unlock the full Flavor Galaxy experience\nwith powerful tools for you and your explorer")
+            Text("Unlock the full Sensory Galaxy experience\nwith powerful tools for you and your explorer")
                 .font(.system(.subheadline, design: .rounded))
                 .foregroundStyle(.white.opacity(0.6))
                 .multilineTextAlignment(.center)
