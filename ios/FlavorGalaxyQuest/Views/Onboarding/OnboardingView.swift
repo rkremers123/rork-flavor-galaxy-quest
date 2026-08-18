@@ -8,8 +8,6 @@ struct OnboardingView: View {
     @State private var selectedExplorerType: ExplorerType = .nova
     @State private var explorerCustomName: String = ""
     @State private var selectedSafeFoods: Set<UUID> = []
-    @State private var targetFoodName: String = ""
-    @State private var rewardName: String = ""
     @State private var appeared: Bool = false
     @State private var showResetConfirmation: Bool = false
     @State private var goalFoodName: String = ""
@@ -20,6 +18,7 @@ struct OnboardingView: View {
     @State private var randomExplorer: ExplorerType = ExplorerType.allCases.randomElement() ?? .nova
 
     private let totalSteps = 6
+    private let maxSafeFoodPicks = 12
 
     var body: some View {
         ZStack {
@@ -70,7 +69,7 @@ struct OnboardingView: View {
                     .scaleEffect(appeared ? 1.0 : 0.3)
                     .opacity(appeared ? 1 : 0)
 
-                Text("Welcome to\nFlavor Galaxy!")
+                Text("Welcome to\nSensory Galaxy!")
                     .font(.system(.largeTitle, design: .rounded, weight: .bold))
                     .foregroundStyle(.white)
                     .multilineTextAlignment(.center)
@@ -178,6 +177,10 @@ struct OnboardingView: View {
 
             PaxMascotView(message: "Which foods does \(childName.isEmpty ? "your explorer" : childName) already like?", size: 50)
                 .padding(.horizontal)
+
+            Text("\(selectedSafeFoods.count)/\(maxSafeFoodPicks) selected")
+                .font(.system(.caption, design: .rounded, weight: .semibold))
+                .foregroundStyle(selectedSafeFoods.count >= maxSafeFoodPicks ? SpaceTheme.warningOrange : SpaceTheme.cosmicCyan)
 
             ScrollView {
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 90), spacing: 12)], spacing: 12) {
@@ -317,7 +320,7 @@ struct OnboardingView: View {
                 HStack(spacing: 16) {
                     summaryCard(
                         count: masteredCount,
-                        label: "Foods Mastered",
+                        label: "Foods you already like",
                         icon: "checkmark.seal.fill",
                         color: SpaceTheme.planetGreen
                     )
@@ -329,7 +332,7 @@ struct OnboardingView: View {
                     )
                 }
 
-                if !targetFoodName.isEmpty {
+                if !goalFoodName.isEmpty {
                     HStack(spacing: 12) {
                         Image(systemName: "target")
                             .font(.title3)
@@ -341,7 +344,7 @@ struct OnboardingView: View {
                             Text("Target Food")
                                 .font(.system(.caption2, design: .rounded, weight: .medium))
                                 .foregroundStyle(.white.opacity(0.5))
-                            Text(targetFoodName)
+                            Text(goalFoodName)
                                 .font(.system(.subheadline, design: .rounded, weight: .bold))
                                 .foregroundStyle(.white)
                         }
@@ -360,7 +363,7 @@ struct OnboardingView: View {
 
                 if masteredCount > 0 {
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("Already Mastered")
+                        Text("Foods you already like")
                             .font(.system(.caption, design: .rounded, weight: .semibold))
                             .foregroundStyle(SpaceTheme.planetGreen)
 
@@ -530,10 +533,12 @@ struct OnboardingView: View {
         let fillColor: Color = isSelected ? SpaceTheme.planetColor(hex: food.planetColorHex).opacity(0.3) : .white.opacity(0.06)
         let strokeColor: Color = isSelected ? SpaceTheme.planetColor(hex: food.planetColorHex).opacity(0.6) : .white.opacity(0.1)
 
+        let atCap = !isSelected && selectedSafeFoods.count >= maxSafeFoodPicks
+
         return Button {
             if isSelected {
                 selectedSafeFoods.remove(food.id)
-            } else {
+            } else if selectedSafeFoods.count < maxSafeFoodPicks {
                 selectedSafeFoods.insert(food.id)
             }
         } label: {
@@ -564,6 +569,7 @@ struct OnboardingView: View {
                     )
             )
         }
+        .opacity(atCap ? 0.4 : 1)
         .sensoryFeedback(.selection, trigger: isSelected)
     }
 
