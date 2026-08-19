@@ -83,7 +83,7 @@ struct CertificateView: View {
                 Text("🌌")
                     .font(.system(size: 44))
 
-                Text("FLAVOR GALAXY")
+                Text("SENSORY GALAXY")
                     .font(.system(.caption, design: .rounded, weight: .heavy))
                     .foregroundStyle(SpaceTheme.starGold)
                     .tracking(4)
@@ -123,7 +123,7 @@ struct CertificateView: View {
                 Text("has completed the")
                     .font(.system(.caption, design: .rounded))
                     .foregroundStyle(.white.opacity(0.5))
-                Text("Flavor Galaxy Journey")
+                Text("Sensory Galaxy Journey")
                     .font(.system(.headline, design: .rounded, weight: .bold))
                     .foregroundStyle(SpaceTheme.starGold)
             }
@@ -228,7 +228,7 @@ struct CertificateRenderContent: View {
 
     var body: some View {
         VStack(spacing: 16) {
-            Text("🌌 FLAVOR GALAXY")
+            Text("🌌 SENSORY GALAXY")
                 .font(.system(.headline, design: .rounded, weight: .heavy))
 
             Text("Explorer's Certificate")
@@ -247,7 +247,7 @@ struct CertificateRenderContent: View {
                     .font(.subheadline)
             }
 
-            Text("Has completed the Flavor Galaxy Journey!")
+            Text("Has completed the Sensory Galaxy Journey!")
                 .font(.subheadline.weight(.medium))
 
             HStack(spacing: 24) {
