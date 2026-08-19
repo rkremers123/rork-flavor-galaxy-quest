@@ -8,7 +8,7 @@ struct ParentDashboardView: View {
     @State private var showEducationSection: Bool = false
     @State private var showPaywall: Bool = false
     @State private var showShareSheet: Bool = false
-    @State private var pdfData: Data?
+    @State private var pdfShareURL: URL?
     @State private var showUpgradePrompt: Bool = false
     @State private var showNeverOfferPicker: Bool = false
 
@@ -60,8 +60,8 @@ struct ParentDashboardView: View {
                 PaywallView(subscription: viewModel.subscription)
             }
             .sheet(isPresented: $showShareSheet) {
-                if let data = pdfData {
-                    ShareSheetView(activityItems: [data])
+                if let url = pdfShareURL {
+                    ShareSheetView(activityItems: [url])
                 }
             }
             .sheet(isPresented: $showNeverOfferPicker) {
@@ -605,7 +605,11 @@ struct ParentDashboardView: View {
                     sensoryProfile: viewModel.sensoryProfile,
                     insights: viewModel.sensoryInsights,
                     onExportPDF: {
-                        pdfData = viewModel.exportTherapistPDF()
+                        let data = viewModel.exportTherapistPDF()
+                        pdfShareURL = TherapistExportService.writeShareFile(
+                            pdfData: data,
+                            profile: viewModel.profile
+                        )
                         showShareSheet = true
                     }
                 )
