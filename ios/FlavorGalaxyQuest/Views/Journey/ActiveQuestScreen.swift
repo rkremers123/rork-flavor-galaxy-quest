@@ -8,6 +8,7 @@ struct ActiveQuestScreen: View {
     @State private var showEducation = false
     @State private var showFoodProfile = false
     @State private var completedStep: SensoryStep?
+    @State private var lookLoggedThisSitting = false
 
     private var food: FoodItem? { viewModel.activeQuestFood }
     private var progress: QuestProgressModel? { viewModel.activeQuestProgress }
@@ -31,7 +32,11 @@ struct ActiveQuestScreen: View {
     private var similarFoods: [FoodItem] {
         guard let food else { return [] }
         let allFoods = FoodDatabase.allFoods + viewModel.customFoodItems
-        return allFoods.filter { $0.id != food.id && ($0.color == food.color || $0.foodGroup == food.foodGroup) }.prefix(4).map { $0 }
+        return allFoods.filter {
+            $0.id != food.id &&
+            !viewModel.isHardExcluded($0) &&
+            ($0.color == food.color || $0.foodGroup == food.foodGroup)
+        }.prefix(4).map { $0 }
     }
 
     private var whyThisFood: String? {
@@ -373,6 +378,24 @@ struct ActiveQuestScreen: View {
                 .padding(.vertical, 14)
                 .background(Capsule().fill(.white.opacity(0.05)))
             }
+
+            Button {
+                viewModel.pauseQuestSitting()
+            } label: {
+                Text("Not today")
+                    .font(.system(.subheadline, design: .rounded, weight: .medium))
+                    .foregroundStyle(.white.opacity(0.5))
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 14)
+                    .background(Capsule().fill(.white.opacity(0.05)))
+            }
+
+            if lookLoggedThisSitting {
+                Text("Looking still counted if you already logged it.")
+                    .font(.system(.caption2, design: .rounded))
+                    .foregroundStyle(.white.opacity(0.35))
+                    .multilineTextAlignment(.center)
+            }
         }
     }
 
@@ -411,6 +434,16 @@ struct ActiveQuestScreen: View {
                     .background(Capsule().fill(SpaceTheme.starGold))
                 }
                 .sensoryFeedback(.success, trigger: celebrateTrigger)
+
+                Button {
+                    viewModel.pauseQuestSitting()
+                } label: {
+                    Text("Not today")
+                        .font(.system(.caption, design: .rounded, weight: .medium))
+                        .foregroundStyle(.white.opacity(0.45))
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 12)
+                }
             }
             .padding(.horizontal, 20)
             .padding(.vertical, 12)
@@ -512,6 +545,9 @@ struct ActiveQuestScreen: View {
 
     private func performStepCompletion(_ step: SensoryStep, food: FoodItem) {
         completedStep = step
+        if step == .look {
+            lookLoggedThisSitting = true
+        }
         viewModel.completeStep(step, for: food.id)
         celebrateTrigger += 1
 
