@@ -152,8 +152,8 @@ struct PaywallView: View {
             featureRow(
                 icon: "doc.text.fill",
                 color: SpaceTheme.planetGreen,
-                title: "Therapist Export",
-                subtitle: "Share progress data as PDF with your OT or SLP"
+                title: "Progress summary",
+                subtitle: "Share a dated Sensory Galaxy summary with your OT — not a clinical worksheet"
             )
         }
         .background(
