@@ -293,6 +293,12 @@ class AppViewModel {
     }
 
     var firstQuestFood: FoodItem? {
+        guard let goal = resolvedGoalFood() else { return nil }
+        if !isHardExcluded(goal) { return goal }
+        return firstSafeSuggestion()
+    }
+
+    private func resolvedGoalFood() -> FoodItem? {
         if let food = targetFood { return food }
         for raw in [profile.goalFoodName, profile.targetFoodName] {
             let name = raw.trimmingCharacters(in: .whitespaces)
@@ -308,8 +314,13 @@ class AppViewModel {
     var firstQuestDisplayName: String {
         if let food = firstQuestFood { return food.name }
         let goal = profile.goalFoodName.trimmingCharacters(in: .whitespaces)
-        if !goal.isEmpty { return goal }
-        return profile.targetFoodName.trimmingCharacters(in: .whitespaces)
+        if !goal.isEmpty {
+            if let catalog = FoodDatabase.food(byName: goal), isHardExcluded(catalog) { return "" }
+            return goal
+        }
+        let target = profile.targetFoodName.trimmingCharacters(in: .whitespaces)
+        if let catalog = FoodDatabase.food(byName: target), isHardExcluded(catalog) { return "" }
+        return target
     }
 
     var completedQuestsCount: Int {
@@ -346,20 +357,30 @@ class AppViewModel {
         }
 
         if let targetId = profile.targetFoodId, let targetFood = FoodDatabase.food(byId: targetId) {
+            if isHardExcluded(targetFood) {
+                bridgeSuggestions = []
+                return
+            }
             bridgeSuggestions = FoodChainingEngine.suggestBridges(
                 safeFoods: safeFoods,
                 targetFood: targetFood,
-                allFoods: FoodDatabase.allFoods,
+                allFoods: FoodDatabase.allFoods + customFoodItems,
                 excludedAllergens: profile.excludedAllergens,
+                excludedFoodIds: Set(profile.neverOfferFoodIds),
                 bridgeHistory: profile.bridgeRecords
             )
         } else if let targetFood = FoodDatabase.food(byName: profile.targetFoodName) {
             profile.targetFoodId = targetFood.id
+            if isHardExcluded(targetFood) {
+                bridgeSuggestions = []
+                return
+            }
             bridgeSuggestions = FoodChainingEngine.suggestBridges(
                 safeFoods: safeFoods,
                 targetFood: targetFood,
-                allFoods: FoodDatabase.allFoods,
+                allFoods: FoodDatabase.allFoods + customFoodItems,
                 excludedAllergens: profile.excludedAllergens,
+                excludedFoodIds: Set(profile.neverOfferFoodIds),
                 bridgeHistory: profile.bridgeRecords
             )
         } else {
@@ -379,10 +400,13 @@ class AppViewModel {
 
     func refreshRecommendations() {
         let allFoods = FoodDatabase.allFoods + customFoodItems
+        var excludedIds = Set(profile.neverOfferFoodIds)
+        excludedIds.formUnion(profile.safeFoodIds)
         foodRecommendations = RecommendationEngine.generateRecommendations(
             sensoryProfile: sensoryProfile,
             allFoods: allFoods,
-            excludedAllergens: profile.excludedAllergens
+            excludedAllergens: profile.excludedAllergens,
+            excludedFoodIds: excludedIds
         )
     }
 
@@ -579,23 +603,81 @@ class AppViewModel {
 
     /// Starts this food as the live quest and opens the Quest tab.
     /// If another quest is already active, this switches to the new food (parent-safe, no confirm).
+    /// Allergen / do-not-give foods never become the Start Quest target.
     func setActiveQuest(food: FoodItem) {
+        if isHardExcluded(food) {
+            if let next = firstSafeSuggestion() {
+                activeQuestFoodId = next.id
+                _ = getOrCreateQuestProgress(for: next.id)
+                selectedTab = 1
+            } else {
+                selectedTab = 2
+            }
+            return
+        }
         activeQuestFoodId = food.id
         _ = getOrCreateQuestProgress(for: food.id)
         selectedTab = 1
     }
 
+    /// Kid escape hatch: leave this sitting without completing or skipping a step.
+    /// Star Dust, lick, and ate are unchanged. The food stays the active quest.
+    func pauseQuestSitting() {
+        selectedTab = 0
+    }
+
+    func isHardExcluded(_ food: FoodItem) -> Bool {
+        if !food.allergens.isDisjoint(with: profile.excludedAllergens) { return true }
+        if profile.neverOfferFoodIds.contains(food.id) { return true }
+        if let catalog = FoodDatabase.food(byName: food.name), catalog.id != food.id {
+            if !catalog.allergens.isDisjoint(with: profile.excludedAllergens) { return true }
+            if profile.neverOfferFoodIds.contains(catalog.id) { return true }
+        }
+        return false
+    }
+
+    func isKnownSafeOrLiked(_ food: FoodItem) -> Bool {
+        profile.safeFoodIds.contains(food.id) || sensoryProfile.successfulFoodIds.contains(food.id)
+    }
+
+    func firstSafeSuggestion() -> FoodItem? {
+        if let rec = foodRecommendations.first(where: { !isHardExcluded($0.food) && !isKnownSafeOrLiked($0.food) }) {
+            return rec.food
+        }
+        if let bridge = bridgeSuggestions.first(where: { !isHardExcluded($0.bridgeFood) }) {
+            return bridge.bridgeFood
+        }
+        let all = FoodDatabase.allFoods + customFoodItems
+        return all.first { !isHardExcluded($0) && !isKnownSafeOrLiked($0) }
+    }
+
+    func toggleNeverOffer(food: FoodItem) {
+        if let idx = profile.neverOfferFoodIds.firstIndex(of: food.id) {
+            profile.neverOfferFoodIds.remove(at: idx)
+        } else {
+            profile.neverOfferFoodIds.append(food.id)
+        }
+        refreshBridgeSuggestions()
+        refreshRecommendations()
+        saveProfile()
+    }
+
+    var neverOfferFoods: [FoodItem] {
+        let all = FoodDatabase.allFoods + customFoodItems
+        return profile.neverOfferFoodIds.compactMap { id in all.first { $0.id == id } }
+    }
+
     func suggestedQuestFood(for planet: JourneyPlanet? = nil) -> FoodItem? {
         if let planet {
             let foods = foodsForPlanet(planet)
-            if let inProgress = foods.first(where: { questProgress(for: $0.id)?.isComplete != true }) {
+            if let inProgress = foods.first(where: { questProgress(for: $0.id)?.isComplete != true && !isHardExcluded($0) }) {
                 return inProgress
             }
         }
-        if let first = firstQuestFood { return first }
-        if let rec = foodRecommendations.first { return rec.food }
-        if let bridge = bridgeSuggestions.first { return bridge.bridgeFood }
-        return nil
+        if let first = firstQuestFood, !isHardExcluded(first) { return first }
+        if let rec = foodRecommendations.first(where: { !isHardExcluded($0.food) }) { return rec.food }
+        if let bridge = bridgeSuggestions.first(where: { !isHardExcluded($0.bridgeFood) }) { return bridge.bridgeFood }
+        return firstSafeSuggestion()
     }
 
     func startFirstQuest() {
@@ -603,14 +685,32 @@ class AppViewModel {
             setActiveQuest(food: food)
             return
         }
-        let name = firstQuestDisplayName
+        let goal = profile.goalFoodName.trimmingCharacters(in: .whitespaces)
+        let target = profile.targetFoodName.trimmingCharacters(in: .whitespaces)
+        let name = !goal.isEmpty ? goal : target
         if !name.isEmpty {
+            if let catalog = FoodDatabase.food(byName: name), isHardExcluded(catalog) {
+                if let next = firstSafeSuggestion() {
+                    setActiveQuest(food: next)
+                } else {
+                    selectedTab = 2
+                }
+                return
+            }
             let food = createCustomFood(
                 name: name,
                 texture: profile.goalFoodTextures.first ?? .soft,
                 flavor: profile.goalFoodFlavors.first ?? .bland,
                 temperature: profile.goalFoodTemperature ?? .roomTemp
             )
+            if isHardExcluded(food) {
+                if let next = firstSafeSuggestion() {
+                    setActiveQuest(food: next)
+                } else {
+                    selectedTab = 2
+                }
+                return
+            }
             profile.targetFoodId = food.id
             profile.targetFoodName = name
             saveProfile()
