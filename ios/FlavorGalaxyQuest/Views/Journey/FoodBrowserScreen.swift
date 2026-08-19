@@ -413,8 +413,10 @@ struct FoodBrowserScreen: View {
 
     private func foodGridItem(_ food: FoodItem) -> some View {
         let progress = viewModel.questProgress(for: food.id)
-        let isInProgress = !(progress?.completedStepValues.isEmpty ?? true) && !(progress?.isComplete ?? false)
-        let isMastered = progress?.isComplete ?? false
+        let isPreCompleted = progress?.isPreCompleted ?? false
+        let isEaten = progress.map { viewModel.isEatenProgress($0) } ?? false
+        let isInProgress = !isPreCompleted && !isEaten && !(progress?.completedStepValues.isEmpty ?? true)
+        let isMastered = isEaten
         let isRegressed = viewModel.isRegressed(foodId: food.id)
 
         return Button {
@@ -559,8 +561,10 @@ struct FoodBrowserScreen: View {
 
     private func searchFoodRow(_ food: FoodItem) -> some View {
         let progress = viewModel.questProgress(for: food.id)
-        let isInProgress = !(progress?.completedStepValues.isEmpty ?? true) && !(progress?.isComplete ?? false)
-        let isMastered = progress?.isComplete ?? false
+        let isPreCompleted = progress?.isPreCompleted ?? false
+        let isEaten = progress.map { viewModel.isEatenProgress($0) } ?? false
+        let isInProgress = !isPreCompleted && !isEaten && !(progress?.completedStepValues.isEmpty ?? true)
+        let isMastered = isEaten
         let isRegressed = viewModel.isRegressed(foodId: food.id)
 
         return Button {
