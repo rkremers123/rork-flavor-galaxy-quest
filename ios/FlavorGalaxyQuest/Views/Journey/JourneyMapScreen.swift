@@ -24,19 +24,23 @@ struct JourneyMapScreen: View {
                             .padding(.top, 8)
                             .padding(.bottom, 12)
 
-                        statsRow
-                            .padding(.horizontal, 20)
-                            .padding(.bottom, 12)
-
-                        if showWeeklyRecap {
-                            WeeklyRecapBanner(viewModel: viewModel, isVisible: $showWeeklyRecap)
+                        if viewModel.isFirstRun {
+                            firstRunBaseCamp
+                        } else {
+                            statsRow
                                 .padding(.horizontal, 20)
                                 .padding(.bottom, 12)
-                                .transition(.opacity.combined(with: .move(edge: .top)))
-                        }
 
-                        zigZagJourney
-                            .padding(.horizontal, 16)
+                            if showWeeklyRecap {
+                                WeeklyRecapBanner(viewModel: viewModel, isVisible: $showWeeklyRecap)
+                                    .padding(.horizontal, 20)
+                                    .padding(.bottom, 12)
+                                    .transition(.opacity.combined(with: .move(edge: .top)))
+                            }
+
+                            zigZagJourney
+                                .padding(.horizontal, 16)
+                        }
 
                         Spacer().frame(height: 120)
                     }
@@ -201,6 +205,96 @@ struct JourneyMapScreen: View {
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
         .background(Capsule().fill(.white.opacity(0.06)))
+    }
+
+    // MARK: - First-run Base Camp
+
+    private var firstRunBaseCamp: some View {
+        VStack(spacing: 20) {
+            Image(JourneyPlanet.baseCamp.imageName)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 180, height: 180)
+                .clipShape(Circle())
+                .shadow(color: SpaceTheme.planetColor(hex: JourneyPlanet.baseCamp.accentColor).opacity(0.5), radius: 16)
+                .padding(.top, 8)
+
+            Text("Base Camp")
+                .font(.system(.title, design: .rounded, weight: .bold))
+                .foregroundStyle(.white)
+
+            Text("You landed. Your first quest is ready.")
+                .font(.system(.subheadline, design: .rounded))
+                .foregroundStyle(.white.opacity(0.6))
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 24)
+
+            firstQuestCard
+                .padding(.horizontal, 20)
+        }
+        .frame(maxWidth: .infinity)
+        .opacity(appeared ? 1 : 0)
+        .offset(y: appeared ? 0 : 20)
+        .animation(.spring(duration: 0.6), value: appeared)
+    }
+
+    private var firstQuestCard: some View {
+        let food = viewModel.firstQuestFood
+        let title = viewModel.firstQuestDisplayName
+        let hasQuest = !title.isEmpty
+        let buttonTitle = viewModel.activeQuestFoodId != nil ? "Continue Quest" : "Start Quest"
+
+        return VStack(alignment: .leading, spacing: 14) {
+            Text("YOUR FIRST QUEST")
+                .font(.system(size: 11, weight: .bold, design: .rounded))
+                .tracking(0.8)
+                .foregroundStyle(SpaceTheme.starGold)
+
+            HStack(spacing: 14) {
+                Text(food?.emoji ?? "🎯")
+                    .font(.system(size: 36))
+                    .frame(width: 56, height: 56)
+                    .background(
+                        Circle().fill(SpaceTheme.starGold.opacity(0.15))
+                    )
+
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(hasQuest ? title : "Pick tonight's food")
+                        .font(.system(.title3, design: .rounded, weight: .bold))
+                        .foregroundStyle(.white)
+                    Text(hasQuest
+                         ? "A gentle first exploration at Base Camp."
+                         : "Ask a grown-up to choose a food in the Foods tab.")
+                        .font(.system(.caption, design: .rounded))
+                        .foregroundStyle(.white.opacity(0.5))
+                }
+                Spacer()
+            }
+
+            Button {
+                viewModel.startFirstQuest()
+            } label: {
+                HStack(spacing: 8) {
+                    Image(systemName: "play.fill")
+                    Text(hasQuest ? buttonTitle : "Choose a Food")
+                }
+                .font(.system(.headline, design: .rounded, weight: .bold))
+                .foregroundStyle(SpaceTheme.deepNavy)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 14)
+                .background(Capsule().fill(SpaceTheme.starGold))
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(20)
+        .background(
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .fill(.white.opacity(0.06))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 20, style: .continuous)
+                        .stroke(.white.opacity(0.12), lineWidth: 1)
+                )
+        )
     }
 
     // MARK: - Zig-Zag Journey
@@ -534,6 +628,7 @@ struct PlanetDetailSheet: View {
                     if isLocked {
                         lockedMessage
                     } else {
+                        startQuestButton
                         conqueredFoodsList
                     }
                 }
@@ -617,7 +712,7 @@ struct PlanetDetailSheet: View {
                 .foregroundStyle(.white.opacity(0.15))
 
             let required = DynamicDifficultyService.foodsRequiredForPlanet(planet, distribution: viewModel.planetDistribution)
-            let remaining = required - viewModel.exploredFoodsCount
+            let remaining = required - viewModel.activeExploredFoodsCount
             Text("Explore \(remaining) more food\(remaining == 1 ? "" : "s") to unlock!")
                 .font(.system(.callout, design: .rounded, weight: .medium))
                 .foregroundStyle(.white.opacity(0.4))
@@ -635,6 +730,27 @@ struct PlanetDetailSheet: View {
         )
     }
 
+    private var startQuestButton: some View {
+        let food = viewModel.suggestedQuestFood(for: planet)
+        let title = viewModel.activeQuestFoodId == food?.id ? "Continue Quest" : "Start Quest"
+
+        return Button {
+            viewModel.startSuggestedQuest(for: planet)
+            dismiss()
+        } label: {
+            HStack(spacing: 8) {
+                Image(systemName: "play.fill")
+                Text(food == nil ? "Choose a Food" : title)
+            }
+            .font(.system(.headline, design: .rounded, weight: .bold))
+            .foregroundStyle(SpaceTheme.deepNavy)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 14)
+            .background(Capsule().fill(SpaceTheme.starGold))
+        }
+        .buttonStyle(.plain)
+    }
+
     private var conqueredFoodsList: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Conquered Foods")
@@ -647,7 +763,7 @@ struct PlanetDetailSheet: View {
                     Image(systemName: "sparkle")
                         .font(.title2)
                         .foregroundStyle(.white.opacity(0.15))
-                    Text("Start exploring to conquer foods!")
+                    Text("Start a quest to explore foods on this planet.")
                         .font(.system(.callout, design: .rounded))
                         .foregroundStyle(.white.opacity(0.3))
                 }
