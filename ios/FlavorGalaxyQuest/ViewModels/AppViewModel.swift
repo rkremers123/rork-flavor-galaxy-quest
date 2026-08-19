@@ -102,6 +102,8 @@ class AppViewModel {
         resolveTargetFoodId()
         refreshBridgeSuggestions()
         refreshSensoryProfile()
+        selectedTab = 0
+        activeQuestFoodId = nil
         saveProfile()
         withAnimation(.spring(duration: 0.6)) {
             mode = .explorer
@@ -276,8 +278,38 @@ class AppViewModel {
         profile.questProgressItems.filter { !$0.completedStepValues.isEmpty }.count
     }
 
+    /// Planet foods need a real active exploration: not onboarding precomplete, and not look-only.
+    func countsAsPlanetFood(_ progress: QuestProgressModel) -> Bool {
+        guard !progress.isPreCompleted else { return false }
+        return progress.completedSteps.contains { $0 != .look }
+    }
+
     var activeExploredFoodsCount: Int {
-        profile.questProgressItems.filter { !$0.completedStepValues.isEmpty && !$0.isPreCompleted }.count
+        profile.questProgressItems.filter { countsAsPlanetFood($0) }.count
+    }
+
+    var isFirstRun: Bool {
+        activeExploredFoodsCount == 0
+    }
+
+    var firstQuestFood: FoodItem? {
+        if let food = targetFood { return food }
+        for raw in [profile.goalFoodName, profile.targetFoodName] {
+            let name = raw.trimmingCharacters(in: .whitespaces)
+            guard !name.isEmpty else { continue }
+            if let food = FoodDatabase.food(byName: name) { return food }
+            if let custom = customFoodItems.first(where: { $0.name.caseInsensitiveCompare(name) == .orderedSame }) {
+                return custom
+            }
+        }
+        return nil
+    }
+
+    var firstQuestDisplayName: String {
+        if let food = firstQuestFood { return food.name }
+        let goal = profile.goalFoodName.trimmingCharacters(in: .whitespaces)
+        if !goal.isEmpty { return goal }
+        return profile.targetFoodName.trimmingCharacters(in: .whitespaces)
     }
 
     var completedQuestsCount: Int {
@@ -431,8 +463,15 @@ class AppViewModel {
     }
 
     private func resolveTargetFoodId() {
-        if profile.targetFoodId == nil, !profile.targetFoodName.isEmpty {
-            profile.targetFoodId = FoodDatabase.food(byName: profile.targetFoodName)?.id
+        if profile.targetFoodId == nil {
+            let name = profile.targetFoodName.isEmpty ? profile.goalFoodName : profile.targetFoodName
+            let trimmed = name.trimmingCharacters(in: .whitespaces)
+            if !trimmed.isEmpty {
+                profile.targetFoodId = FoodDatabase.food(byName: trimmed)?.id
+                if profile.targetFoodName.isEmpty {
+                    profile.targetFoodName = trimmed
+                }
+            }
         }
     }
 
@@ -538,10 +577,55 @@ class AppViewModel {
         return questProgress(for: id)
     }
 
+    /// Starts this food as the live quest and opens the Quest tab.
+    /// If another quest is already active, this switches to the new food (parent-safe, no confirm).
     func setActiveQuest(food: FoodItem) {
         activeQuestFoodId = food.id
         _ = getOrCreateQuestProgress(for: food.id)
         selectedTab = 1
+    }
+
+    func suggestedQuestFood(for planet: JourneyPlanet? = nil) -> FoodItem? {
+        if let planet {
+            let foods = foodsForPlanet(planet)
+            if let inProgress = foods.first(where: { questProgress(for: $0.id)?.isComplete != true }) {
+                return inProgress
+            }
+        }
+        if let first = firstQuestFood { return first }
+        if let rec = foodRecommendations.first { return rec.food }
+        if let bridge = bridgeSuggestions.first { return bridge.bridgeFood }
+        return nil
+    }
+
+    func startFirstQuest() {
+        if let food = firstQuestFood {
+            setActiveQuest(food: food)
+            return
+        }
+        let name = firstQuestDisplayName
+        if !name.isEmpty {
+            let food = createCustomFood(
+                name: name,
+                texture: profile.goalFoodTextures.first ?? .soft,
+                flavor: profile.goalFoodFlavors.first ?? .bland,
+                temperature: profile.goalFoodTemperature ?? .roomTemp
+            )
+            profile.targetFoodId = food.id
+            profile.targetFoodName = name
+            saveProfile()
+            setActiveQuest(food: food)
+            return
+        }
+        selectedTab = 2
+    }
+
+    func startSuggestedQuest(for planet: JourneyPlanet? = nil) {
+        if let food = suggestedQuestFood(for: planet) {
+            setActiveQuest(food: food)
+        } else {
+            selectedTab = 2
+        }
     }
 
     func dismissPlanetCelebration() {
@@ -607,7 +691,7 @@ class AppViewModel {
 
     func foodsForPlanet(_ planet: JourneyPlanet) -> [FoodItem] {
         let explored = profile.questProgressItems
-            .filter { !$0.completedStepValues.isEmpty && !$0.isPreCompleted }
+            .filter { countsAsPlanetFood($0) }
             .sorted { ($0.lastAttemptDate ?? .distantPast) < ($1.lastAttemptDate ?? .distantPast) }
 
         let start = DynamicDifficultyService.foodsRequiredForPlanet(planet, distribution: planetDistribution)
