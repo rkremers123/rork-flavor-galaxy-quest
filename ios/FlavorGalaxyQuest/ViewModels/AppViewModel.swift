@@ -239,6 +239,7 @@ class AppViewModel {
         }
         pendingVerification = nil
         saveProfile()
+        refreshSensoryProfile()
     }
 
     func skipStep(_ step: SensoryStep, for foodId: UUID) {
@@ -259,6 +260,7 @@ class AppViewModel {
         profile.interactions.append(interaction)
 
         saveProfile()
+        refreshSensoryProfile()
     }
 
     func startStep(for foodId: UUID) {
