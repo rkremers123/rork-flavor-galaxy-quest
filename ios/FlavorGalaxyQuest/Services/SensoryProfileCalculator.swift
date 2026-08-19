@@ -13,7 +13,7 @@ struct SensoryProfileCalculator {
 
         let consumedFoodIds = profile.questProgressItems
             .filter { quest in
-                quest.completedSteps.contains(.taste) || quest.completedSteps.contains(.lick)
+                isActuallyConsumed(quest, interactions: profile.interactions)
             }
             .map(\.foodId)
 
@@ -100,6 +100,23 @@ struct SensoryProfileCalculator {
             archetype: archetype,
             lastUpdated: Date()
         )
+    }
+
+
+    /// Eaten only when taste is completed AND parent verified swallowed.
+    /// Lick alone never counts. Onboarding safes (isPreCompleted) never count.
+    private static func isActuallyConsumed(
+        _ quest: QuestProgressModel,
+        interactions: [SensoryInteractionModel]
+    ) -> Bool {
+        guard !quest.isPreCompleted else { return false }
+        guard quest.completedSteps.contains(.taste) else { return false }
+        return interactions.contains { interaction in
+            interaction.foodId == quest.foodId
+                && interaction.sensoryStep == .taste
+                && interaction.completed
+                && interaction.tasteVerification == .swallowed
+        }
     }
 
     private static func buildAggregates<T: Hashable>(_ counts: [T: Int], total: Int) -> [T: SensoryAggregate] {
