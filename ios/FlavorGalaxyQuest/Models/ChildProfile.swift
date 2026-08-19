@@ -59,14 +59,19 @@ class ChildProfileModel {
         ExplorerLevel.progressToNext(points: totalStarDust)
     }
 
+    /// Real quests only: not onboarding precomplete, and not look-only.
+    var realExploredFoodsCount: Int {
+        questProgressItems.filter { progress in
+            !progress.isPreCompleted && progress.completedSteps.contains { $0 != .look }
+        }.count
+    }
+
     var currentJourneyPlanet: JourneyPlanet {
-        let explored = questProgressItems.filter { !$0.completedStepValues.isEmpty }.count
-        return JourneyPlanet.current(for: explored)
+        JourneyPlanet.current(for: realExploredFoodsCount)
     }
 
     var journeyProgress: Double {
-        let explored = questProgressItems.filter { !$0.completedStepValues.isEmpty }.count
-        return JourneyPlanet.progressToNext(foodsExplored: explored)
+        JourneyPlanet.progressToNext(foodsExplored: realExploredFoodsCount)
     }
 
     var unlockedCosmetics: Set<Cosmetic> {
