@@ -17,6 +17,7 @@ struct SettingsScreen: View {
     @State private var pinEntry = ""
     @State private var pendingCreatePIN = ""
     @State private var pinError: String?
+    @State private var showNeverOfferPicker = false
 
     var body: some View {
         ZStack {
@@ -50,6 +51,9 @@ struct SettingsScreen: View {
         }
         .sheet(isPresented: $showPaywall) {
             PaywallView(subscription: viewModel.subscription)
+        }
+        .sheet(isPresented: $showNeverOfferPicker) {
+            NeverOfferPickerSheet(viewModel: viewModel)
         }
         .alert("Reset All Data?", isPresented: $showResetConfirmation) {
             Button("Reset", role: .destructive) { viewModel.resetApp() }
@@ -430,6 +434,44 @@ struct SettingsScreen: View {
                         )
                     }
                 }
+            }
+
+            Text("Do not give")
+                .font(.system(.caption, design: .rounded, weight: .bold))
+                .foregroundStyle(.white.opacity(0.6))
+                .padding(.top, 6)
+
+            Text("These foods will never be recommended or started as a quest.")
+                .font(.system(.caption2, design: .rounded))
+                .foregroundStyle(.white.opacity(0.4))
+
+            ForEach(viewModel.neverOfferFoods) { food in
+                HStack(spacing: 8) {
+                    Text(food.emoji)
+                    Text(food.name)
+                        .font(.system(.caption, design: .rounded, weight: .medium))
+                        .foregroundStyle(.white)
+                    Spacer()
+                    Button("Remove") {
+                        viewModel.toggleNeverOffer(food: food)
+                    }
+                    .font(.system(.caption2, design: .rounded, weight: .semibold))
+                    .foregroundStyle(.red)
+                }
+            }
+
+            Button {
+                showNeverOfferPicker = true
+            } label: {
+                Text("Add a food")
+                    .font(.system(.caption, design: .rounded, weight: .semibold))
+                    .foregroundStyle(SpaceTheme.cosmicCyan)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 8)
+                    .background(
+                        RoundedRectangle(cornerRadius: 8, style: .continuous)
+                            .fill(SpaceTheme.cosmicCyan.opacity(0.1))
+                    )
             }
         }
         .padding(14)
