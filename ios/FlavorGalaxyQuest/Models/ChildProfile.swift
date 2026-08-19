@@ -29,6 +29,7 @@ class ChildProfileModel {
     var lastStreakResumeDate: Date?
 
     var excludedAllergenValues: [String] = []
+    var neverOfferFoodIds: [UUID] = []
     var hardestSensoryZoneRawValue: Int?
 
     var goalFoodName: String = ""
