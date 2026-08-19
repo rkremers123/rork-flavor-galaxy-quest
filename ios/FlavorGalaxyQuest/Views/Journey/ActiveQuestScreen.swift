@@ -291,7 +291,7 @@ struct ActiveQuestScreen: View {
 
                         Spacer()
 
-                        if isCompleted {
+                        if isCompleted && step.starDustReward > 0 {
                             Text("+\(step.starDustReward)")
                                 .font(.system(.caption2, design: .rounded, weight: .bold))
                                 .foregroundStyle(SpaceTheme.starGold.opacity(0.5))
@@ -408,13 +408,15 @@ struct ActiveQuestScreen: View {
                     Text(step.label.uppercased())
                         .font(.system(.caption2, design: .rounded, weight: .bold))
                         .foregroundStyle(SpaceTheme.cosmicCyan)
-                    HStack(spacing: 4) {
-                        Image(systemName: "sparkles")
-                            .font(.system(size: 9))
-                        Text("+\(step.starDustReward) Star Dust")
-                            .font(.system(.caption2, design: .rounded, weight: .semibold))
+                    if step.starDustReward > 0 {
+                        HStack(spacing: 4) {
+                            Image(systemName: "sparkles")
+                                .font(.system(size: 9))
+                            Text("+\(step.starDustReward) Star Dust")
+                                .font(.system(.caption2, design: .rounded, weight: .semibold))
+                        }
+                        .foregroundStyle(SpaceTheme.starGold.opacity(0.7))
                     }
-                    .foregroundStyle(SpaceTheme.starGold.opacity(0.7))
                 }
 
                 Spacer()
@@ -655,12 +657,14 @@ struct ActiveQuestScreen: View {
                         .padding(.horizontal, 24)
                 }
 
-                HStack(spacing: 4) {
-                    Image(systemName: "sparkles")
-                    Text("+\(step.starDustReward) Star Dust")
+                if step.starDustReward > 0 {
+                    HStack(spacing: 4) {
+                        Image(systemName: "sparkles")
+                        Text("+\(step.starDustReward) Star Dust")
+                    }
+                    .font(.system(.headline, design: .rounded, weight: .bold))
+                    .foregroundStyle(SpaceTheme.starGold)
                 }
-                .font(.system(.headline, design: .rounded, weight: .bold))
-                .foregroundStyle(SpaceTheme.starGold)
 
                 if viewModel.profile.currentStreak > 0 {
                     HStack(spacing: 6) {
