@@ -124,6 +124,11 @@ class AppViewModel {
 
     func resetFoodProgress(foodId: UUID) {
         if let progress = profile.questProgressItems.first(where: { $0.foodId == foodId }) {
+            // Refund dust this food paid so reset + replay cannot farm Star Dust.
+            let refund = max(0, progress.starDustEarned)
+            if refund > 0 {
+                profile.totalStarDust = max(0, profile.totalStarDust - refund)
+            }
             progress.completedSteps = []
             progress.skippedSteps = []
             progress.lastAttemptDate = nil
@@ -170,11 +175,18 @@ class AppViewModel {
         }
 
         if !progress.completedSteps.contains(step) {
+            // A real logged step graduates an onboarding seed into a live quest.
+            if progress.isPreCompleted {
+                progress.isPreCompleted = false
+            }
             var steps = progress.completedSteps
             steps.append(step)
             progress.completedSteps = steps
-            progress.starDustEarned += step.starDustReward
-            profile.totalStarDust += step.starDustReward
+            let reward = step.starDustReward
+            if reward > 0 {
+                progress.starDustEarned += reward
+                profile.totalStarDust += reward
+            }
 
             let previousLevel = profile.currentLevel
             checkStarJarReward()
@@ -274,8 +286,9 @@ class AppViewModel {
         profile.questProgressItems.first { $0.foodId == foodId }
     }
 
-    var exploredFoodsCount: Int {
-        profile.questProgressItems.filter { !$0.completedStepValues.isEmpty }.count
+    /// Onboarding safes / parent-marked already-likes. Not a quest.
+    var alreadyLikeFoodsCount: Int {
+        profile.questProgressItems.filter { $0.isPreCompleted }.count
     }
 
     /// Planet foods need a real active exploration: not onboarding precomplete, and not look-only.
@@ -286,6 +299,27 @@ class AppViewModel {
 
     var activeExploredFoodsCount: Int {
         profile.questProgressItems.filter { countsAsPlanetFood($0) }.count
+    }
+
+    /// Explored = real quests with a step beyond look-only. Same rule as planet foods.
+    var exploredFoodsCount: Int {
+        activeExploredFoodsCount
+    }
+
+    /// Eaten / mastered = taste completed and parent verified swallowed. Lick and onboarding never count.
+    func isEatenProgress(_ progress: QuestProgressModel) -> Bool {
+        guard !progress.isPreCompleted else { return false }
+        guard progress.completedSteps.contains(.taste) else { return false }
+        return profile.interactions.contains { interaction in
+            interaction.foodId == progress.foodId
+                && interaction.sensoryStep == .taste
+                && interaction.completed
+                && interaction.tasteVerification == .swallowed
+        }
+    }
+
+    var eatenFoodsCount: Int {
+        profile.questProgressItems.filter { isEatenProgress($0) }.count
     }
 
     var isFirstRun: Bool {
@@ -324,7 +358,7 @@ class AppViewModel {
     }
 
     var completedQuestsCount: Int {
-        profile.questProgressItems.filter { $0.isComplete }.count
+        eatenFoodsCount
     }
 
     var starJarProgress: Double {
@@ -335,7 +369,7 @@ class AppViewModel {
     func sensoryComfortLevels() -> [SensoryStep: Int] {
         var levels: [SensoryStep: Int] = [:]
         for step in SensoryStep.allCases {
-            let completed = profile.questProgressItems.filter { $0.completedSteps.contains(step) }.count
+            let completed = profile.questProgressItems.filter { !$0.isPreCompleted && $0.completedSteps.contains(step) }.count
             levels[step] = completed
         }
         return levels
@@ -544,17 +578,17 @@ class AppViewModel {
 
     func checkCosmeticUnlocks() {
         let level = profile.currentLevel
-        let foodsLogged = exploredFoodsCount
+        let foodsLogged = activeExploredFoodsCount
         let daysLogged = profile.longestStreak
         let planetsUnlocked = JourneyPlanet.allCases.filter { dynamicIsPlanetCompleted($0) }.count
 
-        let completedFoodIds = Set(profile.questProgressItems.filter { $0.isComplete }.map { $0.foodId })
+        let exploredFoodIds = Set(profile.questProgressItems.filter { countsAsPlanetFood($0) }.map { $0.foodId })
         let allFoods = FoodDatabase.allFoods + customFoodItems
-        let completedCategories = Set(allFoods.filter { completedFoodIds.contains($0.id) }.map { $0.category })
+        let completedCategories = Set(allFoods.filter { exploredFoodIds.contains($0.id) }.map { $0.category })
 
         var phaseCompletion: [SensoryStep: Bool] = [:]
         for step in SensoryStep.allCases {
-            let count = profile.questProgressItems.filter { $0.completedSteps.contains(step) }.count
+            let count = profile.questProgressItems.filter { !$0.isPreCompleted && $0.completedSteps.contains(step) }.count
             phaseCompletion[step] = count > 0
         }
         let allPhasesComplete = SensoryStep.allCases.allSatisfy { phaseCompletion[$0] == true }
