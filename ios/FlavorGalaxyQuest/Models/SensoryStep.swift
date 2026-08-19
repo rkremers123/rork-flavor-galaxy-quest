@@ -59,7 +59,7 @@ nonisolated enum SensoryStep: Int, Codable, CaseIterable, Sendable, Hashable {
 
     var starDustReward: Int {
         switch self {
-        case .look: 5
+        case .look: 0
         case .touch: 10
         case .smell: 15
         case .lick: 25
