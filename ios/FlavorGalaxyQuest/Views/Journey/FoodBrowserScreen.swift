@@ -53,7 +53,7 @@ struct FoodBrowserScreen: View {
     @FocusState private var isSearchFocused: Bool
 
     private var allFoods: [FoodItem] {
-        var combined = FoodDatabase.allFoods + viewModel.customFoodItems
+        var combined = (FoodDatabase.allFoods + viewModel.customFoodItems).filter { !viewModel.isHardExcluded($0) }
         if let category = selectedCategory {
             combined = combined.filter { $0.category == category }
         }
@@ -76,7 +76,8 @@ struct FoodBrowserScreen: View {
 
     private var searchResults: [FoodItem] {
         guard !searchText.trimmingCharacters(in: .whitespaces).isEmpty else { return [] }
-        return FoodDatabase.search(searchText, in: FoodDatabase.allFoods + viewModel.customFoodItems)
+        let pool = (FoodDatabase.allFoods + viewModel.customFoodItems).filter { !viewModel.isHardExcluded($0) }
+        return FoodDatabase.search(searchText, in: pool)
     }
 
     private var isSearching: Bool {
