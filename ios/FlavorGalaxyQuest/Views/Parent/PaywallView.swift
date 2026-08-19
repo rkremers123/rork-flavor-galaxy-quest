@@ -4,8 +4,14 @@ import RevenueCat
 struct PaywallView: View {
     @Environment(\.dismiss) private var dismiss
     let subscription: SubscriptionManager
+    private enum OfferPlan {
+        case monthly
+        case yearly
+    }
+
     @State private var selectedPackage: Package?
     @State private var availablePackages: [Package] = []
+    @State private var selectedPlan: OfferPlan = .yearly
 
     var body: some View {
         NavigationStack {
@@ -68,7 +74,12 @@ struct PaywallView: View {
             await subscription.fetchOfferings()
             if let current = subscription.offerings?.current {
                 availablePackages = current.availablePackages
-                selectedPackage = current.annual ?? current.availablePackages.first
+                selectedPackage = current.annual ?? current.monthly ?? current.availablePackages.first
+                if selectedPackage?.packageType == .monthly {
+                    selectedPlan = .monthly
+                } else {
+                    selectedPlan = .yearly
+                }
             }
         }
     }
@@ -183,78 +194,92 @@ struct PaywallView: View {
 
     private var packagesSection: some View {
         VStack(spacing: 10) {
-            ForEach(availablePackages.sorted(by: { annualFirst($0, $1) }), id: \.identifier) { package in
-                let isSelected = selectedPackage?.identifier == package.identifier
-                let isAnnual = package.packageType == .annual
+            offerRow(
+                title: "Monthly",
+                price: monthlyPriceLabel,
+                detail: "Cancel anytime",
+                badge: nil,
+                plan: .monthly
+            )
+            offerRow(
+                title: "Yearly",
+                price: yearlyPriceLabel,
+                detail: "Best value · \(SGOffer.yearlySave)",
+                badge: SGOffer.yearlySave,
+                plan: .yearly
+            )
+        }
+    }
 
-                Button {
-                    withAnimation(.spring(duration: 0.25)) {
-                        selectedPackage = package
+    private func offerRow(title: String, price: String, detail: String, badge: String?, plan: OfferPlan) -> some View {
+        let isSelected = selectedPlan == plan
+        return Button {
+            withAnimation(.spring(duration: 0.25)) {
+                selectedPlan = plan
+                selectedPackage = storePackage(for: plan)
+            }
+        } label: {
+            HStack(spacing: 14) {
+                ZStack {
+                    Circle()
+                        .stroke(isSelected ? SpaceTheme.cosmicCyan : .white.opacity(0.2), lineWidth: 2)
+                        .frame(width: 22, height: 22)
+                    if isSelected {
+                        Circle()
+                            .fill(SpaceTheme.cosmicCyan)
+                            .frame(width: 12, height: 12)
                     }
-                } label: {
-                    HStack(spacing: 14) {
-                        ZStack {
-                            Circle()
-                                .stroke(isSelected ? SpaceTheme.cosmicCyan : .white.opacity(0.2), lineWidth: 2)
-                                .frame(width: 22, height: 22)
-                            if isSelected {
-                                Circle()
-                                    .fill(SpaceTheme.cosmicCyan)
-                                    .frame(width: 12, height: 12)
-                            }
-                        }
+                }
 
-                        VStack(alignment: .leading, spacing: 3) {
-                            HStack(spacing: 8) {
-                                Text(package.storeProduct.localizedTitle)
-                                    .font(.system(.subheadline, design: .rounded, weight: .semibold))
-                                    .foregroundStyle(.white)
-
-                                if isAnnual {
-                                    Text("SAVE 48%")
-                                        .font(.system(size: 10, weight: .bold, design: .rounded))
-                                        .foregroundStyle(.white)
-                                        .padding(.horizontal, 6)
-                                        .padding(.vertical, 2)
-                                        .background(
-                                            Capsule()
-                                                .fill(SpaceTheme.planetGreen)
-                                        )
-                                }
-                            }
-
-                            Text(packageDescription(for: package))
-                                .font(.system(.caption, design: .rounded))
-                                .foregroundStyle(.white.opacity(0.5))
-                        }
-
-                        Spacer()
-
-                        Text(package.storeProduct.localizedPriceString)
-                            .font(.system(.subheadline, design: .rounded, weight: .bold))
+                VStack(alignment: .leading, spacing: 3) {
+                    HStack(spacing: 8) {
+                        Text(title)
+                            .font(.system(.subheadline, design: .rounded, weight: .semibold))
                             .foregroundStyle(.white)
+
+                        if let badge {
+                            Text(badge.uppercased())
+                                .font(.system(size: 10, weight: .bold, design: .rounded))
+                                .foregroundStyle(.white)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(
+                                    Capsule()
+                                        .fill(SpaceTheme.planetGreen)
+                                )
+                        }
                     }
-                    .padding(14)
-                    .background(
+
+                    Text(detail)
+                        .font(.system(.caption, design: .rounded))
+                        .foregroundStyle(.white.opacity(0.5))
+                }
+
+                Spacer()
+
+                Text(price)
+                    .font(.system(.subheadline, design: .rounded, weight: .bold))
+                    .foregroundStyle(.white)
+            }
+            .padding(14)
+            .background(
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .fill(isSelected ? SpaceTheme.cosmicCyan.opacity(0.08) : .white.opacity(0.03))
+                    .overlay(
                         RoundedRectangle(cornerRadius: 14, style: .continuous)
-                            .fill(isSelected ? SpaceTheme.cosmicCyan.opacity(0.08) : .white.opacity(0.03))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                    .stroke(
-                                        isSelected ? SpaceTheme.cosmicCyan.opacity(0.4) : .white.opacity(0.06),
-                                        lineWidth: isSelected ? 1.5 : 1
-                                    )
+                            .stroke(
+                                isSelected ? SpaceTheme.cosmicCyan.opacity(0.4) : .white.opacity(0.06),
+                                lineWidth: isSelected ? 1.5 : 1
                             )
                     )
-                }
-            }
+            )
         }
     }
 
     private var ctaSection: some View {
         VStack(spacing: 12) {
             Button {
-                guard let package = selectedPackage else { return }
+                guard let package = storePackage(for: selectedPlan) else { return }
                 Task {
                     let success = await subscription.purchase(package: package)
                     if success {
@@ -263,13 +288,11 @@ struct PaywallView: View {
                 }
             } label: {
                 VStack(spacing: 4) {
-                    Text("Subscribe Now")
+                    Text("Start \(SGOffer.trialDays)-day free trial")
                         .font(.system(.headline, design: .rounded))
-                    if let package = selectedPackage {
-                        Text(ctaSubtitle(for: package))
-                            .font(.system(.caption, design: .rounded))
-                            .foregroundStyle(.white.opacity(0.7))
-                    }
+                    Text(ctaSubtitleText)
+                        .font(.system(.caption, design: .rounded))
+                        .foregroundStyle(.white.opacity(0.7))
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 16)
@@ -283,7 +306,7 @@ struct PaywallView: View {
                 .foregroundStyle(.white)
                 .clipShape(.rect(cornerRadius: 14))
             }
-            .disabled(selectedPackage == nil || subscription.isPurchasing)
+            .disabled(subscription.isPurchasing)
 
             Button {
                 Task {
@@ -302,6 +325,11 @@ struct PaywallView: View {
 
     private var legalSection: some View {
         VStack(spacing: 6) {
+            Text("Start with a \(SGOffer.trialDays)-day free trial. Then \(SGOffer.monthly)/month or \(SGOffer.yearly)/year.")
+                .font(.system(.caption2, design: .rounded, weight: .medium))
+                .foregroundStyle(.white.opacity(0.45))
+                .multilineTextAlignment(.center)
+
             Text("Payment will be charged to your Apple ID account. Subscription auto-renews unless canceled at least 24 hours before the end of the current period.")
                 .font(.system(.caption2, design: .rounded))
                 .foregroundStyle(.white.opacity(0.25))
@@ -319,31 +347,37 @@ struct PaywallView: View {
         .padding(.bottom, 8)
     }
 
-    private func annualFirst(_ a: Package, _ b: Package) -> Bool {
-        if a.packageType == .annual { return true }
-        if b.packageType == .annual { return false }
-        return a.storeProduct.price > b.storeProduct.price
+    private var monthlyPackage: Package? {
+        availablePackages.first { $0.packageType == .monthly }
     }
 
-    private func packageDescription(for package: Package) -> String {
-        switch package.packageType {
-        case .annual:
-            return "$2.08/month · Best value"
+    private var yearlyPackage: Package? {
+        availablePackages.first { $0.packageType == .annual }
+    }
+
+    private var monthlyPriceLabel: String {
+        monthlyPackage?.storeProduct.localizedPriceString ?? SGOffer.monthly
+    }
+
+    private var yearlyPriceLabel: String {
+        yearlyPackage?.storeProduct.localizedPriceString ?? SGOffer.yearly
+    }
+
+    private var ctaSubtitleText: String {
+        switch selectedPlan {
         case .monthly:
-            return "Cancel anytime"
-        default:
-            return package.storeProduct.localizedDescription
+            return "then \(monthlyPriceLabel)/month"
+        case .yearly:
+            return "then \(yearlyPriceLabel)/year"
         }
     }
 
-    private func ctaSubtitle(for package: Package) -> String {
-        switch package.packageType {
-        case .annual:
-            return "\(package.storeProduct.localizedPriceString)/year"
+    private func storePackage(for plan: OfferPlan) -> Package? {
+        switch plan {
         case .monthly:
-            return "\(package.storeProduct.localizedPriceString)/month"
-        default:
-            return package.storeProduct.localizedPriceString
+            return monthlyPackage
+        case .yearly:
+            return yearlyPackage
         }
     }
 }
