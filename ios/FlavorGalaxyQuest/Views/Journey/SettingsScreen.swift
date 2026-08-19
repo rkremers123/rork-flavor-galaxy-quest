@@ -18,6 +18,7 @@ struct SettingsScreen: View {
     @State private var pendingCreatePIN = ""
     @State private var pinError: String?
     @State private var showNeverOfferPicker = false
+    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         ZStack {
@@ -25,6 +26,14 @@ struct SettingsScreen: View {
 
             ScrollView {
                 VStack(spacing: 20) {
+                    HStack {
+                        Spacer()
+                        Button("Done") { dismiss() }
+                            .font(SGFont.caption())
+                            .foregroundStyle(SGColor.glow)
+                            .accessibilityLabel("Close parent settings")
+                    }
+
                     explorerCard
                     cosmeticsButton
                     starJarCard
