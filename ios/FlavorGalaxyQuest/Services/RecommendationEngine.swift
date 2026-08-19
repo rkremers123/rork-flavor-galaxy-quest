@@ -11,6 +11,7 @@ struct RecommendationEngine {
         sensoryProfile: SensoryProfile,
         allFoods: [FoodItem],
         excludedAllergens: Set<Allergen>,
+        excludedFoodIds: Set<UUID> = [],
         maxPerTier: Int = 8
     ) -> [FoodRecommendation] {
         guard sensoryProfile.totalFoodsConsumed > 0 else { return [] }
@@ -19,6 +20,7 @@ struct RecommendationEngine {
 
         let candidates = allFoods.filter { food in
             !triedFoodIds.contains(food.id) &&
+            !excludedFoodIds.contains(food.id) &&
             food.allergens.isDisjoint(with: excludedAllergens)
         }
 
