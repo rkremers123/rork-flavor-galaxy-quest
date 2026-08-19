@@ -541,7 +541,7 @@ struct SensoryProfileDashboardView: View {
         Button {
             onExportPDF()
         } label: {
-            Label("Share with Therapist", systemImage: "square.and.arrow.up")
+            Label("Share progress summary", systemImage: "square.and.arrow.up")
                 .font(.subheadline.weight(.semibold))
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 14)
