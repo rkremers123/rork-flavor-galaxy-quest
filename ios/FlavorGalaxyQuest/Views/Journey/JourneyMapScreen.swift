@@ -8,6 +8,7 @@ struct JourneyMapScreen: View {
     @State private var showStreakBanner = false
     @State private var showExplorerDetail = false
     @State private var showWeeklyRecap = true
+    @State private var showParentSettings = false
 
     private var foodsExplored: Int { viewModel.exploredFoodsCount }
     private var currentPlanet: JourneyPlanet { viewModel.dynamicCurrentPlanet }
@@ -19,6 +20,10 @@ struct JourneyMapScreen: View {
             ScrollViewReader { proxy in
                 ScrollView {
                     VStack(spacing: 0) {
+                        grownUpsChip
+                            .padding(.horizontal, 20)
+                            .padding(.top, 4)
+
                         explorerHeader
                             .padding(.horizontal, 20)
                             .padding(.top, 8)
@@ -81,9 +86,37 @@ struct JourneyMapScreen: View {
                 .presentationDragIndicator(.visible)
                 .presentationBackground(SpaceTheme.deepNavy)
         }
+        .sheet(isPresented: $showParentSettings) {
+            SettingsScreen(viewModel: viewModel)
+                .presentationDetents([.large])
+                .presentationDragIndicator(.visible)
+                .presentationBackground(SpaceTheme.deepNavy)
+        }
     }
 
     // MARK: - Header
+
+    private var grownUpsChip: some View {
+        HStack {
+            Spacer()
+            Button { showParentSettings = true } label: {
+                HStack(spacing: 5) {
+                    Image(systemName: "lock.fill")
+                        .font(.system(size: 10, weight: .bold))
+                    Text("Grown-ups")
+                        .font(SGFont.caption())
+                }
+                .foregroundStyle(SGColor.textMuted)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 6)
+                .background(Capsule().fill(SGColor.chipIdle))
+                .overlay(Capsule().stroke(SGColor.cardStroke, lineWidth: 1))
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Grown-ups")
+            .accessibilityHint("Opens parent settings. A PIN is required.")
+        }
+    }
 
     private var explorerHeader: some View {
         HStack(spacing: 14) {
