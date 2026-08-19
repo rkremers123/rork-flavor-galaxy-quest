@@ -2,13 +2,21 @@ import SwiftUI
 
 struct SettingsScreen: View {
     let viewModel: AppViewModel
+    private enum PINPhase {
+        case create
+        case confirm
+        case enter
+    }
+
     @State private var parentUnlocked = false
-    @State private var holdProgress: CGFloat = 0
-    @State private var isHolding = false
     @State private var showParentDashboard = false
     @State private var showResetConfirmation = false
     @State private var showPaywall = false
     @State private var showCosmetics = false
+    @State private var pinPhase: PINPhase = PersistenceService.hasParentPIN ? .enter : .create
+    @State private var pinEntry = ""
+    @State private var pendingCreatePIN = ""
+    @State private var pinError: String?
 
     var body: some View {
         ZStack {
@@ -206,49 +214,30 @@ struct SettingsScreen: View {
                 .font(.system(.headline, design: .rounded, weight: .bold))
                 .foregroundStyle(.white)
 
-            Text("Hold for 3 seconds to access\nparent settings and dashboard")
+            Text(pinPrompt)
                 .font(.system(.caption, design: .rounded))
                 .foregroundStyle(.white.opacity(0.4))
                 .multilineTextAlignment(.center)
 
-            ZStack {
-                Circle()
-                    .stroke(.white.opacity(0.1), lineWidth: 5)
-                    .frame(width: 70, height: 70)
-
-                Circle()
-                    .trim(from: 0, to: holdProgress)
-                    .stroke(SpaceTheme.cosmicCyan, style: StrokeStyle(lineWidth: 5, lineCap: .round))
-                    .frame(width: 70, height: 70)
-                    .rotationEffect(.degrees(-90))
-
-                Image(systemName: "hand.tap.fill")
-                    .font(.title3)
-                    .foregroundStyle(.white.opacity(0.4))
+            HStack(spacing: 12) {
+                ForEach(0..<4, id: \.self) { index in
+                    Circle()
+                        .fill(index < pinEntry.count ? SpaceTheme.cosmicCyan : Color.white.opacity(0.12))
+                        .frame(width: 14, height: 14)
+                        .overlay(
+                            Circle()
+                                .stroke(.white.opacity(0.2), lineWidth: 1)
+                        )
+                }
             }
-            .gesture(
-                LongPressGesture(minimumDuration: 3)
-                    .onChanged { _ in
-                        isHolding = true
-                        withAnimation(.linear(duration: 3)) {
-                            holdProgress = 1.0
-                        }
-                    }
-                    .onEnded { _ in
-                        withAnimation(.spring) {
-                            parentUnlocked = true
-                        }
-                    }
-            )
-            .simultaneousGesture(
-                DragGesture(minimumDistance: 0)
-                    .onEnded { _ in
-                        if !parentUnlocked {
-                            withAnimation { holdProgress = 0 }
-                            isHolding = false
-                        }
-                    }
-            )
+
+            if let pinError {
+                Text(pinError)
+                    .font(.system(.caption2, design: .rounded, weight: .medium))
+                    .foregroundStyle(.red.opacity(0.85))
+            }
+
+            pinKeypad
         }
         .frame(maxWidth: .infinity)
         .padding(24)
@@ -270,6 +259,12 @@ struct SettingsScreen: View {
                 Text("Parent Mode Active")
                     .font(.system(.subheadline, design: .rounded, weight: .bold))
                     .foregroundStyle(SpaceTheme.planetGreen)
+                Spacer()
+                Button("Lock") {
+                    lockParentZone()
+                }
+                .font(.system(.caption, design: .rounded, weight: .semibold))
+                .foregroundStyle(.white.opacity(0.5))
             }
             .padding(.bottom, 4)
 
@@ -416,6 +411,7 @@ struct SettingsScreen: View {
                             viewModel.profile.excludedAllergens.insert(allergen)
                         }
                         viewModel.refreshBridgeSuggestions()
+                        viewModel.refreshRecommendations()
                         viewModel.saveProfile()
                     } label: {
                         HStack(spacing: 4) {
@@ -615,4 +611,97 @@ struct SettingsScreen: View {
         let days = Calendar.current.dateComponents([.day], from: viewModel.profile.createdDate, to: Date()).day ?? 0
         return max(days + 1, 1)
     }
+
+    private var pinPrompt: String {
+        switch pinPhase {
+        case .create:
+            return "Create a 4-digit PIN to lock\nparent settings and Reset All Data"
+        case .confirm:
+            return "Enter the same PIN again to confirm"
+        case .enter:
+            return "Enter your 4-digit PIN to open\nparent settings and dashboard"
+        }
+    }
+
+    private var pinKeypad: some View {
+        let keys = [["1", "2", "3"], ["4", "5", "6"], ["7", "8", "9"], ["", "0", "⌫"]]
+        return VStack(spacing: 10) {
+            ForEach(keys, id: \.self) { row in
+                HStack(spacing: 10) {
+                    ForEach(row, id: \.self) { key in
+                        Button {
+                            handlePINKey(key)
+                        } label: {
+                            Text(key)
+                                .font(.system(.title2, design: .rounded, weight: .semibold))
+                                .foregroundStyle(key.isEmpty ? .clear : .white)
+                                .frame(width: 64, height: 48)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                        .fill(key.isEmpty ? .clear : .white.opacity(0.06))
+                                )
+                        }
+                        .disabled(key.isEmpty)
+                    }
+                }
+            }
+        }
+    }
+
+    private func handlePINKey(_ key: String) {
+        pinError = nil
+        if key == "⌫" {
+            if !pinEntry.isEmpty {
+                pinEntry.removeLast()
+            }
+            return
+        }
+        guard key.count == 1, key.first?.isNumber == true, pinEntry.count < 4 else { return }
+        pinEntry.append(key)
+        if pinEntry.count == 4 {
+            submitPIN()
+        }
+    }
+
+    private func submitPIN() {
+        switch pinPhase {
+        case .create:
+            pendingCreatePIN = pinEntry
+            pinEntry = ""
+            pinPhase = .confirm
+        case .confirm:
+            if pinEntry == pendingCreatePIN {
+                PersistenceService.setParentPIN(pinEntry)
+                pendingCreatePIN = ""
+                pinEntry = ""
+                withAnimation(.spring) {
+                    parentUnlocked = true
+                }
+            } else {
+                pinError = "PINs did not match. Try again."
+                pendingCreatePIN = ""
+                pinEntry = ""
+                pinPhase = .create
+            }
+        case .enter:
+            if PersistenceService.verifyParentPIN(pinEntry) {
+                pinEntry = ""
+                withAnimation(.spring) {
+                    parentUnlocked = true
+                }
+            } else {
+                pinError = "Incorrect PIN"
+                pinEntry = ""
+            }
+        }
+    }
+
+    private func lockParentZone() {
+        parentUnlocked = false
+        pinEntry = ""
+        pinError = nil
+        pendingCreatePIN = ""
+        pinPhase = PersistenceService.hasParentPIN ? .enter : .create
+    }
+
 }
