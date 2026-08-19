@@ -73,9 +73,14 @@ struct FoodChainingEngine {
         targetFood: FoodItem,
         allFoods: [FoodItem],
         excludedAllergens: Set<Allergen>,
+        excludedFoodIds: Set<UUID> = [],
         bridgeHistory: [BridgeRecordModel],
         maxSuggestions: Int = 5
     ) -> [BridgeSuggestion] {
+        if !targetFood.allergens.isDisjoint(with: excludedAllergens) || excludedFoodIds.contains(targetFood.id) {
+            return []
+        }
+
         let failedFoodIds = Set(bridgeHistory.filter { $0.status == .failed }.map(\.bridgeFoodId))
         let activeBridgeFoodIds = Set(bridgeHistory.filter { $0.status == .active }.map(\.bridgeFoodId))
 
@@ -83,6 +88,7 @@ struct FoodChainingEngine {
             candidate.id != targetFood.id &&
             !failedFoodIds.contains(candidate.id) &&
             !activeBridgeFoodIds.contains(candidate.id) &&
+            !excludedFoodIds.contains(candidate.id) &&
             candidate.allergens.isDisjoint(with: excludedAllergens)
         }
 
@@ -164,6 +170,7 @@ struct FoodChainingEngine {
         targetFood: FoodItem,
         allFoods: [FoodItem],
         excludedAllergens: Set<Allergen>,
+        excludedFoodIds: Set<UUID> = [],
         bridgeHistory: [BridgeRecordModel]
     ) -> BridgeSuggestion? {
         suggestBridges(
@@ -171,6 +178,7 @@ struct FoodChainingEngine {
             targetFood: targetFood,
             allFoods: allFoods,
             excludedAllergens: excludedAllergens,
+            excludedFoodIds: excludedFoodIds,
             bridgeHistory: bridgeHistory,
             maxSuggestions: 1
         ).first
