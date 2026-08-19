@@ -621,7 +621,10 @@ struct ParentDashboardView: View {
                 SmartRecommendationsView(
                     recommendations: viewModel.foodRecommendations,
                     childName: viewModel.profile.explorerDisplayName,
-                    onStartQuest: { _ in },
+                    onStartQuest: { food in
+                        viewModel.setActiveQuest(food: food)
+                        viewModel.switchToExplorerMode()
+                    },
                     onRefresh: { viewModel.refreshRecommendations() }
                 )
             } else {
