@@ -10,6 +10,7 @@ struct ParentDashboardView: View {
     @State private var showShareSheet: Bool = false
     @State private var pdfData: Data?
     @State private var showUpgradePrompt: Bool = false
+    @State private var showNeverOfferPicker: Bool = false
 
     @Environment(\.dismiss) private var dismiss
 
@@ -62,6 +63,9 @@ struct ParentDashboardView: View {
                 if let data = pdfData {
                     ShareSheetView(activityItems: [data])
                 }
+            }
+            .sheet(isPresented: $showNeverOfferPicker) {
+                NeverOfferPickerSheet(viewModel: viewModel)
             }
             .onChange(of: selectedTab) { _, newTab in
                 if (newTab == .analytics || newTab == .recommendations) && !viewModel.subscription.hasAccess {
@@ -766,7 +770,7 @@ struct ParentDashboardView: View {
             Text("Allergen Filters")
                 .font(.headline)
 
-            Text("Excluded allergens won't appear in bridge suggestions")
+            Text("Excluded allergens and Do not give foods will not appear in recommendations, bridges, or Start Quest.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
 
@@ -780,6 +784,7 @@ struct ParentDashboardView: View {
                             viewModel.profile.excludedAllergens.insert(allergen)
                         }
                         viewModel.refreshBridgeSuggestions()
+                        viewModel.refreshRecommendations()
                         viewModel.saveProfile()
                     } label: {
                         HStack(spacing: 4) {
@@ -798,6 +803,41 @@ struct ParentDashboardView: View {
                         )
                     }
                 }
+            }
+
+            Text("Do not give")
+                .font(.headline)
+                .padding(.top, 8)
+
+            Text("These foods will never be recommended or started as a quest.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
+            ForEach(viewModel.neverOfferFoods) { food in
+                HStack(spacing: 8) {
+                    Text(food.emoji)
+                    Text(food.name)
+                        .font(.subheadline)
+                    Spacer()
+                    Button("Remove") {
+                        viewModel.toggleNeverOffer(food: food)
+                    }
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.red)
+                }
+            }
+
+            Button {
+                showNeverOfferPicker = true
+            } label: {
+                Text("Add a food")
+                    .font(.subheadline.weight(.semibold))
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 10)
+                    .background(
+                        RoundedRectangle(cornerRadius: 8, style: .continuous)
+                            .fill(Color(.tertiarySystemFill))
+                    )
             }
         }
     }
@@ -1056,4 +1096,48 @@ struct ShareSheetView: UIViewControllerRepresentable {
     }
 
     func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
+}
+
+
+struct NeverOfferPickerSheet: View {
+    let viewModel: AppViewModel
+    @Environment(\.dismiss) private var dismiss
+    @State private var searchText = ""
+
+    private var foods: [FoodItem] {
+        let pool = FoodDatabase.allFoods + viewModel.customFoodItems
+        if searchText.trimmingCharacters(in: .whitespaces).isEmpty {
+            return pool
+        }
+        return FoodDatabase.search(searchText, in: pool)
+    }
+
+    var body: some View {
+        NavigationStack {
+            List(foods) { food in
+                Button {
+                    viewModel.toggleNeverOffer(food: food)
+                } label: {
+                    HStack(spacing: 10) {
+                        Text(food.emoji)
+                        Text(food.name)
+                            .foregroundStyle(.primary)
+                        Spacer()
+                        if viewModel.profile.neverOfferFoodIds.contains(food.id) {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundStyle(.red)
+                        }
+                    }
+                }
+            }
+            .searchable(text: $searchText, prompt: "Search foods")
+            .navigationTitle("Do not give")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Done") { dismiss() }
+                }
+            }
+        }
+    }
 }
