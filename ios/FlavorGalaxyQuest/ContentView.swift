@@ -101,31 +101,69 @@ struct MainTabView: View {
     @Bindable var viewModel: AppViewModel
 
     var body: some View {
-        TabView(selection: $viewModel.selectedTab) {
-            JourneyMapScreen(viewModel: viewModel)
-                .tabItem {
-                    Label("Journey", systemImage: "map.fill")
+        VStack(spacing: 0) {
+            Group {
+                switch viewModel.selectedTab {
+                case 1:
+                    ActiveQuestScreen(viewModel: viewModel)
+                case 2:
+                    FoodBrowserScreen(viewModel: viewModel)
+                default:
+                    JourneyMapScreen(viewModel: viewModel)
                 }
-                .tag(0)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-            ActiveQuestScreen(viewModel: viewModel)
-                .tabItem {
-                    Label("Quest", systemImage: "star.circle.fill")
-                }
-                .tag(1)
-
-            FoodBrowserScreen(viewModel: viewModel)
-                .tabItem {
-                    Label("Foods", systemImage: "fork.knife")
-                }
-                .tag(2)
-
-            SettingsScreen(viewModel: viewModel)
-                .tabItem {
-                    Label("Settings", systemImage: "gearshape.fill")
-                }
-                .tag(3)
+            KidGalaxyTabBar(selectedTab: $viewModel.selectedTab)
         }
-        .tint(SpaceTheme.cosmicCyan)
+        .background(SGColor.galaxyBackground.ignoresSafeArea())
+    }
+}
+
+/// Kid-visible tabs only: Journey, Quest, Foods. No Settings / Parent / Paywall / Dashboard.
+struct KidGalaxyTabBar: View {
+    @Binding var selectedTab: Int
+
+    private let items: [(id: Int, title: String, icon: String)] = [
+        (0, "Journey", "map.fill"),
+        (1, "Quest", "star.circle.fill"),
+        (2, "Foods", "fork.knife"),
+    ]
+
+    var body: some View {
+        HStack(spacing: 0) {
+            ForEach(items, id: \.id) { item in
+                let selected = selectedTab == item.id
+                Button {
+                    selectedTab = item.id
+                } label: {
+                    VStack(spacing: 4) {
+                        Image(systemName: item.icon)
+                            .font(.system(size: 22, weight: .semibold))
+                        Text(item.title)
+                            .font(SGFont.caption())
+                    }
+                    .foregroundStyle(selected ? SGColor.gold : SGColor.textSecondary)
+                    .frame(maxWidth: .infinity)
+                    .frame(minHeight: 56)
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(item.title)
+                .accessibilityAddTraits(selected ? [.isButton, .isSelected] : .isButton)
+            }
+        }
+        .padding(.horizontal, 8)
+        .padding(.top, 10)
+        .padding(.bottom, 6)
+        .background(
+            SGColor.void
+                .overlay(alignment: .top) {
+                    Rectangle()
+                        .fill(SGColor.glow.opacity(0.35))
+                        .frame(height: 1)
+                }
+                .ignoresSafeArea(edges: .bottom)
+        )
     }
 }
