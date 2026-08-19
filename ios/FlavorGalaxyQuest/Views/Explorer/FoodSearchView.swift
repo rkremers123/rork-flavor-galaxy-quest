@@ -9,7 +9,7 @@ struct FoodSearchView: View {
     @Environment(\.dismiss) private var dismiss
 
     private var allFoods: [FoodItem] {
-        FoodDatabase.allFoods + viewModel.customFoodItems
+        (FoodDatabase.allFoods + viewModel.customFoodItems).filter { !viewModel.isHardExcluded($0) }
     }
 
     private var searchResults: [FoodItem] {
