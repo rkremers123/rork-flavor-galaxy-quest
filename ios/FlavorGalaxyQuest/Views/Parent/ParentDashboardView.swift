@@ -355,14 +355,20 @@ struct ParentDashboardView: View {
     private var statsGrid: some View {
         LazyVGrid(columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], spacing: 12) {
             StatCard(
-                title: "Foods Explored",
+                title: "Already like",
+                value: "\(viewModel.alreadyLikeFoodsCount)",
+                icon: "heart.fill",
+                color: .pink
+            )
+            StatCard(
+                title: "Explored",
                 value: "\(viewModel.exploredFoodsCount)",
                 icon: "globe.americas.fill",
                 color: .cyan
             )
             StatCard(
-                title: "Quests Complete",
-                value: "\(viewModel.completedQuestsCount)",
+                title: "Eaten",
+                value: "\(viewModel.eatenFoodsCount)",
                 icon: "checkmark.seal.fill",
                 color: .green
             )
@@ -371,12 +377,6 @@ struct ParentDashboardView: View {
                 value: "\(viewModel.profile.totalStarDust)",
                 icon: "sparkles",
                 color: .yellow
-            )
-            StatCard(
-                title: "Total Actions",
-                value: "\(viewModel.profile.totalInteractions)",
-                icon: "hand.tap.fill",
-                color: .orange
             )
         }
     }
@@ -509,7 +509,11 @@ struct ParentDashboardView: View {
 
                                 Spacer()
 
-                                if quest.isComplete {
+                                if quest.isPreCompleted {
+                                    Text("ALREADY LIKE")
+                                        .font(.system(.caption2, weight: .bold))
+                                        .foregroundStyle(.pink)
+                                } else if viewModel.isEatenProgress(quest) {
                                     Image(systemName: "checkmark.circle.fill")
                                         .foregroundStyle(.green)
                                 } else {
@@ -572,7 +576,11 @@ struct ParentDashboardView: View {
 
                                     Spacer()
 
-                                    if progress?.isComplete ?? false {
+                                    if progress?.isPreCompleted ?? false {
+                                        Text("ALREADY LIKE")
+                                            .font(.system(.caption2, weight: .bold))
+                                            .foregroundStyle(.pink)
+                                    } else if let progress, viewModel.isEatenProgress(progress) {
                                         Image(systemName: "checkmark.circle.fill")
                                             .foregroundStyle(.green)
                                     } else if !(progress?.completedStepValues.isEmpty ?? true) {
