@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct SettingsScreen: View {
     let viewModel: AppViewModel
@@ -219,9 +220,20 @@ struct SettingsScreen: View {
 
     private var parentGate: some View {
         VStack(spacing: 16) {
-            Image(systemName: "lock.shield.fill")
-                .font(.system(size: 32))
-                .foregroundStyle(.white.opacity(0.3))
+            Group {
+                if UIImage(named: "empty_state_pin") != nil {
+                    Image("empty_state_pin")
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(maxWidth: 220)
+                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                } else {
+                    Image(systemName: "lock.shield.fill")
+                        .font(.system(size: 32))
+                        .foregroundStyle(.white.opacity(0.3))
+                }
+            }
 
             Text("Parent Zone")
                 .font(.system(.headline, design: .rounded, weight: .bold))

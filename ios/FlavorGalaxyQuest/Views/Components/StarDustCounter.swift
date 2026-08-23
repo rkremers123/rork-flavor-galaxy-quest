@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct StarDustCounter: View {
     let amount: Int
@@ -7,10 +8,7 @@ struct StarDustCounter: View {
 
     var body: some View {
         HStack(spacing: 6) {
-            Image(systemName: "sparkles")
-                .font(.subheadline.bold())
-                .foregroundStyle(SpaceTheme.starGold)
-                .symbolEffect(.bounce, value: sparkle)
+            dustMark
 
             Text("\(displayedAmount)")
                 .font(.system(.subheadline, design: .rounded, weight: .bold))
@@ -33,6 +31,22 @@ struct StarDustCounter: View {
                 displayedAmount = newValue
             }
             sparkle += 1
+        }
+    }
+
+    @ViewBuilder
+    private var dustMark: some View {
+        if UIImage(named: "star_dust_particle") != nil {
+            Image("star_dust_particle")
+                .resizable()
+                .interpolation(.high)
+                .scaledToFit()
+                .frame(width: 16, height: 16)
+        } else {
+            Image(systemName: "sparkles")
+                .font(.subheadline.bold())
+                .foregroundStyle(SpaceTheme.starGold)
+                .symbolEffect(.bounce, value: sparkle)
         }
     }
 }

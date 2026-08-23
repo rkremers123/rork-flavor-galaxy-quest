@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct ActiveQuestScreen: View {
     @Bindable var viewModel: AppViewModel
@@ -495,13 +496,24 @@ struct ActiveQuestScreen: View {
         VStack(spacing: 24) {
             Spacer()
 
-            ZStack {
-                Circle()
-                    .fill(SpaceTheme.cosmicCyan.opacity(0.06))
-                    .frame(width: 140, height: 140)
-                Image(systemName: "star.circle")
-                    .font(.system(size: 56))
-                    .foregroundStyle(SpaceTheme.cosmicCyan.opacity(0.35))
+            Group {
+                if UIImage(named: "empty_state_no_quest") != nil {
+                    Image("empty_state_no_quest")
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(maxWidth: 280)
+                        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+                } else {
+                    ZStack {
+                        Circle()
+                            .fill(SpaceTheme.cosmicCyan.opacity(0.06))
+                            .frame(width: 140, height: 140)
+                        Image(systemName: "star.circle")
+                            .font(.system(size: 56))
+                            .foregroundStyle(SpaceTheme.cosmicCyan.opacity(0.35))
+                    }
+                }
             }
 
             Text("No Active Quest")

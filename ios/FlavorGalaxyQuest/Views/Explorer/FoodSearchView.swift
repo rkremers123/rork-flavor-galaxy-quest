@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct FoodSearchView: View {
     let viewModel: AppViewModel
@@ -212,9 +213,20 @@ struct FoodSearchView: View {
         VStack(spacing: 20) {
             Spacer().frame(height: 40)
 
-            Image(systemName: "magnifyingglass")
-                .font(.system(size: 36))
-                .foregroundStyle(.white.opacity(0.2))
+            Group {
+                if UIImage(named: "empty_state_pantry") != nil {
+                    Image("empty_state_pantry")
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(maxWidth: 240)
+                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                } else {
+                    Image(systemName: "magnifyingglass")
+                        .font(.system(size: 36))
+                        .foregroundStyle(.white.opacity(0.2))
+                }
+            }
 
             Text("No foods found for \"\(searchText)\"")
                 .font(.system(.subheadline, design: .rounded, weight: .medium))
