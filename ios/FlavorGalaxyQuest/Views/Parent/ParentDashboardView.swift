@@ -223,8 +223,7 @@ struct ParentDashboardView: View {
 
                 VStack(spacing: 12) {
                     HStack(spacing: 12) {
-                        Text(target.emoji)
-                            .font(.largeTitle)
+                        FoodIcon(food: target, size: 40)
 
                         VStack(alignment: .leading, spacing: 4) {
                             Text(target.name)
@@ -431,8 +430,7 @@ struct ParentDashboardView: View {
                     VStack(spacing: 0) {
                         ForEach(viewModel.bridgeSuggestions) { suggestion in
                             HStack(spacing: 12) {
-                                Text(suggestion.bridgeFood.emoji)
-                                    .font(.title3)
+                                FoodIcon(food: suggestion.bridgeFood, size: 22)
 
                                 VStack(alignment: .leading, spacing: 2) {
                                     HStack(spacing: 6) {
@@ -496,8 +494,7 @@ struct ParentDashboardView: View {
                         let food = FoodDatabase.food(byId: quest.foodId) ?? viewModel.customFoodItems.first { $0.id == quest.foodId }
                         if let food {
                             HStack(spacing: 12) {
-                                Text(food.emoji)
-                                    .font(.title3)
+                                FoodIcon(food: food, size: 22)
 
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text(food.name)
@@ -551,8 +548,7 @@ struct ParentDashboardView: View {
                                 let isSafe = viewModel.profile.safeFoodIds.contains(food.id)
 
                                 HStack(spacing: 12) {
-                                    Text(food.emoji)
-                                        .font(.title3)
+                                    FoodIcon(food: food, size: 22)
 
                                     VStack(alignment: .leading, spacing: 2) {
                                         HStack(spacing: 6) {
@@ -827,7 +823,7 @@ struct ParentDashboardView: View {
 
             ForEach(viewModel.neverOfferFoods) { food in
                 HStack(spacing: 8) {
-                    Text(food.emoji)
+                    FoodIcon(food: food, size: 20)
                     Text(food.name)
                         .font(.subheadline)
                     Spacer()
@@ -1131,7 +1127,7 @@ struct NeverOfferPickerSheet: View {
                     viewModel.toggleNeverOffer(food: food)
                 } label: {
                     HStack(spacing: 10) {
-                        Text(food.emoji)
+                        FoodIcon(food: food, size: 20)
                         Text(food.name)
                             .foregroundStyle(.primary)
                         Spacer()

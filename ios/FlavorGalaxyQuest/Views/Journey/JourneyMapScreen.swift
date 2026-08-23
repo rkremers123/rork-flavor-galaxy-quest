@@ -284,9 +284,15 @@ struct JourneyMapScreen: View {
                 .foregroundStyle(SpaceTheme.starGold)
 
             HStack(spacing: 14) {
-                Text(food?.emoji ?? "🎯")
-                    .font(.system(size: 36))
-                    .frame(width: 56, height: 56)
+                Group {
+                    if let food {
+                        FoodIcon(food: food, size: 36)
+                    } else {
+                        Text("🎯")
+                            .font(.system(size: 36))
+                    }
+                }
+                .frame(width: 56, height: 56)
                     .background(
                         Circle().fill(SpaceTheme.starGold.opacity(0.15))
                     )
@@ -806,8 +812,7 @@ struct PlanetDetailSheet: View {
                 ForEach(foods, id: \.id) { food in
                     let progress = viewModel.questProgress(for: food.id)
                     HStack(spacing: 14) {
-                        Text(food.emoji)
-                            .font(.title2)
+                        FoodIcon(food: food, size: 26)
                             .frame(width: 44, height: 44)
                             .background(
                                 Circle().fill(SpaceTheme.planetColor(hex: food.planetColorHex).opacity(0.15))

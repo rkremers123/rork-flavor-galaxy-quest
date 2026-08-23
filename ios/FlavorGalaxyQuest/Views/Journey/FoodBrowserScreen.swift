@@ -239,8 +239,7 @@ struct FoodBrowserScreen: View {
                             Circle()
                                 .fill(SpaceTheme.planetColor(hex: suggestion.bridgeFood.planetColorHex).opacity(0.2))
                                 .frame(width: 44, height: 44)
-                            Text(suggestion.bridgeFood.emoji)
-                                .font(.title3)
+                            FoodIcon(food: suggestion.bridgeFood, size: 22)
                         }
 
                         VStack(alignment: .leading, spacing: 3) {
@@ -575,8 +574,7 @@ struct FoodBrowserScreen: View {
                     Circle()
                         .fill(SpaceTheme.planetColor(hex: food.planetColorHex).opacity(0.2))
                         .frame(width: 44, height: 44)
-                    Text(food.emoji)
-                        .font(.title3)
+                    FoodIcon(food: food, size: 22)
                 }
 
                 VStack(alignment: .leading, spacing: 3) {

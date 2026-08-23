@@ -135,8 +135,7 @@ struct ActiveQuestScreen: View {
                     )
                     .frame(width: 200, height: 200)
 
-                Text(food.emoji)
-                    .font(.system(size: 90))
+                FoodIcon(food: food, size: 90)
             }
 
             Button { showFoodProfile = true } label: {
@@ -588,8 +587,7 @@ struct ActiveQuestScreen: View {
                             viewModel.setActiveQuest(food: similar)
                         } label: {
                             VStack(spacing: 6) {
-                                Text(similar.emoji)
-                                    .font(.title2)
+                                FoodIcon(food: similar, size: 28)
                                 Text(similar.name)
                                     .font(.system(.caption2, design: .rounded, weight: .semibold))
                                     .foregroundStyle(.white)

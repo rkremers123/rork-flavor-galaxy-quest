@@ -218,6 +218,44 @@ nonisolated struct FoodItem: Codable, Identifiable, Hashable, Sendable {
     let flavorBitter: Double
     let temperatureCelsius: Double
 
+    /// Asset catalog name (`food_<stem>`) for the illustrated icon.
+    var iconName: String {
+        "food_\(Self.iconStem(for: name).replacingOccurrences(of: "-", with: "_"))"
+    }
+
+    static let customGemIconName = "food_custom_gem"
+
+    private static let iconStemAliases: [String: String] = [
+        "Blueberry": "blueberries",
+        "Grape": "grapes",
+        "Cheddar Cheese": "cheddar",
+        "Fruit Roll-Ups": "fruit-roll-up",
+        "Goldfish Crackers": "goldfish",
+        "Ritz Crackers": "ritz",
+        "PB&J Sandwich": "pbj",
+        "Mac & Cheese": "mac-and-cheese",
+    ]
+
+    static func iconStem(for name: String) -> String {
+        if let alias = iconStemAliases[name] {
+            return alias
+        }
+        return defaultIconStem(name)
+    }
+
+    private static func defaultIconStem(_ name: String) -> String {
+        var s = name.lowercased().replacingOccurrences(of: "&", with: " and ")
+        var out = ""
+        for ch in s {
+            if ch.isLetter || ch.isNumber || ch == "-" {
+                out.append(ch)
+            } else {
+                out.append(" ")
+            }
+        }
+        return out.split(whereSeparator: { $0.isWhitespace }).joined(separator: "-")
+    }
+
     init(
         id: UUID? = nil,
         name: String,
