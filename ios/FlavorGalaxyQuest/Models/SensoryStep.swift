@@ -17,6 +17,29 @@ nonisolated enum SensoryStep: Int, Codable, CaseIterable, Sendable, Hashable {
         }
     }
 
+    /// Asset catalog name for illustrated step marks (`step_look`, …).
+    /// Lick is distinct from the optional `step_ate` asset (not a ladder step).
+    var imageName: String {
+        switch self {
+        case .look: "step_look"
+        case .touch: "step_touch"
+        case .smell: "step_smell"
+        case .lick: "step_lick"
+        case .taste: "step_taste"
+        }
+    }
+
+    /// Emoji fallback when the illustrated asset is missing.
+    var emoji: String {
+        switch self {
+        case .look: "👀"
+        case .touch: "✋"
+        case .smell: "👃"
+        case .lick: "👅"
+        case .taste: "😋"
+        }
+    }
+
     var icon: String {
         switch self {
         case .look: "eye.fill"

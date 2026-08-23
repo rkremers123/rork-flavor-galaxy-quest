@@ -152,9 +152,7 @@ struct FoodProfileModal: View {
                                     .font(.system(size: 10))
                                     .foregroundStyle(.white.opacity(0.2))
                             } else {
-                                Image(systemName: step.icon)
-                                    .font(.caption2)
-                                    .foregroundStyle(.white.opacity(0.2))
+                                StepMark(step: step, size: 14, tint: .white.opacity(0.2))
                             }
                         }
                         Text(step.label.uppercased())

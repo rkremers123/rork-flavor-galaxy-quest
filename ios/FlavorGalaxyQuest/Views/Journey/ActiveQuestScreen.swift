@@ -266,9 +266,11 @@ struct ActiveQuestScreen: View {
                                     .font(.caption.bold())
                                     .foregroundStyle(.white.opacity(0.3))
                             } else {
-                                Image(systemName: step.icon)
-                                    .font(.callout)
-                                    .foregroundStyle(isCurrent ? SpaceTheme.cosmicCyan : .white.opacity(0.2))
+                                StepMark(
+                                    step: step,
+                                    size: 18,
+                                    tint: isCurrent ? SpaceTheme.cosmicCyan : .white.opacity(0.2)
+                                )
                             }
                         }
 

@@ -218,11 +218,11 @@ struct PlanetQuestView: View {
                                         .font(.caption.bold())
                                         .foregroundStyle(.white.opacity(0.4))
                                 } else {
-                                    Image(systemName: step.icon)
-                                        .font(.callout)
-                                        .foregroundStyle(
-                                            isAvailable ? .white : .white.opacity(0.3)
-                                        )
+                                    StepMark(
+                                        step: step,
+                                        size: 18,
+                                        tint: isAvailable ? .white : .white.opacity(0.3)
+                                    )
                                 }
                             }
 
