@@ -370,7 +370,7 @@ struct JourneyMapScreen: View {
         let total = viewModel.dynamicFoodsForPlanet(planet)
         let planetColor = SpaceTheme.planetColor(hex: planet.accentColor)
         let planetSize: CGFloat = 140
-        let explorerSize: CGFloat = 100
+        let explorerSize: CGFloat = 52
         let explorerOverlap: CGFloat = 30
 
         return Button {
@@ -489,12 +489,11 @@ struct JourneyMapScreen: View {
     }
 
     private func explorerSideView(size: CGFloat) -> some View {
-        ExplorerAvatarView(
-            explorerType: viewModel.profile.explorerType,
-            equippedCosmetics: viewModel.profile.equippedCosmetics,
-            size: size
-        )
-        .shadow(color: SpaceTheme.planetColor(hex: viewModel.profile.explorerType.accentHex).opacity(0.6), radius: 12)
+        Image(viewModel.profile.explorerType.boardImageName)
+            .resizable()
+            .scaledToFit()
+            .frame(height: size)
+            .shadow(color: SpaceTheme.planetColor(hex: viewModel.profile.explorerType.accentHex).opacity(0.6), radius: 12)
     }
 
     // MARK: - Diagonal Connector

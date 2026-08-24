@@ -33,6 +33,15 @@ nonisolated enum ExplorerType: String, Codable, CaseIterable, Sendable, Hashable
         }
     }
 
+    var boardImageName: String {
+        switch self {
+        case .nova: "explorer_nova_board"
+        case .cosmo: "explorer_cosmo_board"
+        case .star: "explorer_star_board"
+        case .orbit: "explorer_orbit_board"
+        }
+    }
+
     var title: String {
         switch self {
         case .nova: "Speed Explorer"

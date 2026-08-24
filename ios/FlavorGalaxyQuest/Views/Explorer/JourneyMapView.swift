@@ -89,10 +89,10 @@ struct JourneyMapView: View {
                 .opacity(isReached ? 1.0 : 0.3)
 
             if isCurrent {
-                Image(explorerType.imageName)
+                Image(explorerType.boardImageName)
                     .resizable()
                     .scaledToFit()
-                    .frame(height: 24)
+                    .frame(height: 18)
                     .offset(y: -30)
             }
         }
