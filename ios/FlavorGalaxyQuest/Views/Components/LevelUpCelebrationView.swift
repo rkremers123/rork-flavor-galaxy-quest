@@ -72,8 +72,7 @@ struct LevelUpCelebrationView: View {
                         HStack(spacing: 16) {
                             ForEach(newCosmetics, id: \.self) { cosmetic in
                                 VStack(spacing: 4) {
-                                    Text(cosmetic.emoji)
-                                        .font(.title)
+                                    CosmeticArt(cosmetic: cosmetic, size: 32)
                                     Text(cosmetic.name)
                                         .font(.system(.caption2, design: .rounded, weight: .medium))
                                         .foregroundStyle(.white.opacity(0.7))

@@ -19,8 +19,7 @@ struct ExplorerAvatarView: View {
             }
 
             if let backpack = equippedCosmetics.first(where: { $0.category == .backpack }) {
-                Text(backpack.emoji)
-                    .font(.system(size: size * 0.3))
+                CosmeticArt(cosmetic: backpack, size: size * 0.3)
                     .offset(x: -size * 0.05, y: size * 0.05)
                     .opacity(0.9)
             }
@@ -47,20 +46,17 @@ struct ExplorerAvatarView: View {
                 .animation(.easeInOut(duration: 1.8).repeatForever(autoreverses: true), value: float)
 
             if let handheld = equippedCosmetics.first(where: { $0.category == .handheld }) {
-                Text(handheld.emoji)
-                    .font(.system(size: size * 0.22))
+                CosmeticArt(cosmetic: handheld, size: size * 0.22)
                     .offset(x: size * 0.3, y: size * 0.1)
             }
 
             if let badge = equippedCosmetics.first(where: { $0.category == .achievementBadge }) {
-                Text(badge.emoji)
-                    .font(.system(size: size * 0.18))
+                CosmeticArt(cosmetic: badge, size: size * 0.18)
                     .offset(x: size * 0.25, y: -size * 0.15)
             }
 
             if let milestone = equippedCosmetics.first(where: { $0.category == .milestoneBadge }) {
-                Text(milestone.emoji)
-                    .font(.system(size: size * 0.18))
+                CosmeticArt(cosmetic: milestone, size: size * 0.18)
                     .offset(x: -size * 0.28, y: -size * 0.15)
             }
         }
@@ -124,5 +120,28 @@ struct ExplorerAvatarView: View {
                     .offset(x: x, y: y)
             }
         }
+    }
+}
+
+/// Illustrated cosmetic art when `imageName` is set; emoji otherwise.
+/// Auras stay procedural in `ExplorerAvatarView`; this is for badges, bags, handhelds, and particle tokens.
+struct CosmeticArt: View {
+    let cosmetic: Cosmetic
+    var size: CGFloat = 24
+
+    var body: some View {
+        Group {
+            if let name = cosmetic.imageName {
+                Image(name)
+                    .resizable()
+                    .interpolation(.high)
+                    .scaledToFit()
+            } else {
+                Text(cosmetic.emoji)
+                    .font(.system(size: max(10, size * 0.85)))
+            }
+        }
+        .frame(width: size, height: size)
+        .accessibilityHidden(true)
     }
 }

@@ -370,6 +370,29 @@ nonisolated enum Cosmetic: String, Codable, CaseIterable, Sendable, Hashable {
         }
     }
 
+    var imageName: String? {
+        switch self {
+        case .speedExplorerBadge: "cosmetic_speed_explorer_badge"
+        case .scienceMasterBadge: "cosmetic_science_master_badge"
+        case .flavorPioneerBadge: "cosmetic_flavor_pioneer_badge"
+        case .sensoryWizardBadge: "cosmetic_sensory_wizard_badge"
+        case .galaxyLegendBadge: "cosmetic_galaxy_legend_badge"
+        case .day7Badge, .week2Badge, .month1Badge, .days100Badge, .year1Badge:
+            nil
+        case .cosmicBackpack: "cosmetic_cosmic_backpack"
+        case .sensoryExplorerPack, .flavorQuestSatchel, .scientistBag:
+            nil
+        case .cosmicCompass: "cosmetic_cosmic_compass"
+        case .flavorTelescope: "cosmetic_flavor_telescope"
+        case .explorerStaff, .discoveryWand, .sensoryScanner:
+            nil
+        case .cyanNebulaAura, .goldCosmicAura, .purpleMysticAura, .rainbowGalaxyAura:
+            nil
+        case .stardustTrail, .cosmicSparkles, .galaxyShimmer:
+            "star_dust_particle"
+        }
+    }
+
     var category: CosmeticCategory {
         switch self {
         case .speedExplorerBadge, .scienceMasterBadge, .flavorPioneerBadge,
