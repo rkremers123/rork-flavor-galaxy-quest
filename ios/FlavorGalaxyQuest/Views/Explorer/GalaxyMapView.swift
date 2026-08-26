@@ -432,7 +432,11 @@ struct GalaxyMapView: View {
                 }
 
                 VStack(alignment: .leading, spacing: 3) {
-                    Text("Try Next: \(suggestion.bridgeFood.emoji) \(suggestion.bridgeFood.name)")
+                    HStack(spacing: 6) {
+                        Text("Try Next:")
+                        FoodIcon(food: suggestion.bridgeFood, size: 16)
+                        Text(suggestion.bridgeFood.name)
+                    }
                         .font(.system(.subheadline, design: .rounded, weight: .bold))
                         .foregroundStyle(.white)
 

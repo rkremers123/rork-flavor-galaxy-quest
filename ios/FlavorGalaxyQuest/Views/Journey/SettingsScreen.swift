@@ -468,7 +468,7 @@ struct SettingsScreen: View {
 
             ForEach(viewModel.neverOfferFoods) { food in
                 HStack(spacing: 8) {
-                    Text(food.emoji)
+                    FoodIcon(food: food, size: 16)
                     Text(food.name)
                         .font(.system(.caption, design: .rounded, weight: .medium))
                         .foregroundStyle(.white)

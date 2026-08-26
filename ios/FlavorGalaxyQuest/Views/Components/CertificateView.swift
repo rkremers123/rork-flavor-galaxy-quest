@@ -147,8 +147,11 @@ struct CertificateView: View {
             VStack(spacing: 4) {
                 HStack(spacing: 4) {
                     ForEach(JourneyPlanet.allCases, id: \.self) { planet in
-                        Text(planet.emoji)
-                            .font(.title3)
+                        Image(planet.imageName)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 22, height: 22)
+                            .clipShape(Circle())
                     }
                 }
 
@@ -267,7 +270,11 @@ struct CertificateRenderContent: View {
 
             HStack(spacing: 4) {
                 ForEach(JourneyPlanet.allCases, id: \.self) { planet in
-                    Text(planet.emoji).font(.title3)
+                    Image(planet.imageName)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 22, height: 22)
+                        .clipShape(Circle())
                 }
             }
 

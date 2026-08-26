@@ -41,8 +41,7 @@ struct FoodProfileModal: View {
 
     private var headerSection: some View {
         VStack(spacing: 12) {
-            Text(food.emoji)
-                .font(.system(size: 64))
+            FoodIcon(food: food, size: 64)
 
             Text(food.name)
                 .font(.system(.title2, design: .rounded, weight: .bold))

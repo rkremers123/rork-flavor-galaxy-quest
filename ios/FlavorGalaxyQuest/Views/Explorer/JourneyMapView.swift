@@ -84,8 +84,11 @@ struct JourneyMapView: View {
                 .overlay(Circle().stroke(strokeColor, lineWidth: 2.5))
                 .shadow(color: shadowColor, radius: 8)
 
-            Text(planet.emoji)
-                .font(.title3)
+            Image(planet.imageName)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 40, height: 40)
+                .clipShape(Circle())
                 .opacity(isReached ? 1.0 : 0.3)
 
             if isCurrent {

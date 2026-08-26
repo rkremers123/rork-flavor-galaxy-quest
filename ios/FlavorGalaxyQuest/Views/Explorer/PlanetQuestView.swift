@@ -83,8 +83,7 @@ struct PlanetQuestView: View {
                     )
                     .frame(width: 120, height: 120)
 
-                Text(food.emoji)
-                    .font(.system(size: 56))
+                FoodIcon(food: food, size: 56)
             }
 
             Text("Planet \(food.name)")

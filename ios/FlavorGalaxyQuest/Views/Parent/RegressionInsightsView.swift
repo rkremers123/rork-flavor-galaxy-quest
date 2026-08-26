@@ -156,8 +156,14 @@ struct RegressionInsightsView: View {
         let food = allFoods.first { $0.id == regression.foodId }
 
         return HStack(spacing: 12) {
-            Text(food?.emoji ?? "🍽")
-                .font(.title3)
+            Group {
+                if let food {
+                    FoodIcon(food: food, size: 22)
+                } else {
+                    Text("🍽")
+                        .font(.title3)
+                }
+            }
 
             VStack(alignment: .leading, spacing: 3) {
                 Text(regression.foodName)
