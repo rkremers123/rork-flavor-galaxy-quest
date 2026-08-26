@@ -377,15 +377,20 @@ nonisolated enum Cosmetic: String, Codable, CaseIterable, Sendable, Hashable {
         case .flavorPioneerBadge: "cosmetic_flavor_pioneer_badge"
         case .sensoryWizardBadge: "cosmetic_sensory_wizard_badge"
         case .galaxyLegendBadge: "cosmetic_galaxy_legend_badge"
-        case .day7Badge, .week2Badge, .month1Badge, .days100Badge, .year1Badge:
-            nil
+        case .day7Badge: "cosmetic_day7_badge"
+        case .week2Badge: "cosmetic_week2_badge"
+        case .month1Badge: "cosmetic_month1_badge"
+        case .days100Badge: "cosmetic_days100_badge"
+        case .year1Badge: "cosmetic_year1_badge"
         case .cosmicBackpack: "cosmetic_cosmic_backpack"
-        case .sensoryExplorerPack, .flavorQuestSatchel, .scientistBag:
-            nil
+        case .sensoryExplorerPack: "cosmetic_sensory_explorer_pack"
+        case .flavorQuestSatchel: "cosmetic_flavor_quest_satchel"
+        case .scientistBag: "cosmetic_scientist_bag"
         case .cosmicCompass: "cosmetic_cosmic_compass"
         case .flavorTelescope: "cosmetic_flavor_telescope"
-        case .explorerStaff, .discoveryWand, .sensoryScanner:
-            nil
+        case .explorerStaff: "cosmetic_explorer_staff"
+        case .discoveryWand: "cosmetic_discovery_wand"
+        case .sensoryScanner: "cosmetic_sensory_scanner"
         case .cyanNebulaAura, .goldCosmicAura, .purpleMysticAura, .rainbowGalaxyAura:
             nil
         case .stardustTrail, .cosmicSparkles, .galaxyShimmer:
