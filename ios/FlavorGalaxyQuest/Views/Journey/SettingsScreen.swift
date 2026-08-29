@@ -556,7 +556,7 @@ struct SettingsScreen: View {
             profileRow("Name", value: viewModel.profile.name)
             profileRow("Age", value: "\(viewModel.profile.age)")
             profileRow("Target Food", value: viewModel.profile.targetFoodName.isEmpty ? "Not set" : viewModel.profile.targetFoodName)
-            profileRow("Safe Foods", value: "\(viewModel.profile.safeFoodIds.count)")
+            profileRow("Safe Foods", value: "\(viewModel.profile.safeFoodIds.count)", assetMark: "safe_food_token")
             profileRow("Days Active", value: "\(daysActive)")
         }
         .background(
@@ -569,8 +569,15 @@ struct SettingsScreen: View {
         )
     }
 
-    private func profileRow(_ title: String, value: String) -> some View {
-        HStack {
+    private func profileRow(_ title: String, value: String, assetMark: String? = nil) -> some View {
+        HStack(spacing: 8) {
+            if let assetMark, UIImage(named: assetMark) != nil {
+                Image(assetMark)
+                    .resizable()
+                    .interpolation(.high)
+                    .scaledToFit()
+                    .frame(width: 14, height: 14)
+            }
             Text(title)
                 .font(.system(.caption, design: .rounded))
                 .foregroundStyle(.white.opacity(0.5))

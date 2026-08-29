@@ -900,7 +900,7 @@ struct ParentDashboardView: View {
                 profileRow("Name", value: viewModel.profile.name)
                 profileRow("Age", value: "\(viewModel.profile.age)")
                 profileRow("Target Food", value: viewModel.profile.targetFoodName.isEmpty ? "Not set" : viewModel.profile.targetFoodName)
-                profileRow("Safe Foods", value: "\(viewModel.profile.safeFoodIds.count) foods")
+                profileRow("Safe Foods", value: "\(viewModel.profile.safeFoodIds.count) foods", assetMark: "safe_food_token")
                 profileRow("Days Active", value: "\(daysActive)")
             }
             .background(Color(.secondarySystemGroupedBackground))
@@ -908,8 +908,15 @@ struct ParentDashboardView: View {
         }
     }
 
-    private func profileRow(_ title: String, value: String) -> some View {
-        HStack {
+    private func profileRow(_ title: String, value: String, assetMark: String? = nil) -> some View {
+        HStack(spacing: 8) {
+            if let assetMark, UIImage(named: assetMark) != nil {
+                Image(assetMark)
+                    .resizable()
+                    .interpolation(.high)
+                    .scaledToFit()
+                    .frame(width: 16, height: 16)
+            }
             Text(title)
                 .font(.subheadline)
             Spacer()

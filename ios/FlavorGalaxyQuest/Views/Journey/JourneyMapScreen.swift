@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct JourneyMapScreen: View {
     @Bindable var viewModel: AppViewModel
@@ -101,8 +102,7 @@ struct JourneyMapScreen: View {
             Spacer()
             Button { showParentSettings = true } label: {
                 HStack(spacing: 5) {
-                    Image(systemName: "lock.fill")
-                        .font(.system(size: 10, weight: .bold))
+                    grownUpsChipMark
                     Text("Grown-ups")
                         .font(SGFont.caption())
                 }
@@ -115,6 +115,20 @@ struct JourneyMapScreen: View {
             .buttonStyle(.plain)
             .accessibilityLabel("Grown-ups")
             .accessibilityHint("Opens parent settings. A PIN is required.")
+        }
+    }
+
+    @ViewBuilder
+    private var grownUpsChipMark: some View {
+        if UIImage(named: "grownups_chip") != nil {
+            Image("grownups_chip")
+                .resizable()
+                .interpolation(.high)
+                .scaledToFit()
+                .frame(width: 14, height: 14)
+        } else {
+            Image(systemName: "lock.fill")
+                .font(.system(size: 10, weight: .bold))
         }
     }
 
