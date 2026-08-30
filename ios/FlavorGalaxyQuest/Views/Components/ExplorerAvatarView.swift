@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct ExplorerAvatarView: View {
     let explorerType: ExplorerType
@@ -38,9 +39,7 @@ struct ExplorerAvatarView: View {
                 )
                 .frame(width: size, height: size)
 
-            Image(explorerType.imageName)
-                .resizable()
-                .scaledToFit()
+            explorerArt
                 .frame(width: size * 0.75, height: size * 0.75)
                 .offset(y: float ? -3 : 3)
                 .animation(.easeInOut(duration: 1.8).repeatForever(autoreverses: true), value: float)
@@ -68,6 +67,27 @@ struct ExplorerAvatarView: View {
             }
             withAnimation(.easeInOut(duration: 2).repeatForever(autoreverses: true)) {
                 particlePhase = 1
+            }
+        }
+    }
+
+    /// Explorer kit art, with quiet Saturn default_avatar if the kit asset is missing.
+    private var explorerArt: some View {
+        Group {
+            if UIImage(named: explorerType.imageName) != nil {
+                Image(explorerType.imageName)
+                    .resizable()
+                    .scaledToFit()
+            } else if UIImage(named: "default_avatar") != nil {
+                Image("default_avatar")
+                    .resizable()
+                    .scaledToFit()
+            } else {
+                Image(systemName: "sparkles")
+                    .resizable()
+                    .scaledToFit()
+                    .foregroundStyle(.white.opacity(0.85))
+                    .padding(size * 0.12)
             }
         }
     }
