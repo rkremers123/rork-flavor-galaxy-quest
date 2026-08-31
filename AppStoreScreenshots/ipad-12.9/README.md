@@ -1,0 +1,1 @@
+iPad Pro 12.9 inch App Store screenshots 2048x2732 from locked 1242x2208 listing stills 01-10. Width-fit (scale to 2048 wide), top-aligned, no stretch; phone art is taller so bottom crops (~909px) instead of a navy chin. 05-sos.png mapped to 05-ladder.png. Spares 11-14 skipped this run. Listing stays 01-10.
