@@ -1,0 +1,1 @@
+iPad Pro 13 inch App Store screenshots 2064x2752, composed from locked 1242x2208 listing stills 01-10. Width-fit, top-crop (phone art is taller), no stretch. 05-sos.png mapped to 05-ladder.png. Spares 11-14 skipped this run. Listing stays 01-10.
