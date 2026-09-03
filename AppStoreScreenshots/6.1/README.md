@@ -1,0 +1,1 @@
+6.1 inch App Store screenshots 1179x2556 (iPhone 14 Pro / 15 Pro / 16), composed from locked 1242x2208 stills. Width-fit, extra navy chin, no stretch. Listing 01-10. Spares 11-14 present (allergen, parent-gate, you-see-the-log, ot-share) but listing stays 01-10. 05-sos.png mapped to 05-ladder.png.
