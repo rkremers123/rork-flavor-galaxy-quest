@@ -469,7 +469,7 @@ struct OnboardingView: View {
                                 HStack(spacing: 8) {
                                     ForEach(liked) { food in
                                         HStack(spacing: 6) {
-                                            Text(food.emoji)
+                                            FoodIcon(food: food, size: 14)
                                             Text(food.name)
                                                 .font(SGFont.caption())
                                                 .foregroundStyle(SGColor.textPrimary)
@@ -547,8 +547,7 @@ struct OnboardingView: View {
             }
         } label: {
             VStack(spacing: 4) {
-                Text(food.emoji)
-                    .font(.title2)
+                FoodIcon(food: food, size: 28)
                 HStack(spacing: 2) {
                     Text(food.color.emoji)
                         .font(.system(size: 8))

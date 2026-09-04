@@ -284,8 +284,7 @@ struct DayFoodRow: View {
 
     var body: some View {
         HStack(spacing: 8) {
-            Text(food.emoji)
-                .font(.caption)
+            FoodIcon(food: food, size: 16)
             Text(food.name)
                 .font(.system(.caption, design: .rounded, weight: .medium))
                 .foregroundStyle(.white)

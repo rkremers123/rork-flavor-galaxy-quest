@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct SettingsScreen: View {
     let viewModel: AppViewModel
@@ -170,9 +171,19 @@ struct SettingsScreen: View {
     private var starJarCard: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 8) {
-                Image(systemName: viewModel.profile.starJarRewardUnlocked ? "gift.fill" : "star.circle.fill")
-                    .font(.callout)
-                    .foregroundStyle(SpaceTheme.starGold)
+                Group {
+                    if UIImage(named: "badge_star_coin") != nil {
+                        Image("badge_star_coin")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 18, height: 18)
+                    } else {
+                        Image(systemName: viewModel.profile.starJarRewardUnlocked ? "gift.fill" : "star.circle.fill")
+                            .font(.callout)
+                            .foregroundStyle(SpaceTheme.starGold)
+                    }
+                }
                 Text("Star Jar")
                     .font(.system(.subheadline, design: .rounded, weight: .bold))
                     .foregroundStyle(.white)
@@ -219,9 +230,20 @@ struct SettingsScreen: View {
 
     private var parentGate: some View {
         VStack(spacing: 16) {
-            Image(systemName: "lock.shield.fill")
-                .font(.system(size: 32))
-                .foregroundStyle(.white.opacity(0.3))
+            Group {
+                if UIImage(named: "empty_state_pin") != nil {
+                    Image("empty_state_pin")
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(maxWidth: 220)
+                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                } else {
+                    Image(systemName: "lock.shield.fill")
+                        .font(.system(size: 32))
+                        .foregroundStyle(.white.opacity(0.3))
+                }
+            }
 
             Text("Parent Zone")
                 .font(.system(.headline, design: .rounded, weight: .bold))
@@ -456,7 +478,7 @@ struct SettingsScreen: View {
 
             ForEach(viewModel.neverOfferFoods) { food in
                 HStack(spacing: 8) {
-                    Text(food.emoji)
+                    FoodIcon(food: food, size: 16)
                     Text(food.name)
                         .font(.system(.caption, design: .rounded, weight: .medium))
                         .foregroundStyle(.white)
@@ -544,7 +566,7 @@ struct SettingsScreen: View {
             profileRow("Name", value: viewModel.profile.name)
             profileRow("Age", value: "\(viewModel.profile.age)")
             profileRow("Target Food", value: viewModel.profile.targetFoodName.isEmpty ? "Not set" : viewModel.profile.targetFoodName)
-            profileRow("Safe Foods", value: "\(viewModel.profile.safeFoodIds.count)")
+            profileRow("Safe Foods", value: "\(viewModel.profile.safeFoodIds.count)", assetMark: "safe_food_token")
             profileRow("Days Active", value: "\(daysActive)")
         }
         .background(
@@ -557,8 +579,15 @@ struct SettingsScreen: View {
         )
     }
 
-    private func profileRow(_ title: String, value: String) -> some View {
-        HStack {
+    private func profileRow(_ title: String, value: String, assetMark: String? = nil) -> some View {
+        HStack(spacing: 8) {
+            if let assetMark, UIImage(named: assetMark) != nil {
+                Image(assetMark)
+                    .resizable()
+                    .interpolation(.high)
+                    .scaledToFit()
+                    .frame(width: 14, height: 14)
+            }
             Text(title)
                 .font(.system(.caption, design: .rounded))
                 .foregroundStyle(.white.opacity(0.5))

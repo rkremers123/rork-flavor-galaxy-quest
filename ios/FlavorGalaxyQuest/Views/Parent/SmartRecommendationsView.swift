@@ -118,8 +118,7 @@ struct SmartRecommendationsView: View {
                 }
             } label: {
                 HStack(spacing: 12) {
-                    Text(rec.food.emoji)
-                        .font(.title3)
+                    FoodIcon(food: rec.food, size: 22)
                         .frame(width: 36)
 
                     VStack(alignment: .leading, spacing: 3) {
@@ -251,8 +250,7 @@ struct SmartRecommendationsView: View {
                                     .foregroundStyle(.secondary)
                                     .frame(width: 24)
 
-                                Text(rec.food.emoji)
-                                    .font(.title3)
+                                FoodIcon(food: rec.food, size: 22)
 
                                 VStack(alignment: .leading, spacing: 3) {
                                     HStack(spacing: 4) {

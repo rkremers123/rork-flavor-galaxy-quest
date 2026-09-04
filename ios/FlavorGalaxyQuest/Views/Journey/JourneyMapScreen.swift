@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct JourneyMapScreen: View {
     @Bindable var viewModel: AppViewModel
@@ -101,8 +102,7 @@ struct JourneyMapScreen: View {
             Spacer()
             Button { showParentSettings = true } label: {
                 HStack(spacing: 5) {
-                    Image(systemName: "lock.fill")
-                        .font(.system(size: 10, weight: .bold))
+                    grownUpsChipMark
                     Text("Grown-ups")
                         .font(SGFont.caption())
                 }
@@ -115,6 +115,20 @@ struct JourneyMapScreen: View {
             .buttonStyle(.plain)
             .accessibilityLabel("Grown-ups")
             .accessibilityHint("Opens parent settings. A PIN is required.")
+        }
+    }
+
+    @ViewBuilder
+    private var grownUpsChipMark: some View {
+        if UIImage(named: "grownups_chip") != nil {
+            Image("grownups_chip")
+                .resizable()
+                .interpolation(.high)
+                .scaledToFit()
+                .frame(width: 14, height: 14)
+        } else {
+            Image(systemName: "lock.fill")
+                .font(.system(size: 10, weight: .bold))
         }
     }
 
@@ -155,8 +169,9 @@ struct JourneyMapScreen: View {
     private var streakBrokenBanner: some View {
         VStack {
             HStack(spacing: 12) {
-                Text("💔")
+                Image(systemName: "heart.slash.fill")
                     .font(.title2)
+                    .foregroundStyle(SpaceTheme.warningOrange)
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Streak broken")
@@ -284,9 +299,27 @@ struct JourneyMapScreen: View {
                 .foregroundStyle(SpaceTheme.starGold)
 
             HStack(spacing: 14) {
-                Text(food?.emoji ?? "🎯")
-                    .font(.system(size: 36))
-                    .frame(width: 56, height: 56)
+                Group {
+                    if let food {
+                        FoodIcon(food: food, size: 36)
+                    } else if UIImage(named: "planet_base_camp") != nil {
+                        Image("planet_base_camp")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 36, height: 36)
+                    } else if UIImage(named: "safe_food_token") != nil {
+                        Image("safe_food_token")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 36, height: 36)
+                    } else {
+                        Text("🎯")
+                            .font(.system(size: 36))
+                    }
+                }
+                .frame(width: 56, height: 56)
                     .background(
                         Circle().fill(SpaceTheme.starGold.opacity(0.15))
                     )
@@ -364,7 +397,7 @@ struct JourneyMapScreen: View {
         let total = viewModel.dynamicFoodsForPlanet(planet)
         let planetColor = SpaceTheme.planetColor(hex: planet.accentColor)
         let planetSize: CGFloat = 140
-        let explorerSize: CGFloat = 100
+        let explorerSize: CGFloat = 52
         let explorerOverlap: CGFloat = 30
 
         return Button {
@@ -483,12 +516,11 @@ struct JourneyMapScreen: View {
     }
 
     private func explorerSideView(size: CGFloat) -> some View {
-        ExplorerAvatarView(
-            explorerType: viewModel.profile.explorerType,
-            equippedCosmetics: viewModel.profile.equippedCosmetics,
-            size: size
-        )
-        .shadow(color: SpaceTheme.planetColor(hex: viewModel.profile.explorerType.accentHex).opacity(0.6), radius: 12)
+        Image(viewModel.profile.explorerType.boardImageName)
+            .resizable()
+            .scaledToFit()
+            .frame(height: size)
+            .shadow(color: SpaceTheme.planetColor(hex: viewModel.profile.explorerType.accentHex).opacity(0.6), radius: 12)
     }
 
     // MARK: - Diagonal Connector
@@ -520,7 +552,29 @@ struct JourneyMapScreen: View {
                 }
 
             VStack(spacing: 24) {
-                Text("📡").font(.system(size: 60))
+                Group {
+                    if UIImage(named: "cosmetic_sensory_scanner") != nil {
+                        Image("cosmetic_sensory_scanner")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 72, height: 72)
+                    } else if UIImage(named: "badge_star_coin") != nil {
+                        Image("badge_star_coin")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 72, height: 72)
+                    } else if UIImage(named: "star_dust_particle") != nil {
+                        Image("star_dust_particle")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 72, height: 72)
+                    } else {
+                        Text("📡").font(.system(size: 60))
+                    }
+                }
 
                 Text("Transmission from Earth!")
                     .font(.system(.title2, design: .rounded, weight: .bold))
@@ -806,8 +860,7 @@ struct PlanetDetailSheet: View {
                 ForEach(foods, id: \.id) { food in
                     let progress = viewModel.questProgress(for: food.id)
                     HStack(spacing: 14) {
-                        Text(food.emoji)
-                            .font(.title2)
+                        FoodIcon(food: food, size: 26)
                             .frame(width: 44, height: 44)
                             .background(
                                 Circle().fill(SpaceTheme.planetColor(hex: food.planetColorHex).opacity(0.15))

@@ -62,8 +62,7 @@ struct PlanetView: View {
                             )
                     }
                     .overlay {
-                        Text(food.emoji)
-                            .font(.title)
+                        FoodIcon(food: food, size: 28)
                             .opacity(completedSteps.isEmpty ? 0.3 : 1.0)
                     }
                     .shadow(color: planetColor.opacity(glowOpacity), radius: 8)

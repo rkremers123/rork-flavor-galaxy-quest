@@ -50,8 +50,7 @@ struct CosmeticsView: View {
             if !equipped.isEmpty {
                 HStack(spacing: 6) {
                     ForEach(Array(equipped).sorted(by: { $0.rawValue < $1.rawValue }), id: \.self) { cosmetic in
-                        Text(cosmetic.emoji)
-                            .font(.caption)
+                        CosmeticArt(cosmetic: cosmetic, size: 16)
                             .padding(4)
                             .background(.white.opacity(0.1))
                             .clipShape(.rect(cornerRadius: 6))
@@ -153,8 +152,7 @@ struct CosmeticsView: View {
                             .frame(width: 48, height: 48)
                     }
 
-                    Text(cosmetic.emoji)
-                        .font(.title2)
+                    CosmeticArt(cosmetic: cosmetic, size: 28)
                         .opacity(isUnlocked ? 1.0 : 0.3)
 
                     if !isUnlocked {

@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct ActiveQuestScreen: View {
     @Bindable var viewModel: AppViewModel
@@ -135,8 +136,7 @@ struct ActiveQuestScreen: View {
                     )
                     .frame(width: 200, height: 200)
 
-                Text(food.emoji)
-                    .font(.system(size: 90))
+                FoodIcon(food: food, size: 90)
             }
 
             Button { showFoodProfile = true } label: {
@@ -267,9 +267,11 @@ struct ActiveQuestScreen: View {
                                     .font(.caption.bold())
                                     .foregroundStyle(.white.opacity(0.3))
                             } else {
-                                Image(systemName: step.icon)
-                                    .font(.callout)
-                                    .foregroundStyle(isCurrent ? SpaceTheme.cosmicCyan : .white.opacity(0.2))
+                                StepMark(
+                                    step: step,
+                                    size: 18,
+                                    tint: isCurrent ? SpaceTheme.cosmicCyan : .white.opacity(0.2)
+                                )
                             }
                         }
 
@@ -456,7 +458,29 @@ struct ActiveQuestScreen: View {
 
     private func completedArea(_ food: FoodItem) -> some View {
         VStack(spacing: 20) {
-            Text("🎉").font(.system(size: 60))
+            Group {
+                if UIImage(named: "level_gem") != nil {
+                    Image("level_gem")
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(width: 72, height: 72)
+                } else if UIImage(named: "badge_saturn") != nil {
+                    Image("badge_saturn")
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(width: 72, height: 72)
+                } else if UIImage(named: "badge_star_coin") != nil {
+                    Image("badge_star_coin")
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(width: 72, height: 72)
+                } else {
+                    Text("🎉").font(.system(size: 60))
+                }
+            }
 
             Text("Quest Complete!")
                 .font(.system(.title2, design: .rounded, weight: .bold))
@@ -494,13 +518,24 @@ struct ActiveQuestScreen: View {
         VStack(spacing: 24) {
             Spacer()
 
-            ZStack {
-                Circle()
-                    .fill(SpaceTheme.cosmicCyan.opacity(0.06))
-                    .frame(width: 140, height: 140)
-                Image(systemName: "star.circle")
-                    .font(.system(size: 56))
-                    .foregroundStyle(SpaceTheme.cosmicCyan.opacity(0.35))
+            Group {
+                if UIImage(named: "empty_state_no_quest") != nil {
+                    Image("empty_state_no_quest")
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(maxWidth: 280)
+                        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+                } else {
+                    ZStack {
+                        Circle()
+                            .fill(SpaceTheme.cosmicCyan.opacity(0.06))
+                            .frame(width: 140, height: 140)
+                        Image(systemName: "star.circle")
+                            .font(.system(size: 56))
+                            .foregroundStyle(SpaceTheme.cosmicCyan.opacity(0.35))
+                    }
+                }
             }
 
             Text("No Active Quest")
@@ -588,8 +623,7 @@ struct ActiveQuestScreen: View {
                             viewModel.setActiveQuest(food: similar)
                         } label: {
                             VStack(spacing: 6) {
-                                Text(similar.emoji)
-                                    .font(.title2)
+                                FoodIcon(food: similar, size: 28)
                                 Text(similar.name)
                                     .font(.system(.caption2, design: .rounded, weight: .semibold))
                                     .foregroundStyle(.white)
@@ -644,7 +678,23 @@ struct ActiveQuestScreen: View {
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 24)
                 } else {
-                    Text("⭐️").font(.system(size: 56))
+                    Group {
+                        if UIImage(named: "badge_star_coin") != nil {
+                            Image("badge_star_coin")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 64, height: 64)
+                        } else if UIImage(named: "star_dust_particle") != nil {
+                            Image("star_dust_particle")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 64, height: 64)
+                        } else {
+                            Text("⭐️").font(.system(size: 56))
+                        }
+                    }
 
                     Text("Amazing!")
                         .font(.system(.title2, design: .rounded, weight: .bold))
@@ -659,7 +709,15 @@ struct ActiveQuestScreen: View {
 
                 if step.starDustReward > 0 {
                     HStack(spacing: 4) {
-                        Image(systemName: "sparkles")
+                        if UIImage(named: "star_dust_particle") != nil {
+                            Image("star_dust_particle")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 22, height: 22)
+                        } else {
+                            Image(systemName: "sparkles")
+                        }
                         Text("+\(step.starDustReward) Star Dust")
                     }
                     .font(.system(.headline, design: .rounded, weight: .bold))

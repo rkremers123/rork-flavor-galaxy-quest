@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 enum FoodBrowserTab: String, CaseIterable {
     case recommended, allFoods, search
@@ -239,8 +240,7 @@ struct FoodBrowserScreen: View {
                             Circle()
                                 .fill(SpaceTheme.planetColor(hex: suggestion.bridgeFood.planetColorHex).opacity(0.2))
                                 .frame(width: 44, height: 44)
-                            Text(suggestion.bridgeFood.emoji)
-                                .font(.title3)
+                            FoodIcon(food: suggestion.bridgeFood, size: 22)
                         }
 
                         VStack(alignment: .leading, spacing: 3) {
@@ -575,8 +575,7 @@ struct FoodBrowserScreen: View {
                     Circle()
                         .fill(SpaceTheme.planetColor(hex: food.planetColorHex).opacity(0.2))
                         .frame(width: 44, height: 44)
-                    Text(food.emoji)
-                        .font(.title3)
+                    FoodIcon(food: food, size: 22)
                 }
 
                 VStack(alignment: .leading, spacing: 3) {
@@ -659,11 +658,35 @@ struct FoodBrowserScreen: View {
         VStack(spacing: 20) {
             Spacer().frame(height: 30)
 
-            Image(systemName: "magnifyingglass")
-                .font(.system(size: 36))
-                .foregroundStyle(.white.opacity(0.2))
+            Group {
+                if !viewModel.profile.excludedAllergens.isEmpty,
+                   UIImage(named: "empty_state_allergen") != nil {
+                    Image("empty_state_allergen")
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(maxWidth: 240)
+                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                } else if UIImage(named: "empty_state_pantry") != nil {
+                    Image("empty_state_pantry")
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(maxWidth: 240)
+                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                } else {
+                    Image(systemName: "magnifyingglass")
+                        .font(.system(size: 36))
+                        .foregroundStyle(.white.opacity(0.2))
+                }
+            }
 
-            Text("No foods found for \"\(searchText)\"")
+            Text(
+                !viewModel.profile.excludedAllergens.isEmpty
+                    ? "No safe matches for \"\(searchText)\" with your allergen filters"
+                    : "No foods found for \"\(searchText)\""
+            )
+                
                 .font(.system(.subheadline, design: .rounded, weight: .medium))
                 .foregroundStyle(.white.opacity(0.5))
 

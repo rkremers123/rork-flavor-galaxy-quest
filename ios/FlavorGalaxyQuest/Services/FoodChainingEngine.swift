@@ -77,92 +77,43 @@ struct FoodChainingEngine {
         bridgeHistory: [BridgeRecordModel],
         maxSuggestions: Int = 5
     ) -> [BridgeSuggestion] {
+        _ = bridgeHistory
         if !targetFood.allergens.isDisjoint(with: excludedAllergens) || excludedFoodIds.contains(targetFood.id) {
             return []
         }
 
-        let failedFoodIds = Set(bridgeHistory.filter { $0.status == .failed }.map(\.bridgeFoodId))
-        let activeBridgeFoodIds = Set(bridgeHistory.filter { $0.status == .active }.map(\.bridgeFoodId))
+        var extra = excludedFoodIds
+        extra.insert(targetFood.id)
 
-        let filteredFoods = allFoods.filter { candidate in
-            candidate.id != targetFood.id &&
-            !failedFoodIds.contains(candidate.id) &&
-            !activeBridgeFoodIds.contains(candidate.id) &&
-            !excludedFoodIds.contains(candidate.id) &&
-            candidate.allergens.isDisjoint(with: excludedAllergens)
+        let logs: [BridgeFoodMatcher.FoodLog]
+        let superSafe: Set<UUID>
+        let regularSafe: Set<UUID>
+        if let profile = MatcherContext.profile {
+            logs = RecommendationEngine.logs(from: profile)
+            let sets = RecommendationEngine.safeSets(from: profile)
+            superSafe = sets.superSafe
+            regularSafe = sets.regularSafe
+        } else {
+            logs = []
+            superSafe = Set(safeFoods.map(\.id))
+            regularSafe = []
         }
 
-        let calendar = Calendar.current
-        let latestActiveBridge = bridgeHistory
-            .filter { $0.status == .active || $0.status == .completed }
-            .sorted { $0.startDate > $1.startDate }
-            .first
-        let daysAtCurrentBridge: Int = {
-            guard let bridge = latestActiveBridge else { return 0 }
-            return max(calendar.dateComponents([.day], from: bridge.startDate, to: Date()).day ?? 0, 0)
-        }()
-
-        var suggestions: [BridgeSuggestion] = []
-
-        for safeFood in safeFoods {
-            guard safeFood.id != targetFood.id else { continue }
-
-            let currentDist = sensoryDistance(from: safeFood, to: targetFood)
-
-            for candidate in filteredFoods {
-                guard candidate.id != safeFood.id else { continue }
-
-                let distToTarget = sensoryDistance(from: candidate, to: targetFood)
-
-                guard distToTarget < currentDist else { continue }
-
-                let diffs = attributeDifferences(from: safeFood, to: candidate)
-                let diffCount = [diffs.texture, diffs.flavor, diffs.temperature, diffs.aroma].filter { $0 }.count
-
-                guard diffCount <= 1 else { continue }
-
-                if diffs.texture && !areTexturesAdjacent(safeFood.texture, candidate.texture) {
-                    continue
-                }
-
-                let bridgeType = classifyBridge(from: safeFood, to: candidate, target: targetFood)
-
-                guard daysAtCurrentBridge >= bridgeType.exposureDaysNeeded else { continue }
-
-                let reason = generateReason(
-                    bridgeType: bridgeType,
-                    safeFood: safeFood,
-                    bridgeFood: candidate,
-                    targetFood: targetFood
-                )
-
-                suggestions.append(BridgeSuggestion(
-                    bridgeFood: candidate,
-                    fromSafeFood: safeFood,
-                    targetFood: targetFood,
-                    bridgeType: bridgeType,
-                    reason: reason,
-                    sensoryDistance: distToTarget
-                ))
-            }
-        }
-
-        suggestions.sort { a, b in
-            if a.bridgeType.priority != b.bridgeType.priority {
-                return a.bridgeType.priority < b.bridgeType.priority
-            }
-            return a.sensoryDistance < b.sensoryDistance
-        }
-
-        var seen = Set<UUID>()
-        var unique: [BridgeSuggestion] = []
-        for suggestion in suggestions {
-            if seen.insert(suggestion.bridgeFood.id).inserted {
-                unique.append(suggestion)
-            }
-        }
-
-        return Array(unique.prefix(maxSuggestions))
+        let picks = BridgeFoodMatcher.generateRecommendations(
+            logs: logs,
+            superSafeFoods: superSafe,
+            regularSafeFoods: regularSafe,
+            foods: allFoods,
+            kidAllergens: excludedAllergens,
+            extraExclude: extra
+        )
+        let mapped = suggestionsFromMatcherPicks(
+            picks: picks,
+            foods: allFoods,
+            safeFoods: safeFoods,
+            targetFood: targetFood
+        )
+        return Array(mapped.prefix(maxSuggestions))
     }
 
     static func suggestNextBridge(
@@ -182,5 +133,34 @@ struct FoodChainingEngine {
             bridgeHistory: bridgeHistory,
             maxSuggestions: 1
         ).first
+    }
+
+    static func suggestionsFromMatcherPicks(
+        picks: [BridgeFoodMatcher.Pick],
+        foods: [FoodItem],
+        safeFoods: [FoodItem],
+        targetFood: FoodItem?
+    ) -> [BridgeSuggestion] {
+        let byId = Dictionary(uniqueKeysWithValues: foods.map { ($0.id, $0) })
+        let fromSafe = safeFoods.first
+        return picks.compactMap { pick in
+            guard let food = byId[pick.foodId] else { return nil }
+            let source = fromSafe ?? food
+            let target = targetFood ?? food
+            let bridgeType: BridgeType
+            switch pick.rank {
+            case .safe: bridgeType = .texture
+            case .stretch: bridgeType = .flavor
+            case .variety: bridgeType = .visual
+            }
+            return BridgeSuggestion(
+                bridgeFood: food,
+                fromSafeFood: source,
+                targetFood: target,
+                bridgeType: bridgeType,
+                reason: pick.explanation,
+                sensoryDistance: Int(pick.distance.rounded())
+            )
+        }
     }
 }

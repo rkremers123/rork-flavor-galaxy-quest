@@ -41,8 +41,7 @@ struct FoodProfileModal: View {
 
     private var headerSection: some View {
         VStack(spacing: 12) {
-            Text(food.emoji)
-                .font(.system(size: 64))
+            FoodIcon(food: food, size: 64)
 
             Text(food.name)
                 .font(.system(.title2, design: .rounded, weight: .bold))
@@ -152,9 +151,7 @@ struct FoodProfileModal: View {
                                     .font(.system(size: 10))
                                     .foregroundStyle(.white.opacity(0.2))
                             } else {
-                                Image(systemName: step.icon)
-                                    .font(.caption2)
-                                    .foregroundStyle(.white.opacity(0.2))
+                                StepMark(step: step, size: 14, tint: .white.opacity(0.2))
                             }
                         }
                         Text(step.label.uppercased())

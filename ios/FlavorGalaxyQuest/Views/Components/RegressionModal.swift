@@ -87,8 +87,7 @@ struct RegressionModal: View {
                 Circle()
                     .fill(SpaceTheme.planetColor(hex: food.planetColorHex).opacity(0.2))
                     .frame(width: 56, height: 56)
-                Text(food.emoji)
-                    .font(.largeTitle)
+                FoodIcon(food: food, size: 32)
             }
 
             VStack(alignment: .leading, spacing: 4) {

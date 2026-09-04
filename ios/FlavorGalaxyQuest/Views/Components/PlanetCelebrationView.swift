@@ -32,8 +32,11 @@ struct PlanetCelebrationView: View {
                         .frame(width: 180, height: 180)
                         .scaleEffect(appeared ? 1.0 : 0.3)
 
-                    Text(planet.emoji)
-                        .font(.system(size: 80))
+                    Image(planet.imageName)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 140, height: 140)
+                        .clipShape(Circle())
                         .scaleEffect(appeared ? 1.0 : 0.2)
                 }
 

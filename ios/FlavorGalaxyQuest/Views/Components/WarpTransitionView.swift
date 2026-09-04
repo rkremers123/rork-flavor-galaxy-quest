@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct WarpTransitionView: View {
     @State private var phase: CGFloat = 0
@@ -41,9 +42,25 @@ struct WarpTransitionView: View {
             }
 
             VStack(spacing: 16) {
-                Text("🚀")
-                    .font(.system(size: 60))
-                    .scaleEffect(phase > 0.5 ? 1.2 : 0.8)
+                Group {
+                    if UIImage(named: "explorer_nova") != nil {
+                        Image("explorer_nova")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 72, height: 72)
+                    } else if UIImage(named: "default_avatar") != nil {
+                        Image("default_avatar")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 72, height: 72)
+                    } else {
+                        Text("🚀")
+                            .font(.system(size: 60))
+                    }
+                }
+                .scaleEffect(phase > 0.5 ? 1.2 : 0.8)
 
                 Text("Warp Speed!")
                     .font(.system(.title, design: .rounded, weight: .bold))

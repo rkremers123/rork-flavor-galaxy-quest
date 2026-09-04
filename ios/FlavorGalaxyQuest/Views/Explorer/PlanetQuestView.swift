@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct PlanetQuestView: View {
     let food: FoodItem
@@ -83,8 +84,7 @@ struct PlanetQuestView: View {
                     )
                     .frame(width: 120, height: 120)
 
-                Text(food.emoji)
-                    .font(.system(size: 56))
+                FoodIcon(food: food, size: 56)
             }
 
             Text("Planet \(food.name)")
@@ -218,11 +218,11 @@ struct PlanetQuestView: View {
                                         .font(.caption.bold())
                                         .foregroundStyle(.white.opacity(0.4))
                                 } else {
-                                    Image(systemName: step.icon)
-                                        .font(.callout)
-                                        .foregroundStyle(
-                                            isAvailable ? .white : .white.opacity(0.3)
-                                        )
+                                    StepMark(
+                                        step: step,
+                                        size: 18,
+                                        tint: isAvailable ? .white : .white.opacity(0.3)
+                                    )
                                 }
                             }
 
@@ -341,8 +341,24 @@ struct PlanetQuestView: View {
 
     private var completedCard: some View {
         VStack(spacing: 16) {
-            Text("🎉")
-                .font(.system(size: 48))
+            Group {
+                if UIImage(named: "level_gem") != nil {
+                    Image("level_gem")
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(width: 56, height: 56)
+                } else if UIImage(named: "badge_saturn") != nil {
+                    Image("badge_saturn")
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(width: 56, height: 56)
+                } else {
+                    Text("🎉")
+                        .font(.system(size: 48))
+                }
+            }
 
             Text("Planet Colonized!")
                 .font(.system(.title3, design: .rounded, weight: .bold))
@@ -379,8 +395,24 @@ struct PlanetQuestView: View {
                 .onTapGesture { showCompletion = false }
 
             VStack(spacing: 20) {
-                Text("⭐️")
-                    .font(.system(size: 64))
+                Group {
+                    if UIImage(named: "badge_star_coin") != nil {
+                        Image("badge_star_coin")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 72, height: 72)
+                    } else if UIImage(named: "star_dust_particle") != nil {
+                        Image("star_dust_particle")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 72, height: 72)
+                    } else {
+                        Text("⭐️")
+                            .font(.system(size: 64))
+                    }
+                }
 
                 Text("Amazing!")
                     .font(.system(.title, design: .rounded, weight: .bold))

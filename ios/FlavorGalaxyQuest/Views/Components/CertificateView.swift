@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct CertificateView: View {
     let childName: String
@@ -80,13 +81,22 @@ struct CertificateView: View {
     private var certificateCard: some View {
         VStack(spacing: 20) {
             VStack(spacing: 8) {
-                Text("🌌")
-                    .font(.system(size: 44))
+                certificateBrandMark(size: 44)
 
-                Text("SENSORY GALAXY")
-                    .font(.system(.caption, design: .rounded, weight: .heavy))
-                    .foregroundStyle(SpaceTheme.starGold)
-                    .tracking(4)
+                Group {
+                    if UIImage(named: "wordmark_sensory_galaxy") != nil {
+                        Image("wordmark_sensory_galaxy")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(height: 18)
+                    } else {
+                        Text("SENSORY GALAXY")
+                            .font(.system(.caption, design: .rounded, weight: .heavy))
+                            .tracking(4)
+                    }
+                }
+                .foregroundStyle(SpaceTheme.starGold)
 
                 Rectangle()
                     .fill(SpaceTheme.starGold.opacity(0.3))
@@ -147,8 +157,11 @@ struct CertificateView: View {
             VStack(spacing: 4) {
                 HStack(spacing: 4) {
                     ForEach(JourneyPlanet.allCases, id: \.self) { planet in
-                        Text(planet.emoji)
-                            .font(.title3)
+                        Image(planet.imageName)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 22, height: 22)
+                            .clipShape(Circle())
                     }
                 }
 
@@ -217,6 +230,26 @@ struct CertificateView: View {
             showShareSheet = true
         }
     }
+
+    @ViewBuilder
+    private func certificateBrandMark(size: CGFloat) -> some View {
+        if UIImage(named: "badge_saturn") != nil {
+            Image("badge_saturn")
+                .resizable()
+                .interpolation(.high)
+                .scaledToFit()
+                .frame(width: size, height: size)
+        } else if UIImage(named: "wordmark_sensory_galaxy") != nil {
+            Image("wordmark_sensory_galaxy")
+                .resizable()
+                .interpolation(.high)
+                .scaledToFit()
+                .frame(height: size * 0.4)
+        } else {
+            Text("🌌")
+                .font(.system(size: size))
+        }
+    }
 }
 
 struct CertificateRenderContent: View {
@@ -228,8 +261,27 @@ struct CertificateRenderContent: View {
 
     var body: some View {
         VStack(spacing: 16) {
-            Text("🌌 SENSORY GALAXY")
-                .font(.system(.headline, design: .rounded, weight: .heavy))
+            Group {
+                if UIImage(named: "wordmark_sensory_galaxy") != nil {
+                    Image("wordmark_sensory_galaxy")
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(height: 22)
+                } else if UIImage(named: "badge_saturn") != nil {
+                    HStack(spacing: 6) {
+                        Image("badge_saturn")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 22, height: 22)
+                        Text("SENSORY GALAXY")
+                            .font(.system(.headline, design: .rounded, weight: .heavy))
+                    }
+                } else {
+                    Text("🌌 SENSORY GALAXY")
+                        .font(.system(.headline, design: .rounded, weight: .heavy))
+                }
+            }
 
             Text("Explorer's Certificate")
                 .font(.system(.title2, design: .rounded, weight: .bold))
@@ -267,7 +319,11 @@ struct CertificateRenderContent: View {
 
             HStack(spacing: 4) {
                 ForEach(JourneyPlanet.allCases, id: \.self) { planet in
-                    Text(planet.emoji).font(.title3)
+                    Image(planet.imageName)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 22, height: 22)
+                        .clipShape(Circle())
                 }
             }
 
