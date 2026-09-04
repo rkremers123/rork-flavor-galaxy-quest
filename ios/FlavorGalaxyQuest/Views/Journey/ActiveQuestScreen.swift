@@ -458,7 +458,29 @@ struct ActiveQuestScreen: View {
 
     private func completedArea(_ food: FoodItem) -> some View {
         VStack(spacing: 20) {
-            Text("🎉").font(.system(size: 60))
+            Group {
+                if UIImage(named: "level_gem") != nil {
+                    Image("level_gem")
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(width: 72, height: 72)
+                } else if UIImage(named: "badge_saturn") != nil {
+                    Image("badge_saturn")
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(width: 72, height: 72)
+                } else if UIImage(named: "badge_star_coin") != nil {
+                    Image("badge_star_coin")
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(width: 72, height: 72)
+                } else {
+                    Text("🎉").font(.system(size: 60))
+                }
+            }
 
             Text("Quest Complete!")
                 .font(.system(.title2, design: .rounded, weight: .bold))

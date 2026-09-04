@@ -255,10 +255,20 @@ struct GalaxyMapView: View {
                             PlanetView(food: food, progress: progress)
                                 .overlay(alignment: .topTrailing) {
                                     if customFoodIds.contains(food.id) {
-                                        Text("✦")
-                                            .font(.system(size: 8, weight: .bold))
-                                            .foregroundStyle(SpaceTheme.cosmicCyan)
-                                            .padding(4)
+                                        Group {
+                                            if UIImage(named: "food_custom_gem") != nil {
+                                                Image("food_custom_gem")
+                                                    .resizable()
+                                                    .interpolation(.high)
+                                                    .scaledToFit()
+                                                    .frame(width: 14, height: 14)
+                                            } else {
+                                                Text("✦")
+                                                    .font(.system(size: 8, weight: .bold))
+                                                    .foregroundStyle(SpaceTheme.cosmicCyan)
+                                            }
+                                        }
+                                        .padding(4)
                                     }
                                 }
                         }
@@ -545,8 +555,30 @@ struct GalaxyMapView: View {
                 }
 
             VStack(spacing: 24) {
-                Text("📡")
-                    .font(.system(size: 60))
+                Group {
+                    if UIImage(named: "cosmetic_sensory_scanner") != nil {
+                        Image("cosmetic_sensory_scanner")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 72, height: 72)
+                    } else if UIImage(named: "badge_star_coin") != nil {
+                        Image("badge_star_coin")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 72, height: 72)
+                    } else if UIImage(named: "star_dust_particle") != nil {
+                        Image("star_dust_particle")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 72, height: 72)
+                    } else {
+                        Text("📡")
+                            .font(.system(size: 60))
+                    }
+                }
 
                 Text("Transmission from Earth!")
                     .font(.system(.title2, design: .rounded, weight: .bold))

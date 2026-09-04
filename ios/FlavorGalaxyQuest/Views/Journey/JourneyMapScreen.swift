@@ -169,8 +169,9 @@ struct JourneyMapScreen: View {
     private var streakBrokenBanner: some View {
         VStack {
             HStack(spacing: 12) {
-                Text("💔")
+                Image(systemName: "heart.slash.fill")
                     .font(.title2)
+                    .foregroundStyle(SpaceTheme.warningOrange)
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Streak broken")
@@ -551,7 +552,29 @@ struct JourneyMapScreen: View {
                 }
 
             VStack(spacing: 24) {
-                Text("📡").font(.system(size: 60))
+                Group {
+                    if UIImage(named: "cosmetic_sensory_scanner") != nil {
+                        Image("cosmetic_sensory_scanner")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 72, height: 72)
+                    } else if UIImage(named: "badge_star_coin") != nil {
+                        Image("badge_star_coin")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 72, height: 72)
+                    } else if UIImage(named: "star_dust_particle") != nil {
+                        Image("star_dust_particle")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 72, height: 72)
+                    } else {
+                        Text("📡").font(.system(size: 60))
+                    }
+                }
 
                 Text("Transmission from Earth!")
                     .font(.system(.title2, design: .rounded, weight: .bold))
