@@ -171,9 +171,19 @@ struct SettingsScreen: View {
     private var starJarCard: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 8) {
-                Image(systemName: viewModel.profile.starJarRewardUnlocked ? "gift.fill" : "star.circle.fill")
-                    .font(.callout)
-                    .foregroundStyle(SpaceTheme.starGold)
+                Group {
+                    if UIImage(named: "badge_star_coin") != nil {
+                        Image("badge_star_coin")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 18, height: 18)
+                    } else {
+                        Image(systemName: viewModel.profile.starJarRewardUnlocked ? "gift.fill" : "star.circle.fill")
+                            .font(.callout)
+                            .foregroundStyle(SpaceTheme.starGold)
+                    }
+                }
                 Text("Star Jar")
                     .font(.system(.subheadline, design: .rounded, weight: .bold))
                     .foregroundStyle(.white)

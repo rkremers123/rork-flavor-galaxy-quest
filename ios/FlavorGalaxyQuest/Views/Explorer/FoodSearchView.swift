@@ -214,7 +214,15 @@ struct FoodSearchView: View {
             Spacer().frame(height: 40)
 
             Group {
-                if UIImage(named: "empty_state_pantry") != nil {
+                if !viewModel.profile.excludedAllergens.isEmpty,
+                   UIImage(named: "empty_state_allergen") != nil {
+                    Image("empty_state_allergen")
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(maxWidth: 240)
+                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                } else if UIImage(named: "empty_state_pantry") != nil {
                     Image("empty_state_pantry")
                         .resizable()
                         .interpolation(.high)

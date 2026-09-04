@@ -474,10 +474,24 @@ struct GalaxyMapView: View {
                         .fill(SpaceTheme.starGold.opacity(0.15))
                         .frame(width: 44, height: 44)
 
-                    Image(systemName: viewModel.profile.starJarRewardUnlocked ? "gift.fill" : "star.circle.fill")
-                        .font(.title2)
-                        .foregroundStyle(SpaceTheme.starGold)
-                        .symbolEffect(.pulse)
+                    if UIImage(named: "badge_star_coin") != nil {
+                        Image("badge_star_coin")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 28, height: 28)
+                    } else if UIImage(named: "star_dust_particle") != nil {
+                        Image("star_dust_particle")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 26, height: 26)
+                    } else {
+                        Image(systemName: viewModel.profile.starJarRewardUnlocked ? "gift.fill" : "star.circle.fill")
+                            .font(.title2)
+                            .foregroundStyle(SpaceTheme.starGold)
+                            .symbolEffect(.pulse)
+                    }
                 }
 
                 VStack(alignment: .leading, spacing: 3) {

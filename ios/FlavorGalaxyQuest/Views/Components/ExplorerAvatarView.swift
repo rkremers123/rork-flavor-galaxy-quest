@@ -151,7 +151,7 @@ struct CosmeticArt: View {
 
     var body: some View {
         Group {
-            if let name = cosmetic.imageName {
+            if let name = cosmetic.imageName, UIImage(named: name) != nil {
                 Image(name)
                     .resizable()
                     .interpolation(.high)

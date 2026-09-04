@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct JourneyMapView: View {
     let currentPlanet: JourneyPlanet
@@ -119,6 +120,15 @@ struct JourneyMapView: View {
                     .fill(SpaceTheme.cosmicCyan)
                     .frame(width: 28 * progress, height: 3)
                     .frame(width: 28, alignment: .leading)
+            }
+
+            if UIImage(named: "cosmic_connector_star") != nil {
+                Image("cosmic_connector_star")
+                    .resizable()
+                    .interpolation(.high)
+                    .scaledToFit()
+                    .frame(width: 12, height: 12)
+                    .opacity(nextReached || isTransitioning ? 1 : 0.35)
             }
         }
         .frame(width: 28)

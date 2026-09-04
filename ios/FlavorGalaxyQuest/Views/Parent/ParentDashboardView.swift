@@ -387,8 +387,18 @@ struct ParentDashboardView: View {
 
             VStack(spacing: 8) {
                 HStack {
-                    Image(systemName: "star.fill")
-                        .foregroundStyle(.yellow)
+                    Group {
+                        if UIImage(named: "badge_star_coin") != nil {
+                            Image("badge_star_coin")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 18, height: 18)
+                        } else {
+                            Image(systemName: "star.fill")
+                                .foregroundStyle(.yellow)
+                        }
+                    }
                     Text(viewModel.profile.starJarRewardName)
                         .font(.subheadline.weight(.medium))
                     Spacer()

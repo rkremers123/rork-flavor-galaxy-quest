@@ -105,9 +105,7 @@ struct ParentOnboardingView: View {
                                 Circle()
                                     .fill(SpaceTheme.planetColor(hex: step.color).opacity(0.22))
                                     .frame(width: 44, height: 44)
-                                Image(systemName: step.icon)
-                                    .font(.system(size: 16, weight: .semibold))
-                                    .foregroundStyle(SpaceTheme.planetColor(hex: step.color))
+                                StepMark(step: step, size: 26)
                             }
                             Text(step.label.uppercased())
                                 .font(SGFont.caption())
