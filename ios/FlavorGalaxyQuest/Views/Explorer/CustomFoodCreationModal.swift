@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct CustomFoodCreationModal: View {
     let initialName: String
@@ -77,8 +78,18 @@ struct CustomFoodCreationModal: View {
                     )
                     .frame(width: 90, height: 90)
 
-                Text("🍽️")
-                    .font(.system(size: 40))
+                Group {
+                    if UIImage(named: "food_custom_gem") != nil {
+                        Image("food_custom_gem")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 48, height: 48)
+                    } else {
+                        Text("🍽️")
+                            .font(.system(size: 40))
+                    }
+                }
             }
 
             if !foodName.trimmingCharacters(in: .whitespaces).isEmpty {
@@ -281,8 +292,18 @@ struct CustomFoodCreationModal: View {
                 }
 
             VStack(spacing: 20) {
-                Text("🍽️")
-                    .font(.system(size: 48))
+                Group {
+                    if UIImage(named: "food_custom_gem") != nil {
+                        Image("food_custom_gem")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 56, height: 56)
+                    } else {
+                        Text("🍽️")
+                            .font(.system(size: 48))
+                    }
+                }
 
                 Text("Create Custom Food?")
                     .font(.system(.title3, design: .rounded, weight: .bold))

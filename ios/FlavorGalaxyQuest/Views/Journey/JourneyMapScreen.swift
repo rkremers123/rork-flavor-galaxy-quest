@@ -301,6 +301,18 @@ struct JourneyMapScreen: View {
                 Group {
                     if let food {
                         FoodIcon(food: food, size: 36)
+                    } else if UIImage(named: "planet_base_camp") != nil {
+                        Image("planet_base_camp")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 36, height: 36)
+                    } else if UIImage(named: "safe_food_token") != nil {
+                        Image("safe_food_token")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 36, height: 36)
                     } else {
                         Text("🎯")
                             .font(.system(size: 36))

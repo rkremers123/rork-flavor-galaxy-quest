@@ -656,7 +656,23 @@ struct ActiveQuestScreen: View {
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 24)
                 } else {
-                    Text("⭐️").font(.system(size: 56))
+                    Group {
+                        if UIImage(named: "badge_star_coin") != nil {
+                            Image("badge_star_coin")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 64, height: 64)
+                        } else if UIImage(named: "star_dust_particle") != nil {
+                            Image("star_dust_particle")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 64, height: 64)
+                        } else {
+                            Text("⭐️").font(.system(size: 56))
+                        }
+                    }
 
                     Text("Amazing!")
                         .font(.system(.title2, design: .rounded, weight: .bold))
@@ -671,7 +687,15 @@ struct ActiveQuestScreen: View {
 
                 if step.starDustReward > 0 {
                     HStack(spacing: 4) {
-                        Image(systemName: "sparkles")
+                        if UIImage(named: "star_dust_particle") != nil {
+                            Image("star_dust_particle")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 22, height: 22)
+                        } else {
+                            Image(systemName: "sparkles")
+                        }
                         Text("+\(step.starDustReward) Star Dust")
                     }
                     .font(.system(.headline, design: .rounded, weight: .bold))
