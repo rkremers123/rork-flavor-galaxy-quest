@@ -98,10 +98,10 @@ struct FoodProfileModal: View {
                 .foregroundStyle(.white.opacity(0.6))
 
             VStack(spacing: 10) {
-                sensoryRow(emoji: "👅", label: "Texture", value: food.texture.label)
-                sensoryRow(emoji: "🍍", label: "Flavor", value: food.flavor.label)
-                sensoryRow(emoji: "🌡️", label: "Temperature", value: food.temperature.label)
-                sensoryRow(emoji: "👃", label: "Aroma", value: food.aroma.label)
+                sensoryRow(systemImage: "hand.raised.fill", label: "Texture", value: food.texture.label)
+                sensoryRow(systemImage: "takeoutbag.and.cup.and.straw", label: "Flavor", value: food.flavor.label)
+                sensoryRow(systemImage: "thermometer.medium", label: "Temperature", value: food.temperature.label)
+                sensoryRow(systemImage: "nose.fill", label: "Aroma", value: food.aroma.label)
             }
             .padding(14)
             .background(
@@ -111,10 +111,12 @@ struct FoodProfileModal: View {
         }
     }
 
-    private func sensoryRow(emoji: String, label: String, value: String) -> some View {
+    private func sensoryRow(systemImage: String, label: String, value: String) -> some View {
         HStack {
-            Text(emoji)
+            Image(systemName: systemImage)
                 .font(.callout)
+                .foregroundStyle(SpaceTheme.cosmicCyan)
+                .frame(width: 22, alignment: .center)
             Text(label)
                 .font(.system(.caption, design: .rounded, weight: .medium))
                 .foregroundStyle(.white.opacity(0.5))

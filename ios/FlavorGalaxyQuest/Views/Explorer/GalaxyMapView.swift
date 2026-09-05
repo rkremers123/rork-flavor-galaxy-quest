@@ -641,9 +641,26 @@ struct ParentGateSheet: View {
                     }
                 } else {
                     VStack(spacing: 16) {
-                        Image(systemName: "lock.shield.fill")
-                            .font(.system(size: 40))
-                            .foregroundStyle(.secondary)
+                        Group {
+                            if UIImage(named: "empty_state_pin") != nil {
+                                Image("empty_state_pin")
+                                    .resizable()
+                                    .interpolation(.high)
+                                    .scaledToFit()
+                                    .frame(maxWidth: 200)
+                                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                            } else if UIImage(named: "grownups_chip") != nil {
+                                Image("grownups_chip")
+                                    .resizable()
+                                    .interpolation(.high)
+                                    .scaledToFit()
+                                    .frame(width: 72, height: 72)
+                            } else {
+                                Image(systemName: "lock.shield.fill")
+                                    .font(.system(size: 40))
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
 
                         Text("Parent Zone")
                             .font(.title3.bold())

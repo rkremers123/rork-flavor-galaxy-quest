@@ -479,13 +479,13 @@ struct SensoryProfileDashboardView: View {
 
                     LazyVGrid(columns: [GridItem(.adaptive(minimum: 90), spacing: 8)], spacing: 8) {
                         ForEach(sensoryProfile.successZoneTextures, id: \.self) { texture in
-                            SuccessZonePill(label: texture.label, emoji: "🔴", color: textureColor(texture))
+                            SuccessZonePill(label: texture.label, systemImage: "hand.raised.fill", color: textureColor(texture))
                         }
                         ForEach(sensoryProfile.successZoneFlavors, id: \.self) { flavor in
-                            SuccessZonePill(label: flavor.label, emoji: "🟢", color: flavorColor(flavor))
+                            SuccessZonePill(label: flavor.label, systemImage: "takeoutbag.and.cup.and.straw", color: flavorColor(flavor))
                         }
                         ForEach(sensoryProfile.successZoneTemperatures, id: \.self) { temp in
-                            SuccessZonePill(label: temp.label, emoji: "🌡", color: tempColor(temp))
+                            SuccessZonePill(label: temp.label, systemImage: "thermometer.medium", color: tempColor(temp))
                         }
                     }
                 }
@@ -619,13 +619,13 @@ struct SensoryBarRow: View {
 
 struct SuccessZonePill: View {
     let label: String
-    let emoji: String
+    let systemImage: String
     let color: Color
 
     var body: some View {
         HStack(spacing: 4) {
-            Text(emoji)
-                .font(.caption2)
+            Image(systemName: systemImage)
+                .font(.caption2.weight(.semibold))
             Text(label)
                 .font(.caption2.weight(.semibold))
         }
