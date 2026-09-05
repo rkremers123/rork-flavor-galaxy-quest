@@ -17,6 +17,10 @@ nonisolated enum SensoryStep: Int, Codable, CaseIterable, Sendable, Hashable {
         }
     }
 
+    /// Catalog name for the optional "ate / swallowed / brave bite" mark.
+    /// Not a ladder step — distinct from `.lick` / `.taste` (see `imageName`).
+    static let ateImageName = "step_ate"
+
     /// Asset catalog name for illustrated step marks (`step_look`, …).
     /// Lick is distinct from the optional `step_ate` asset (not a ladder step).
     var imageName: String {

@@ -143,8 +143,9 @@ struct SensoryProfileDashboardView: View {
                             )
                         )
                         .frame(width: 56, height: 56)
-                    Text("🧬")
-                        .font(.title)
+                    Image(systemName: "dna")
+                        .font(.title2)
+                        .foregroundStyle(.white)
                 }
 
                 VStack(alignment: .leading, spacing: 4) {
@@ -309,7 +310,8 @@ struct SensoryProfileDashboardView: View {
 
             if colorUnlockedCount >= 7 {
                 HStack(spacing: 8) {
-                    Text("🌈")
+                    Image(systemName: "rainbow")
+                        .foregroundStyle(.green)
                     Text(colorUnlockedCount >= 9 ? "Rainbow Master! All colors explored!" : "Almost a Rainbow Week! Keep going!")
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(.green)

@@ -698,7 +698,13 @@ struct ActiveQuestScreen: View {
                         .padding(.horizontal, 24)
                 } else {
                     Group {
-                        if UIImage(named: "badge_star_coin") != nil {
+                        if step == .taste, UIImage(named: SensoryStep.ateImageName) != nil {
+                            Image(SensoryStep.ateImageName)
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 64, height: 64)
+                        } else if UIImage(named: "badge_star_coin") != nil {
                             Image("badge_star_coin")
                                 .resizable()
                                 .interpolation(.high)

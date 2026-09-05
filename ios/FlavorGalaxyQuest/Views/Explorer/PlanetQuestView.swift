@@ -396,7 +396,13 @@ struct PlanetQuestView: View {
 
             VStack(spacing: 20) {
                 Group {
-                    if UIImage(named: "badge_star_coin") != nil {
+                    if activeStep == .taste, UIImage(named: SensoryStep.ateImageName) != nil {
+                        Image(SensoryStep.ateImageName)
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 72, height: 72)
+                    } else if UIImage(named: "badge_star_coin") != nil {
                         Image("badge_star_coin")
                             .resizable()
                             .interpolation(.high)
@@ -485,9 +491,19 @@ struct ParentVerificationSheet: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 24) {
-                Image(systemName: "checkmark.shield.fill")
-                    .font(.system(size: 40))
-                    .foregroundStyle(.green)
+                Group {
+                    if step == .taste, UIImage(named: SensoryStep.ateImageName) != nil {
+                        Image(SensoryStep.ateImageName)
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 48, height: 48)
+                    } else {
+                        Image(systemName: "checkmark.shield.fill")
+                            .font(.system(size: 40))
+                            .foregroundStyle(.green)
+                    }
+                }
 
                 Text("Parent Check-In")
                     .font(.title3.bold())
@@ -498,7 +514,12 @@ struct ParentVerificationSheet: View {
                     .multilineTextAlignment(.center)
 
                 VStack(spacing: 12) {
-                    verificationButton("Swallowed a bite!", icon: "star.fill", color: .green) {
+                    verificationButton(
+                        "Swallowed a bite!",
+                        icon: "star.fill",
+                        assetName: SensoryStep.ateImageName,
+                        color: .green
+                    ) {
                         onVerify(.swallowed)
                     }
 
@@ -524,12 +545,28 @@ struct ParentVerificationSheet: View {
         }
     }
 
-    private func verificationButton(_ title: String, icon: String, color: Color, action: @escaping () -> Void) -> some View {
+    private func verificationButton(
+        _ title: String,
+        icon: String,
+        assetName: String? = nil,
+        color: Color,
+        action: @escaping () -> Void
+    ) -> some View {
         Button(action: action) {
             HStack(spacing: 12) {
-                Image(systemName: icon)
-                    .foregroundStyle(color)
-                    .frame(width: 24)
+                Group {
+                    if let assetName, UIImage(named: assetName) != nil {
+                        Image(assetName)
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 24, height: 24)
+                    } else {
+                        Image(systemName: icon)
+                            .foregroundStyle(color)
+                            .frame(width: 24)
+                    }
+                }
                 Text(title)
                     .font(.subheadline.weight(.medium))
                 Spacer()

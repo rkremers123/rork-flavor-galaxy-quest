@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct MonthlyReportView: View {
     let viewModel: AppViewModel
@@ -93,7 +94,13 @@ struct MonthlyReportView: View {
             HStack(spacing: 12) {
                 reportMetric(value: "\(monthStats.foodsLogged)", label: "Foods Logged", color: SpaceTheme.cosmicCyan)
                 reportMetric(value: "\(monthStats.daysActive)/30", label: "Days Active", color: SpaceTheme.planetGreen)
-                reportMetric(value: "🔥 \(monthStats.longestStreak)", label: "Best Streak", color: .orange)
+                reportMetric(
+                    value: "\(monthStats.longestStreak)",
+                    label: "Best Streak",
+                    color: .orange,
+                    systemImage: "flame.fill",
+                    assetName: "cosmetic_day7_badge"
+                )
             }
         }
     }
@@ -161,11 +168,30 @@ struct MonthlyReportView: View {
         }
     }
 
-    private func reportMetric(value: String, label: String, color: Color) -> some View {
+    private func reportMetric(
+        value: String,
+        label: String,
+        color: Color,
+        systemImage: String? = nil,
+        assetName: String? = nil
+    ) -> some View {
         VStack(spacing: 4) {
-            Text(value)
-                .font(.system(.headline, design: .rounded, weight: .bold))
-                .foregroundStyle(.white)
+            HStack(spacing: 4) {
+                if let assetName, UIImage(named: assetName) != nil {
+                    Image(assetName)
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(width: 16, height: 16)
+                } else if let systemImage {
+                    Image(systemName: systemImage)
+                        .font(.system(.subheadline, design: .rounded, weight: .bold))
+                        .foregroundStyle(color)
+                }
+                Text(value)
+                    .font(.system(.headline, design: .rounded, weight: .bold))
+                    .foregroundStyle(.white)
+            }
             Text(label)
                 .font(.system(size: 9, design: .rounded))
                 .foregroundStyle(.white.opacity(0.4))
