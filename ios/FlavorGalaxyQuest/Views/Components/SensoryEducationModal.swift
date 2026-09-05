@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct SensoryEducationModal: View {
     @Environment(\.dismiss) private var dismiss
@@ -9,7 +10,7 @@ struct SensoryEducationModal: View {
                 VStack(alignment: .leading, spacing: 24) {
                     headerSection
                     stepsSection
-                    sosSection
+                    ladderSection
                     bottomCallout
                 }
                 .padding(20)
@@ -43,17 +44,17 @@ struct SensoryEducationModal: View {
                 .font(.subheadline.weight(.semibold))
 
             VStack(spacing: 0) {
-                stepRow(icon: "eye.fill", color: .cyan, title: "LOOK", timeline: "Day 1–3", description: "Get used to seeing it without fear")
+                stepRow(step: .look, color: .cyan, title: "LOOK", timeline: "Day 1–3", description: "Get used to seeing it without fear")
                 Divider().padding(.leading, 52)
-                stepRow(icon: "hand.raised.fill", color: .blue, title: "TOUCH", timeline: "Day 3–7", description: "Hands explore the texture safely")
+                stepRow(step: .touch, color: .blue, title: "TOUCH", timeline: "Day 3–7", description: "Hands explore the texture safely")
                 Divider().padding(.leading, 52)
-                stepRow(icon: "nose.fill", color: .purple, title: "SMELL", timeline: "Day 5–10", description: "Nose gets familiar with the aroma")
+                stepRow(step: .smell, color: .purple, title: "SMELL", timeline: "Day 5–10", description: "Nose gets familiar with the aroma")
                 Divider().padding(.leading, 52)
-                stepRow(icon: "mouth.fill", color: .orange, title: "LICK", timeline: "Day 7–14", description: "Mouth says 'hello' — a tiny contact")
+                stepRow(step: .lick, color: .orange, title: "LICK", timeline: "Day 7–14", description: "Mouth says 'hello' — a tiny contact")
                 Divider().padding(.leading, 52)
-                stepRow(icon: "fork.knife", color: .green, title: "TASTE", timeline: "Day 10–21", description: "A small bite — spitting out is OK!")
+                stepRow(step: .taste, color: .green, title: "TASTE", timeline: "Day 10–21", description: "A small bite — spitting out is OK!")
                 Divider().padding(.leading, 52)
-                stepRow(icon: "checkmark.circle.fill", color: .green, title: "SWALLOW", timeline: "Day 14+", description: "Eating happens naturally over time")
+                stepRow(ateMark: true, color: .green, title: "SWALLOW", timeline: "Day 14+", description: "Eating happens naturally over time")
             }
             .padding(.vertical, 4)
             .padding(.horizontal, 16)
@@ -62,12 +63,38 @@ struct SensoryEducationModal: View {
         }
     }
 
-    private func stepRow(icon: String, color: Color, title: String, timeline: String, description: String) -> some View {
+    private func stepRow(
+        step: SensoryStep? = nil,
+        ateMark: Bool = false,
+        color: Color,
+        title: String,
+        timeline: String,
+        description: String
+    ) -> some View {
         HStack(spacing: 12) {
-            Image(systemName: icon)
-                .font(.callout)
-                .foregroundStyle(color)
-                .frame(width: 28)
+            Group {
+                if ateMark {
+                    if UIImage(named: SensoryStep.ateImageName) != nil {
+                        Image(SensoryStep.ateImageName)
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 28, height: 28)
+                    } else {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.callout)
+                            .foregroundStyle(color)
+                            .frame(width: 28)
+                    }
+                } else if let step {
+                    StepMark(step: step, size: 28, tint: color)
+                } else {
+                    Image(systemName: "circle")
+                        .font(.callout)
+                        .foregroundStyle(color)
+                        .frame(width: 28)
+                }
+            }
 
             VStack(alignment: .leading, spacing: 2) {
                 HStack(spacing: 6) {
@@ -90,15 +117,16 @@ struct SensoryEducationModal: View {
         .padding(.vertical, 10)
     }
 
-    private var sosSection: some View {
+    /// Dinner-quest ladder framing — inspired by SOS, not an official SOS program.
+    private var ladderSection: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("This is called the SOS Approach")
+            Text("Inspired by the SOS dinner ladder")
                 .font(.subheadline.weight(.semibold))
 
             VStack(alignment: .leading, spacing: 8) {
-                credentialRow("Evidence-based clinical protocol")
-                credentialRow("Clinically proven for picky eaters")
-                credentialRow("Works with autism & sensory processing differences")
+                credentialRow("LOOK, TOUCH, SMELL, LICK, TASTE — looking counts")
+                credentialRow("Built for sensory picky eating, including autism & SPD")
+                credentialRow("Not an official SOS program or a medical device")
             }
         }
         .padding(16)

@@ -975,12 +975,12 @@ struct ParentDashboardView: View {
                             .font(.caption.weight(.medium))
 
                         VStack(alignment: .leading, spacing: 8) {
-                            educationTimelineRow("eye.fill", .cyan, "LOOK", "Day 1–3", "\"I can see it without fear\"")
-                            educationTimelineRow("hand.raised.fill", .blue, "TOUCH", "Day 3–7", "\"I can handle the texture\"")
-                            educationTimelineRow("nose.fill", .purple, "SMELL", "Day 5–10", "\"I'm getting used to the aroma\"")
-                            educationTimelineRow("mouth.fill", .orange, "LICK", "Day 7–14", "\"My mouth says it's safe\"")
-                            educationTimelineRow("fork.knife", .green, "TASTE", "Day 10–21", "\"I tried it!\"")
-                            educationTimelineRow("checkmark.circle.fill", .green, "SWALLOW", "Day 14+", "\"I can eat it\"")
+                            educationTimelineRow(step: .look, color: .cyan, title: "LOOK", timeline: "Day 1–3", description: "\"I can see it without fear\"")
+                            educationTimelineRow(step: .touch, color: .blue, title: "TOUCH", timeline: "Day 3–7", description: "\"I can handle the texture\"")
+                            educationTimelineRow(step: .smell, color: .purple, title: "SMELL", timeline: "Day 5–10", description: "\"I'm getting used to the aroma\"")
+                            educationTimelineRow(step: .lick, color: .orange, title: "LICK", timeline: "Day 7–14", description: "\"My mouth says it's safe\"")
+                            educationTimelineRow(step: .taste, color: .green, title: "TASTE", timeline: "Day 10–21", description: "\"I tried it!\"")
+                            educationTimelineRow(ateMark: true, color: .green, title: "SWALLOW", timeline: "Day 14+", description: "\"I can eat it\"")
                         }
                     }
 
@@ -1004,14 +1004,40 @@ struct ParentDashboardView: View {
         .clipShape(.rect(cornerRadius: 14))
     }
 
-    private func educationTimelineRow(_ icon: String, _ color: Color, _ step: String, _ timeline: String, _ description: String) -> some View {
+    private func educationTimelineRow(
+        step: SensoryStep? = nil,
+        ateMark: Bool = false,
+        color: Color,
+        title: String,
+        timeline: String,
+        description: String
+    ) -> some View {
         HStack(spacing: 10) {
-            Image(systemName: icon)
-                .font(.caption)
-                .foregroundStyle(color)
-                .frame(width: 20)
+            Group {
+                if ateMark {
+                    if UIImage(named: SensoryStep.ateImageName) != nil {
+                        Image(SensoryStep.ateImageName)
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 20, height: 20)
+                    } else {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.caption)
+                            .foregroundStyle(color)
+                            .frame(width: 20)
+                    }
+                } else if let step {
+                    StepMark(step: step, size: 20, tint: color)
+                } else {
+                    Image(systemName: "circle")
+                        .font(.caption)
+                        .foregroundStyle(color)
+                        .frame(width: 20)
+                }
+            }
 
-            Text(step)
+            Text(title)
                 .font(.caption.weight(.bold))
                 .frame(width: 56, alignment: .leading)
 

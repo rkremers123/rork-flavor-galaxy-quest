@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct RegressionInsightsView: View {
     let viewModel: AppViewModel
@@ -159,9 +160,22 @@ struct RegressionInsightsView: View {
             Group {
                 if let food {
                     FoodIcon(food: food, size: 22)
+                } else if UIImage(named: FoodItem.customGemIconName) != nil {
+                    Image(FoodItem.customGemIconName)
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(width: 22, height: 22)
+                } else if UIImage(named: "safe_food_token") != nil {
+                    Image("safe_food_token")
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(width: 22, height: 22)
                 } else {
-                    Text("🍽")
+                    Image(systemName: "fork.knife")
                         .font(.title3)
+                        .foregroundStyle(.secondary)
                 }
             }
 
