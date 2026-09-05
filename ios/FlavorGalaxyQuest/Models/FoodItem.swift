@@ -101,6 +101,23 @@ nonisolated enum FoodColor: String, Codable, CaseIterable, Sendable, Hashable {
         }
     }
 
+    /// Swatch hex for UI (no emoji).
+    var hex: String {
+        switch self {
+        case .red: "EF4444"
+        case .orange: "F97316"
+        case .yellow: "EAB308"
+        case .green: "22C55E"
+        case .blue: "3B82F6"
+        case .purple: "A855F7"
+        case .brown: "92400E"
+        case .white: "E5E7EB"
+        case .golden: "F59E0B"
+        case .pink: "EC4899"
+        case .mixed: "8B5CF6"
+        }
+    }
+
     var label: String {
         switch self {
         case .red: "Red"

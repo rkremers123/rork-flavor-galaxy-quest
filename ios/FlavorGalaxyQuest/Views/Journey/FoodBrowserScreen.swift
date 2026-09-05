@@ -595,8 +595,10 @@ struct FoodBrowserScreen: View {
                     }
 
                     HStack(spacing: 6) {
-                        Text(food.color.emoji)
-                            .font(.system(size: 10))
+                        Circle()
+                            .fill(SpaceTheme.planetColor(hex: food.color.hex))
+                            .frame(width: 8, height: 8)
+                            .overlay(Circle().stroke(.white.opacity(0.25), lineWidth: 0.5))
                         Text(food.foodGroup.label)
                             .font(.system(.caption2, design: .rounded, weight: .medium))
                             .foregroundStyle(.white.opacity(0.5))

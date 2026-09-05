@@ -151,8 +151,10 @@ struct ActiveQuestScreen: View {
             }
 
             HStack(spacing: 8) {
-                Text(food.color.emoji)
-                    .font(.caption)
+                Circle()
+                    .fill(SpaceTheme.planetColor(hex: food.color.hex))
+                    .frame(width: 10, height: 10)
+                    .overlay(Circle().stroke(.white.opacity(0.25), lineWidth: 0.5))
                 Text(food.color.label)
                     .font(.system(.caption2, design: .rounded, weight: .semibold))
                     .foregroundStyle(.white.opacity(0.6))
@@ -221,9 +223,9 @@ struct ActiveQuestScreen: View {
 
     private func sensoryProfilePills(_ food: FoodItem) -> some View {
         HStack(spacing: 10) {
-            sensoryPill("👅 \(food.texture.label)", icon: nil)
-            sensoryPill("🍍 \(food.flavor.label)", icon: nil)
-            sensoryPill("🌡️ \(food.temperature.label)", icon: nil)
+            sensoryPill(food.texture.label, icon: "waveform")
+            sensoryPill(food.flavor.label, icon: "drop.fill")
+            sensoryPill(food.temperature.label, icon: "thermometer.medium")
         }
     }
 
@@ -629,8 +631,9 @@ struct ActiveQuestScreen: View {
                                     .foregroundStyle(.white)
                                     .lineLimit(1)
                                 HStack(spacing: 2) {
-                                    Text(similar.color.emoji)
-                                        .font(.system(size: 8))
+                                    Circle()
+                                        .fill(SpaceTheme.planetColor(hex: similar.color.hex))
+                                        .frame(width: 8, height: 8)
                                     Text(similar.foodGroup.label)
                                         .font(.system(size: 9, design: .rounded))
                                         .foregroundStyle(.white.opacity(0.4))
@@ -666,7 +669,23 @@ struct ActiveQuestScreen: View {
 
             VStack(spacing: 16) {
                 if let milestone = viewModel.streakMilestone {
-                    Text(milestone.emoji).font(.system(size: 56))
+                    Group {
+                        if UIImage(named: milestone.imageName) != nil {
+                            Image(milestone.imageName)
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 72, height: 72)
+                        } else if UIImage(named: "badge_star_coin") != nil {
+                            Image("badge_star_coin")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 64, height: 64)
+                        } else {
+                            Text(milestone.emoji).font(.system(size: 56))
+                        }
+                    }
 
                     Text(milestone.title)
                         .font(.system(.title2, design: .rounded, weight: .bold))

@@ -317,7 +317,7 @@ struct OnboardingView: View {
                 if let matchedFood = FoodDatabase.food(byName: goalFoodName) {
                     SGCard(accent: SGColor.leaf.opacity(0.45)) {
                         HStack(spacing: 8) {
-                            Text(matchedFood.color.emoji)
+                            FoodIcon(food: matchedFood, size: 22)
                             Text(matchedFood.name)
                                 .font(SGFont.caption())
                                 .foregroundStyle(SGColor.textPrimary)
@@ -427,7 +427,7 @@ struct OnboardingView: View {
                                 Text(childName.trimmingCharacters(in: .whitespaces).isEmpty ? selectedExplorerType.defaultName : childName)
                                     .font(SGFont.title())
                                     .foregroundStyle(SGColor.textPrimary)
-                                Text("Age \(childAge) Â· \(selectedExplorerType.defaultName)")
+                                Text("Age \(childAge) · \(selectedExplorerType.defaultName)")
                                     .font(SGFont.caption())
                                     .foregroundStyle(SGColor.textSecondary)
                             }
@@ -525,7 +525,10 @@ struct OnboardingView: View {
                         .font(SGFont.caption())
                         .foregroundStyle(SGColor.textSecondary)
                     ForEach(Array(uniqueColors).sorted(by: { $0.rawValue < $1.rawValue }), id: \.self) { color in
-                        Text(color.emoji)
+                        Circle()
+                            .fill(SpaceTheme.planetColor(hex: color.hex))
+                            .frame(width: 10, height: 10)
+                            .overlay(Circle().stroke(.white.opacity(0.25), lineWidth: 0.5))
                     }
                 }
             }
@@ -549,8 +552,9 @@ struct OnboardingView: View {
             VStack(spacing: 4) {
                 FoodIcon(food: food, size: 28)
                 HStack(spacing: 2) {
-                    Text(food.color.emoji)
-                        .font(.system(size: 8))
+                    Circle()
+                        .fill(SpaceTheme.planetColor(hex: food.color.hex))
+                        .frame(width: 6, height: 6)
                     Text(food.name)
                         .font(SGFont.caption())
                         .foregroundStyle(SGColor.textPrimary)

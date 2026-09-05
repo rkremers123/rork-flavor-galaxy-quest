@@ -52,11 +52,11 @@ struct WeeklyRecapBanner: View {
             HStack(spacing: 16) {
                 recapStat(value: "\(weeklyStats.foodsLogged)", label: "Foods", icon: "fork.knife", color: SpaceTheme.cosmicCyan)
                 recapStat(value: "\(weeklyStats.phasesProgressed)", label: "Steps", icon: "stairs", color: SpaceTheme.planetGreen)
-                recapStat(value: "🔥 \(weeklyStats.currentStreak)", label: "Streak", icon: nil, color: .orange)
+                recapStat(value: "\(weeklyStats.currentStreak)", label: "Streak", icon: "flame.fill", color: .orange)
             }
 
             if weeklyStats.foodsLogged > 0 {
-                Text("Great week, \(viewModel.profile.explorerDisplayName)! Keep exploring! 🚀")
+                Text("Great week, \(viewModel.profile.explorerDisplayName)! Keep exploring!")
                     .font(.system(.caption, design: .rounded, weight: .medium))
                     .foregroundStyle(.white.opacity(0.6))
             } else {
