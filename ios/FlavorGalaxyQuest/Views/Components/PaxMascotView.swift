@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct PaxMascotView: View {
     let message: String
@@ -20,12 +21,26 @@ struct PaxMascotView: View {
                     )
                     .frame(width: size, height: size)
 
-                Image(explorerType.imageName)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: size * 0.6, height: size * 0.6)
-                    .offset(y: bounce ? -4 : 4)
-                    .animation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true), value: bounce)
+                Group {
+                    if UIImage(named: explorerType.imageName) != nil {
+                        Image(explorerType.imageName)
+                            .resizable()
+                            .scaledToFit()
+                    } else if UIImage(named: "default_avatar") != nil {
+                        Image("default_avatar")
+                            .resizable()
+                            .scaledToFit()
+                    } else {
+                        Image(systemName: "sparkles")
+                            .resizable()
+                            .scaledToFit()
+                            .foregroundStyle(.white.opacity(0.85))
+                            .padding(size * 0.08)
+                    }
+                }
+                .frame(width: size * 0.6, height: size * 0.6)
+                .offset(y: bounce ? -4 : 4)
+                .animation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true), value: bounce)
             }
             .frame(width: size, height: size)
 

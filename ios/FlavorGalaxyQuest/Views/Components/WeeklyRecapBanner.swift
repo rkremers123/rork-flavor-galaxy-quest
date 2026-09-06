@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct WeeklyRecapBanner: View {
     let viewModel: AppViewModel
@@ -50,9 +51,27 @@ struct WeeklyRecapBanner: View {
             }
 
             HStack(spacing: 16) {
-                recapStat(value: "\(weeklyStats.foodsLogged)", label: "Foods", icon: "fork.knife", color: SpaceTheme.cosmicCyan)
-                recapStat(value: "\(weeklyStats.phasesProgressed)", label: "Steps", icon: "stairs", color: SpaceTheme.planetGreen)
-                recapStat(value: "\(weeklyStats.currentStreak)", label: "Streak", icon: "flame.fill", color: .orange)
+                recapStat(
+                    value: "\(weeklyStats.foodsLogged)",
+                    label: "Foods",
+                    asset: "safe_food_token",
+                    systemIcon: "fork.knife",
+                    color: SpaceTheme.cosmicCyan
+                )
+                recapStat(
+                    value: "\(weeklyStats.phasesProgressed)",
+                    label: "Steps",
+                    asset: "step_look",
+                    systemIcon: "stairs",
+                    color: SpaceTheme.planetGreen
+                )
+                recapStat(
+                    value: "\(weeklyStats.currentStreak)",
+                    label: "Streak",
+                    asset: "cosmetic_day7_badge",
+                    systemIcon: "flame.fill",
+                    color: .orange
+                )
             }
 
             if weeklyStats.foodsLogged > 0 {
@@ -76,12 +95,26 @@ struct WeeklyRecapBanner: View {
         )
     }
 
-    private func recapStat(value: String, label: String, icon: String?, color: Color) -> some View {
+    private func recapStat(
+        value: String,
+        label: String,
+        asset: String?,
+        systemIcon: String?,
+        color: Color
+    ) -> some View {
         VStack(spacing: 4) {
-            if let icon {
-                Image(systemName: icon)
-                    .font(.caption2)
-                    .foregroundStyle(color)
+            Group {
+                if let asset, UIImage(named: asset) != nil {
+                    Image(asset)
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(width: 18, height: 18)
+                } else if let systemIcon {
+                    Image(systemName: systemIcon)
+                        .font(.caption2)
+                        .foregroundStyle(color)
+                }
             }
             Text(value)
                 .font(.system(.headline, design: .rounded, weight: .bold))

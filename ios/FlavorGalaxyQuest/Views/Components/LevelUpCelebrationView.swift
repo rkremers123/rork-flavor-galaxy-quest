@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct LevelUpCelebrationView: View {
     let level: ExplorerLevel
@@ -31,11 +32,34 @@ struct LevelUpCelebrationView: View {
             .allowsHitTesting(false)
 
             VStack(spacing: 24) {
-                Image(explorerType.imageName)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(height: 100)
-                    .scaleEffect(showContent ? 1.0 : 0.3)
+                Group {
+                    if UIImage(named: explorerType.imageName) != nil {
+                        Image(explorerType.imageName)
+                            .resizable()
+                            .scaledToFit()
+                    } else if UIImage(named: "default_avatar") != nil {
+                        Image("default_avatar")
+                            .resizable()
+                            .scaledToFit()
+                    } else {
+                        Image(systemName: "sparkles")
+                            .resizable()
+                            .scaledToFit()
+                            .foregroundStyle(.white.opacity(0.85))
+                            .padding(12)
+                    }
+                }
+                .frame(height: 100)
+                .scaleEffect(showContent ? 1.0 : 0.3)
+
+                if UIImage(named: "level_gem") != nil {
+                    Image("level_gem")
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(width: 36, height: 36)
+                        .opacity(showContent ? 1 : 0)
+                }
 
                 VStack(spacing: 8) {
                     Text("LEVEL UP!")
