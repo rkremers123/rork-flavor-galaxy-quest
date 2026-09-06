@@ -193,7 +193,7 @@ struct ParentDashboardView: View {
             Button {
                 showPaywall = true
             } label: {
-                Text("Start 7-Day Free Trial")
+                Text(Config.billingConfigured ? "Start 7-Day Free Trial" : "See Premium Plans")
                     .font(.subheadline.weight(.semibold))
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 10)
@@ -695,7 +695,7 @@ struct ParentDashboardView: View {
                 HStack(spacing: 8) {
                     Image(systemName: "lock.open.fill")
                         .font(.subheadline)
-                    Text("Unlock with Free Trial")
+                    Text(Config.billingConfigured ? "Unlock with Free Trial" : "See Premium Plans")
                         .font(.subheadline.weight(.semibold))
                 }
                 .frame(maxWidth: .infinity)

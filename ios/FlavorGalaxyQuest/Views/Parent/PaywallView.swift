@@ -389,10 +389,7 @@ struct PaywallView: View {
     }
 
     /// RevenueCat keys are still empty in Config — do not promise a live trial purchase path.
-    private var billingConfigured: Bool {
-        !Config.EXPO_PUBLIC_REVENUECAT_IOS_API_KEY.isEmpty
-            || !Config.EXPO_PUBLIC_REVENUECAT_TEST_API_KEY.isEmpty
-    }
+    private var billingConfigured: Bool { Config.billingConfigured }
 
     private var monthlyPriceLabel: String {
         monthlyPackage?.storeProduct.localizedPriceString ?? SGOffer.monthly

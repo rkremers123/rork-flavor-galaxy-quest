@@ -2,6 +2,7 @@ import SwiftUI
 import UIKit
 
 struct WarpTransitionView: View {
+    var explorerType: ExplorerType = .nova
     @State private var phase: CGFloat = 0
     @State private var streaks: [(angle: Double, length: CGFloat, offset: CGFloat)] = []
 
@@ -43,8 +44,8 @@ struct WarpTransitionView: View {
 
             VStack(spacing: 16) {
                 Group {
-                    if UIImage(named: "explorer_nova") != nil {
-                        Image("explorer_nova")
+                    if UIImage(named: explorerType.imageName) != nil {
+                        Image(explorerType.imageName)
                             .resizable()
                             .interpolation(.high)
                             .scaledToFit()
@@ -56,8 +57,9 @@ struct WarpTransitionView: View {
                             .scaledToFit()
                             .frame(width: 72, height: 72)
                     } else {
-                        Text("🚀")
-                            .font(.system(size: 60))
+                        Image(systemName: "sparkles")
+                            .font(.system(size: 44, weight: .bold))
+                            .foregroundStyle(.white.opacity(0.9))
                     }
                 }
                 .scaleEffect(phase > 0.5 ? 1.2 : 0.8)

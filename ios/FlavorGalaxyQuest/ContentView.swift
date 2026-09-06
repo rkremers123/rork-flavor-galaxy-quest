@@ -31,7 +31,7 @@ struct ContentView: View {
                     }
 
                     if viewModel.isTransitioning {
-                        WarpTransitionView()
+                        WarpTransitionView(explorerType: viewModel.profile.explorerType)
                             .transition(.opacity)
                             .zIndex(100)
                     }

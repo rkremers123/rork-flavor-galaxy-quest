@@ -125,6 +125,8 @@ struct ExplorerAvatarView: View {
     private func particleLayer(_ particle: Cosmetic) -> some View {
         let primary = SpaceTheme.planetColor(hex: particle.primaryColorHex)
         let secondary = SpaceTheme.planetColor(hex: particle.secondaryColorHex)
+        let dustAsset = particle.imageName
+        let useDust = dustAsset.flatMap { UIImage(named: $0) } != nil
 
         return ZStack {
             ForEach(0..<6, id: \.self) { i in
@@ -133,11 +135,22 @@ struct ExplorerAvatarView: View {
                 let x = cos(angle * .pi / 180) * radius
                 let y = sin(angle * .pi / 180) * radius
 
-                Circle()
-                    .fill(i % 2 == 0 ? primary : secondary)
-                    .frame(width: size * 0.06, height: size * 0.06)
-                    .opacity(0.6 + Double(particlePhase) * 0.3)
-                    .offset(x: x, y: y)
+                Group {
+                    if useDust, let dustAsset {
+                        Image(dustAsset)
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: size * 0.1, height: size * 0.1)
+                            .opacity(0.55 + Double(particlePhase) * 0.35)
+                    } else {
+                        Circle()
+                            .fill(i % 2 == 0 ? primary : secondary)
+                            .frame(width: size * 0.06, height: size * 0.06)
+                            .opacity(0.6 + Double(particlePhase) * 0.3)
+                    }
+                }
+                .offset(x: x, y: y)
             }
         }
     }
