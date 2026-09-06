@@ -49,7 +49,10 @@ struct FoodProfileModal: View {
 
             HStack(spacing: 12) {
                 HStack(spacing: 4) {
-                    Text(food.color.emoji)
+                    Circle()
+                        .fill(SpaceTheme.planetColor(hex: food.color.hex))
+                        .frame(width: 10, height: 10)
+                        .overlay(Circle().stroke(.white.opacity(0.35), lineWidth: 0.5))
                     Text(food.color.label)
                         .font(.system(.caption, design: .rounded, weight: .semibold))
                         .foregroundStyle(.white.opacity(0.7))

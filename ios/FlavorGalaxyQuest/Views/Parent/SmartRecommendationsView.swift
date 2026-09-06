@@ -127,8 +127,10 @@ struct SmartRecommendationsView: View {
                                 .font(.subheadline.weight(.medium))
                                 .foregroundStyle(.primary)
 
-                            Text(rec.food.color.emoji)
-                                .font(.caption2)
+                            Circle()
+                                .fill(SpaceTheme.planetColor(hex: rec.food.color.hex))
+                                .frame(width: 8, height: 8)
+                                .overlay(Circle().stroke(Color.primary.opacity(0.15), lineWidth: 0.5))
 
                             Text(rec.food.foodGroup.label)
                                 .font(.system(.caption2, weight: .bold))
@@ -256,8 +258,10 @@ struct SmartRecommendationsView: View {
                                     HStack(spacing: 4) {
                                         Text(rec.food.name)
                                             .font(.subheadline.weight(.semibold))
-                                        Text(rec.food.color.emoji)
-                                            .font(.caption2)
+                                        Circle()
+                                            .fill(SpaceTheme.planetColor(hex: rec.food.color.hex))
+                                            .frame(width: 8, height: 8)
+                                            .overlay(Circle().stroke(Color.primary.opacity(0.15), lineWidth: 0.5))
                                         Text(rec.food.foodGroup.label)
                                             .font(.system(.caption2, weight: .medium))
                                             .foregroundStyle(.secondary)

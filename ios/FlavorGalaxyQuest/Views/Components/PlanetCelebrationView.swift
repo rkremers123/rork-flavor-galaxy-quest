@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct PlanetCelebrationView: View {
     let planet: JourneyPlanet
@@ -77,14 +78,25 @@ struct PlanetCelebrationView: View {
             ForEach(0..<8, id: \.self) { i in
                 let angle = Double(i) * 45
                 let delay = Double(i) * 0.08
-                Image(systemName: "sparkle")
-                    .font(.caption)
-                    .foregroundStyle(planetColor.opacity(0.6))
-                    .offset(y: -90)
-                    .rotationEffect(.degrees(angle))
-                    .scaleEffect(appeared ? 1.0 : 0.0)
-                    .opacity(appeared ? 1.0 : 0)
-                    .animation(.spring(response: 0.5, dampingFraction: 0.5).delay(0.3 + delay), value: appeared)
+                Group {
+                    if UIImage(named: "star_dust_particle") != nil {
+                        Image("star_dust_particle")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 14, height: 14)
+                            .opacity(0.75)
+                    } else {
+                        Image(systemName: "sparkle")
+                            .font(.caption)
+                            .foregroundStyle(planetColor.opacity(0.6))
+                    }
+                }
+                .offset(y: -90)
+                .rotationEffect(.degrees(angle))
+                .scaleEffect(appeared ? 1.0 : 0.0)
+                .opacity(appeared ? 1.0 : 0)
+                .animation(.spring(response: 0.5, dampingFraction: 0.5).delay(0.3 + delay), value: appeared)
             }
         }
         .frame(width: 200, height: 200)

@@ -94,8 +94,10 @@ struct CustomFoodCreationModal: View {
 
             if !foodName.trimmingCharacters(in: .whitespaces).isEmpty {
                 HStack(spacing: 6) {
-                    Text(selectedColor.emoji)
-                        .font(.caption)
+                    Circle()
+                        .fill(SpaceTheme.planetColor(hex: selectedColor.hex))
+                        .frame(width: 10, height: 10)
+                        .overlay(Circle().stroke(.white.opacity(0.35), lineWidth: 0.5))
                     Text(foodName)
                         .font(.system(.headline, design: .rounded, weight: .bold))
                         .foregroundStyle(.white)
@@ -162,10 +164,7 @@ struct CustomFoodCreationModal: View {
 
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 70), spacing: 8)], spacing: 8) {
                 ForEach(FoodColor.allCases, id: \.self) { color in
-                    selectionChip(
-                        label: "\(color.emoji) \(color.label)",
-                        isSelected: selectedColor == color
-                    ) {
+                    colorChip(color: color, isSelected: selectedColor == color) {
                         withAnimation(.spring(duration: 0.25)) {
                             selectedColor = color
                         }
@@ -282,6 +281,32 @@ struct CustomFoodCreationModal: View {
         .sensoryFeedback(.selection, trigger: isSelected)
     }
 
+    private func colorChip(color: FoodColor, isSelected: Bool, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 6) {
+                Circle()
+                    .fill(SpaceTheme.planetColor(hex: color.hex))
+                    .frame(width: 10, height: 10)
+                    .overlay(Circle().stroke(.white.opacity(0.35), lineWidth: 0.5))
+                Text(color.label)
+                    .font(.system(.caption, design: .rounded, weight: .semibold))
+                    .foregroundStyle(isSelected ? SpaceTheme.deepNavy : .white.opacity(0.6))
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 9)
+            .frame(maxWidth: .infinity)
+            .background(
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .fill(isSelected ? SpaceTheme.cosmicCyan : .white.opacity(0.06))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .stroke(isSelected ? SpaceTheme.cosmicCyan : .white.opacity(0.08), lineWidth: 1)
+            )
+        }
+        .sensoryFeedback(.selection, trigger: isSelected)
+    }
+
     private var confirmationOverlay: some View {
         ZStack {
             Color.black.opacity(0.6).ignoresSafeArea()
@@ -311,7 +336,7 @@ struct CustomFoodCreationModal: View {
 
                 VStack(spacing: 8) {
                     confirmationRow("Name", value: foodName)
-                    confirmationRow("Color", value: "\(selectedColor.emoji) \(selectedColor.label)")
+                    confirmationRow("Color", value: selectedColor.label)
                     confirmationRow("Food Group", value: selectedFoodGroup.label)
                     confirmationRow("Texture", value: selectedTexture.label)
                     confirmationRow("Flavor", value: selectedFlavor.label)

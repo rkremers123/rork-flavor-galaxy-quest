@@ -284,9 +284,14 @@ struct SensoryProfileDashboardView: View {
                     let count = colorCounts[color] ?? 0
                     let isUnlocked = count > 0
                     VStack(spacing: 4) {
-                        Text(color.emoji)
-                            .font(.title3)
+                        Circle()
+                            .fill(SpaceTheme.planetColor(hex: color.hex))
+                            .frame(width: 28, height: 28)
                             .opacity(isUnlocked ? 1.0 : 0.25)
+                            .overlay(
+                                Circle()
+                                    .stroke(Color.primary.opacity(isUnlocked ? 0.25 : 0.08), lineWidth: 1)
+                            )
                         Text(color.label)
                             .font(.system(size: 9, weight: .semibold))
                             .foregroundStyle(isUnlocked ? .primary : .secondary)

@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct PlanetWisdom {
     let kidMessage: String
@@ -133,18 +134,39 @@ struct PlanetWisdomModal: View {
                 )
                 .frame(width: 180, height: 180)
 
-            Text(wisdom.emoji)
-                .font(.system(size: 72))
+            Group {
+                if UIImage(named: planet.imageName) != nil {
+                    Image(planet.imageName)
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(width: 96, height: 96)
+                } else {
+                    Text(wisdom.emoji)
+                        .font(.system(size: 72))
+                }
+            }
 
             ForEach(0..<6, id: \.self) { i in
                 let angle = Double(i) * 60
-                Image(systemName: "sparkle")
-                    .font(.system(size: 10))
-                    .foregroundStyle(planetColor.opacity(0.5))
-                    .offset(y: -80)
-                    .rotationEffect(.degrees(angle))
-                    .scaleEffect(appeared ? 1.0 : 0.0)
-                    .animation(.spring(response: 0.4, dampingFraction: 0.5).delay(0.3 + Double(i) * 0.06), value: appeared)
+                Group {
+                    if UIImage(named: "star_dust_particle") != nil {
+                        Image("star_dust_particle")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 12, height: 12)
+                            .opacity(0.7)
+                    } else {
+                        Image(systemName: "sparkle")
+                            .font(.system(size: 10))
+                            .foregroundStyle(planetColor.opacity(0.5))
+                    }
+                }
+                .offset(y: -80)
+                .rotationEffect(.degrees(angle))
+                .scaleEffect(appeared ? 1.0 : 0.0)
+                .animation(.spring(response: 0.4, dampingFraction: 0.5).delay(0.3 + Double(i) * 0.06), value: appeared)
             }
         }
     }
