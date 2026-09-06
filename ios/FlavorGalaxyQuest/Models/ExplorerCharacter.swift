@@ -453,7 +453,7 @@ nonisolated enum Cosmetic: String, Codable, CaseIterable, Sendable, Hashable {
         case .foodsLogged(let n): "Log \(n) foods"
         case .daysLogged(let n): "\(n) days logging"
         case .reachPhase(let step): "Complete \(step.label) Phase"
-        case .completeAllPhases: "Complete all 5 SOS phases"
+        case .completeAllPhases: "Complete all 5 ladder phases"
         case .foodFamilies(let n): "Try \(n) food families"
         case .planetsUnlocked(let n): "Unlock \(n) planets"
         }

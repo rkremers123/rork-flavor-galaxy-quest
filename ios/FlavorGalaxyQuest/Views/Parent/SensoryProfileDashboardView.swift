@@ -55,7 +55,7 @@ struct SensoryProfileDashboardView: View {
                         insightCard(
                             type: .growth,
                             title: "Growth Area: \(unexploredFlavors.map(\.label).joined(separator: " & "))",
-                            text: "\(sensoryProfile.childName) hasn't explored \(unexploredFlavors.map(\.label).joined(separator: " or ").lowercased()) flavors yet. These are typically later-stage in SOS therapy. No rush — they'll come naturally as confidence builds."
+                            text: "\(sensoryProfile.childName) hasn't explored \(unexploredFlavors.map(\.label).joined(separator: " or ").lowercased()) flavors yet. Those flavors often show up later on the dinner ladder. No rush — they'll come as confidence builds."
                         )
                     }
 

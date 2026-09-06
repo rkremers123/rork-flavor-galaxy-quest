@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 /// Kid first-run for Sensory Galaxy.
 /// Same galaxy chrome as ParentOnboardingView: SGScreen, SGDotBar, SGButton, SGCard.
@@ -176,6 +177,15 @@ struct OnboardingView: View {
     private var welcomeStep: some View {
         VStack(spacing: 20) {
             Spacer()
+
+            if UIImage(named: "wordmark_sensory_galaxy") != nil {
+                Image("wordmark_sensory_galaxy")
+                    .resizable()
+                    .interpolation(.high)
+                    .scaledToFit()
+                    .frame(height: 28)
+                    .opacity(appeared ? 1 : 0)
+            }
 
             Image(randomExplorer.imageName)
                 .resizable()

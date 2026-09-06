@@ -427,10 +427,20 @@ struct FoodBrowserScreen: View {
                     PlanetView(food: food, progress: progress)
 
                     if customFoodIds.contains(food.id) {
-                        Text("✦")
-                            .font(.system(size: 8, weight: .bold))
-                            .foregroundStyle(SpaceTheme.cosmicCyan)
-                            .offset(x: 28, y: -28)
+                        Group {
+                            if UIImage(named: "food_custom_gem") != nil {
+                                Image("food_custom_gem")
+                                    .resizable()
+                                    .interpolation(.high)
+                                    .scaledToFit()
+                                    .frame(width: 14, height: 14)
+                            } else {
+                                Text("✦")
+                                    .font(.system(size: 8, weight: .bold))
+                                    .foregroundStyle(SpaceTheme.cosmicCyan)
+                            }
+                        }
+                        .offset(x: 28, y: -28)
                     }
                 }
 

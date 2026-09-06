@@ -53,7 +53,7 @@ struct PlanetWisdom {
         case .harvestFestival:
             return PlanetWisdom(
                 kidMessage: "You did it all. You're a Galaxy Master now. Print your certificate and show the world what you conquered!",
-                parentNote: "Completion of the SOS protocol represents a major neurological shift. Picky eating patterns have been rewired. This is real progress.",
+                parentNote: "Finishing the dinner-quest ladder is a real shift. Looking counted the whole way. Celebrate this with them — and keep the pressure low.",
                 emoji: "🌟"
             )
         }
