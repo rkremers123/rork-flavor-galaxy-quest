@@ -10,6 +10,7 @@ struct ActiveQuestScreen: View {
     @State private var showFoodProfile = false
     @State private var completedStep: SensoryStep?
     @State private var lookLoggedThisSitting = false
+    @State private var softRegressionNote: String? = nil
 
     private var food: FoodItem? { viewModel.activeQuestFood }
     private var progress: QuestProgressModel? { viewModel.activeQuestProgress }
@@ -394,6 +395,11 @@ struct ActiveQuestScreen: View {
                     .background(Capsule().fill(.white.opacity(0.05)))
             }
 
+            Text("Not today is okay — the plate will still be there another night.")
+                .font(.system(.caption2, design: .rounded))
+                .foregroundStyle(.white.opacity(0.35))
+                .multilineTextAlignment(.center)
+
             if lookLoggedThisSitting {
                 Text("Looking still counted if you already logged it.")
                     .font(.system(.caption2, design: .rounded))
@@ -583,6 +589,17 @@ struct ActiveQuestScreen: View {
     }
 
     private func performStepCompletion(_ step: SensoryStep, food: FoodItem) {
+        // Soft regression: tonight's step vs prior-day peak success on same food.
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let priorPeak = viewModel.profile.interactions
+            .filter { $0.foodId == food.id && $0.completed && calendar.startOfDay(for: $0.timestamp) < today }
+            .map(\.sensoryStep)
+            .max(by: { $0.rawValue < $1.rawValue })
+        softRegressionNote = priorPeak.flatMap {
+            SensoryStep.softRegressionLine(foodName: food.name, prior: $0, current: step)
+        }
+
         completedStep = step
         if step == .look {
             lookLoggedThisSitting = true
@@ -721,7 +738,7 @@ struct ActiveQuestScreen: View {
                         }
                     }
 
-                    Text("Amazing!")
+                    Text(step.celebrateTitle)
                         .font(.system(.title2, design: .rounded, weight: .bold))
                         .foregroundStyle(.white)
 
@@ -730,6 +747,15 @@ struct ActiveQuestScreen: View {
                         .foregroundStyle(.white.opacity(0.8))
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 24)
+
+                    if let soft = softRegressionNote {
+                        Text(soft)
+                            .font(.system(.caption, design: .rounded))
+                            .foregroundStyle(SpaceTheme.starGold.opacity(0.9))
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 20)
+                            .padding(.top, 4)
+                    }
                 }
 
                 if step.starDustReward > 0 {

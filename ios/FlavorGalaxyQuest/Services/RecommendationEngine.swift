@@ -2,9 +2,16 @@ import Foundation
 
 enum MatcherContext {
     static var profile: ChildProfileModel?
+    /// Set by BridgeFoodMatcher when Stay-in-orbit is active (peak ≤ smell).
+    static var stayInOrbit: Bool = false
+    static var stayInOrbitCoach: String? = nil
 }
 
 struct RecommendationEngine {
+
+    static var isStayInOrbit: Bool { MatcherContext.stayInOrbit }
+    static var stayInOrbitCoach: String? { MatcherContext.stayInOrbitCoach }
+
 
     /// Existing call site stays the same. Uses the stashed child profile when present
     /// so Suggest / Start Quest / parent recs run the repaired matcher.

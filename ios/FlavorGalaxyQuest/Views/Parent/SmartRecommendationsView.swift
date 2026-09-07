@@ -22,6 +22,9 @@ struct SmartRecommendationsView: View {
         ScrollView {
             VStack(spacing: 20) {
                 headerSection
+                if MatcherContext.stayInOrbit {
+                    stayInOrbitCoachCard
+                }
                 if recommendations.isEmpty {
                     emptyState
                 } else {
@@ -33,6 +36,31 @@ struct SmartRecommendationsView: View {
             }
             .padding(16)
         }
+    }
+
+
+    private var stayInOrbitCoachCard: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 8) {
+                Image(systemName: "circle.dotted")
+                    .foregroundStyle(SpaceTheme.cosmicCyan)
+                Text("Stay in orbit")
+                    .font(.subheadline.weight(.bold))
+                    .foregroundStyle(.primary)
+            }
+            Text(MatcherContext.stayInOrbitCoach
+                 ?? "Still exploring with eyes and hands — that's real. Tonight keep it close.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+            Text("Safe Pick preferred · Stretch tucked away until a lick shows up.")
+                .font(.caption2)
+                .foregroundStyle(.tertiary)
+        }
+        .padding(14)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(SpaceTheme.cosmicCyan.opacity(0.08))
+        .clipShape(.rect(cornerRadius: 12))
     }
 
     private var bridgeFoodEducationBox: some View {

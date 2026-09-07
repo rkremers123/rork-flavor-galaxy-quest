@@ -139,6 +139,11 @@ nonisolated enum BridgeFoodMatcher {
     static let stretchPickMin = 2.5
     static let stretchPickMax = 4.5
     static let varietyPickMax = 4.5
+    static let orbitCeilingStates: Set<String> = ["looked_at", "touched", "smelled"]
+    static let lickPlusStates: Set<String> = ["licked", "lick", "tasted", "ate"]
+    static let stayInOrbitWindow = 7
+    static let stayInOrbitCoach =
+        "Stay in orbit — still exploring with eyes and hands. That's real. Tonight keep it close."
     static let minFoodsForTrend = 5
     static let trendStrengthThreshold = 5.0 / 7.0
     static let trendDistanceBonus = 0.3
@@ -607,6 +612,62 @@ nonisolated enum BridgeFoodMatcher {
         return blocked
     }
 
+
+    // MARK: - Stay in orbit (SOS-aligned)
+
+    static func stateRank(_ name: String) -> Int {
+        switch name {
+        case "looked_at": return 0
+        case "touched": return 1
+        case "smelled": return 2
+        case "licked", "lick": return 3
+        case "tasted": return 4
+        case "ate": return 5
+        default: return -1
+        }
+    }
+
+    /// Peak exposure across the last N unique logged nights.
+    static func recentPeakExposure(logs: [FoodLog], windowN: Int = stayInOrbitWindow) -> String? {
+        let sorted = logs.sorted { $0.timestamp > $1.timestamp }
+        guard !sorted.isEmpty else { return nil }
+        let calendar = Calendar.current
+        var dayBuckets: [(day: Date, states: [String])] = []
+        var seenDays = Set<Date>()
+        for log in sorted {
+            let day = calendar.startOfDay(for: log.timestamp)
+            if seenDays.contains(day) {
+                if let idx = dayBuckets.firstIndex(where: { $0.day == day }) {
+                    dayBuckets[idx].states.append(contentsOf: log.exposureStates)
+                }
+                continue
+            }
+            if dayBuckets.count >= windowN { break }
+            seenDays.insert(day)
+            dayBuckets.append((day, log.exposureStates))
+        }
+        let allStates = dayBuckets.flatMap(\.states)
+        guard !allStates.isEmpty else { return nil }
+        return getHighestState(allStates).0
+    }
+
+    static func everReachedLick(logs: [FoodLog]) -> Bool {
+        for log in logs {
+            if log.exposureStates.contains(where: { lickPlusStates.contains($0) }) {
+                return true
+            }
+        }
+        return false
+    }
+
+    /// Prefer Safe Pick; suppress Stretch/Variety while peak ≤ smell (or never licked).
+    static func shouldStayInOrbit(logs: [FoodLog], windowN: Int = stayInOrbitWindow) -> Bool {
+        if logs.isEmpty { return true }
+        if !everReachedLick(logs: logs) { return true }
+        guard let peak = recentPeakExposure(logs: logs, windowN: windowN) else { return true }
+        return orbitCeilingStates.contains(peak) || stateRank(peak) <= stateRank("smelled")
+    }
+
     // MARK: - Public API
 
     static func generateRecommendations(
@@ -649,48 +710,59 @@ nonisolated enum BridgeFoodMatcher {
         let trend = detectTrend(uniqueRecentFoods: uniqueRecent, foodDB: foodDB)
         let medians = catalogMedians(foodDB)
 
+        let stay = shouldStayInOrbit(logs: logs)
+        MatcherContext.stayInOrbit = stay
+        MatcherContext.stayInOrbitCoach = stay ? stayInOrbitCoach : nil
+
         var recs: [Pick] = []
 
         if let (fid, distance) = findSafePick(baseline: baseline, foodDB: foodDB, exclude: exclude),
            let profile = foodDB[fid] {
+            var why = explainBridge(baseline: baseline, profile: profile, rank: Rank.safe.rawValue)
+            if stay {
+                why = "Still exploring with eyes and hands — that's real. Tonight keep it close. " + why
+            }
             recs.append(Pick(
                 rank: .safe,
                 foodId: fid,
                 foodName: names[fid] ?? fid.uuidString,
                 distance: distance,
-                explanation: explainBridge(baseline: baseline, profile: profile, rank: Rank.safe.rawValue)
+                explanation: why
             ))
             exclude.insert(fid)
         }
 
-        if let (fid, distance) = findStretchPick(baseline: baseline, foodDB: foodDB, exclude: exclude, trend: trend, medians: medians),
-           let profile = foodDB[fid] {
-            recs.append(Pick(
-                rank: .stretch,
-                foodId: fid,
-                foodName: names[fid] ?? fid.uuidString,
-                distance: distance,
-                explanation: explainBridge(baseline: baseline, profile: profile, rank: Rank.stretch.rawValue)
-            ))
-            exclude.insert(fid)
-        }
+        // Stay in orbit: suppress Stretch + Variety until lick+ returns.
+        if !stay {
+            if let (fid, distance) = findStretchPick(baseline: baseline, foodDB: foodDB, exclude: exclude, trend: trend, medians: medians),
+               let profile = foodDB[fid] {
+                recs.append(Pick(
+                    rank: .stretch,
+                    foodId: fid,
+                    foodName: names[fid] ?? fid.uuidString,
+                    distance: distance,
+                    explanation: explainBridge(baseline: baseline, profile: profile, rank: Rank.stretch.rawValue)
+                ))
+                exclude.insert(fid)
+            }
 
-        let loggedIds = Set(foodProfiles.keys)
-        let missing = findMissingGroups(
-            foodDB: foodDB,
-            superSafeFoods: superSafeFoods,
-            regularSafeFoods: regularSafeFoods,
-            loggedFoodIds: loggedIds
-        )
-        if let (fid, distance) = findVarietyPick(baseline: baseline, foodDB: foodDB, exclude: exclude, missingGroups: missing),
-           let profile = foodDB[fid] {
-            recs.append(Pick(
-                rank: .variety,
-                foodId: fid,
-                foodName: names[fid] ?? fid.uuidString,
-                distance: distance,
-                explanation: explainBridge(baseline: baseline, profile: profile, rank: Rank.variety.rawValue)
-            ))
+            let loggedIds = Set(foodProfiles.keys)
+            let missing = findMissingGroups(
+                foodDB: foodDB,
+                superSafeFoods: superSafeFoods,
+                regularSafeFoods: regularSafeFoods,
+                loggedFoodIds: loggedIds
+            )
+            if let (fid, distance) = findVarietyPick(baseline: baseline, foodDB: foodDB, exclude: exclude, missingGroups: missing),
+               let profile = foodDB[fid] {
+                recs.append(Pick(
+                    rank: .variety,
+                    foodId: fid,
+                    foodName: names[fid] ?? fid.uuidString,
+                    distance: distance,
+                    explanation: explainBridge(baseline: baseline, profile: profile, rank: Rank.variety.rawValue)
+                ))
+            }
         }
 
         return recs
