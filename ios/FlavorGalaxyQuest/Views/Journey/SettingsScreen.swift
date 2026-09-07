@@ -100,8 +100,16 @@ struct SettingsScreen: View {
 
             VStack(alignment: .trailing, spacing: 4) {
                 HStack(spacing: 4) {
-                    Image(systemName: "sparkles")
-                        .font(.caption2)
+                    if UIImage(named: "star_dust_particle") != nil {
+                        Image("star_dust_particle")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 12, height: 12)
+                    } else {
+                        Image(systemName: "sparkles")
+                            .font(.caption2)
+                    }
                     Text("\(viewModel.profile.totalStarDust)")
                         .font(.system(.subheadline, design: .rounded, weight: .bold))
                 }
@@ -109,8 +117,16 @@ struct SettingsScreen: View {
 
                 if viewModel.profile.currentStreak > 0 {
                     HStack(spacing: 4) {
-                        Image(systemName: "flame.fill")
-                            .font(.caption2)
+                        if UIImage(named: "cosmetic_day7_badge") != nil {
+                            Image("cosmetic_day7_badge")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 12, height: 12)
+                        } else {
+                            Image(systemName: "flame.fill")
+                                .font(.caption2)
+                        }
                         Text("\(viewModel.profile.currentStreak) day streak")
                             .font(.system(.caption2, design: .rounded, weight: .medium))
                     }
@@ -612,9 +628,17 @@ struct SettingsScreen: View {
             HStack(spacing: 20) {
                 VStack(spacing: 4) {
                     HStack(spacing: 4) {
-                        Image(systemName: "flame.fill")
-                            .font(.title3)
-                            .foregroundStyle(.orange)
+                        if UIImage(named: "cosmetic_day7_badge") != nil {
+                            Image("cosmetic_day7_badge")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 22, height: 22)
+                        } else {
+                            Image(systemName: "flame.fill")
+                                .font(.title3)
+                                .foregroundStyle(.orange)
+                        }
                         Text("\(viewModel.profile.currentStreak)")
                             .font(.system(.title2, design: .rounded, weight: .bold))
                             .foregroundStyle(.white)
@@ -631,9 +655,17 @@ struct SettingsScreen: View {
 
                 VStack(spacing: 4) {
                     HStack(spacing: 4) {
-                        Image(systemName: "trophy.fill")
-                            .font(.title3)
-                            .foregroundStyle(SpaceTheme.starGold)
+                        if UIImage(named: "cosmetic_month1_badge") != nil {
+                            Image("cosmetic_month1_badge")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 22, height: 22)
+                        } else {
+                            Image(systemName: "trophy.fill")
+                                .font(.title3)
+                                .foregroundStyle(SpaceTheme.starGold)
+                        }
                         Text("\(viewModel.profile.longestStreak)")
                             .font(.system(.title2, design: .rounded, weight: .bold))
                             .foregroundStyle(.white)

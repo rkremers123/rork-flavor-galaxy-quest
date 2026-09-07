@@ -169,9 +169,20 @@ struct JourneyMapScreen: View {
     private var streakBrokenBanner: some View {
         VStack {
             HStack(spacing: 12) {
-                Image(systemName: "heart.slash.fill")
-                    .font(.title2)
-                    .foregroundStyle(SpaceTheme.warningOrange)
+                Group {
+                    if UIImage(named: "star_dust_particle") != nil {
+                        Image("star_dust_particle")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 28, height: 28)
+                            .opacity(0.85)
+                    } else {
+                        Image(systemName: "heart.slash.fill")
+                            .font(.title2)
+                            .foregroundStyle(SpaceTheme.warningOrange)
+                    }
+                }
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Streak broken")
@@ -229,18 +240,28 @@ struct JourneyMapScreen: View {
     private var streakStat: some View {
         Group {
             if viewModel.profile.currentStreak > 0 {
-                journeyStat(icon: "flame.fill", value: "\(viewModel.profile.currentStreak)", label: "Streak", color: .orange)
+                journeyStat(icon: "flame.fill", value: "\(viewModel.profile.currentStreak)", label: "Streak", color: .orange, assetMark: "cosmetic_day7_badge")
             } else if viewModel.profile.longestStreak > 0 {
-                journeyStat(icon: "flame", value: "\(viewModel.profile.longestStreak)", label: "Best", color: .orange.opacity(0.5))
+                journeyStat(icon: "flame", value: "\(viewModel.profile.longestStreak)", label: "Best", color: .orange.opacity(0.5), assetMark: "cosmetic_month1_badge")
             }
         }
     }
 
-    private func journeyStat(icon: String, value: String, label: String, color: Color) -> some View {
+    private func journeyStat(icon: String, value: String, label: String, color: Color, assetMark: String? = nil) -> some View {
         HStack(spacing: 6) {
-            Image(systemName: icon)
-                .font(.caption2)
-                .foregroundStyle(color)
+            Group {
+                if let assetMark, UIImage(named: assetMark) != nil {
+                    Image(assetMark)
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(width: 12, height: 12)
+                } else {
+                    Image(systemName: icon)
+                        .font(.caption2)
+                        .foregroundStyle(color)
+                }
+            }
             VStack(alignment: .leading, spacing: 1) {
                 Text(value)
                     .font(.system(.subheadline, design: .rounded, weight: .bold))

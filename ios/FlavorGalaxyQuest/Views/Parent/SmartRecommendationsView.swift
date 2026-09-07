@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct SmartRecommendationsView: View {
     let recommendations: [FoodRecommendation]
@@ -42,8 +43,24 @@ struct SmartRecommendationsView: View {
     private var stayInOrbitCoachCard: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 8) {
-                Image(systemName: "circle.dotted")
-                    .foregroundStyle(SpaceTheme.cosmicCyan)
+                Group {
+                    if UIImage(named: "step_look") != nil {
+                        Image("step_look")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 18, height: 18)
+                    } else if UIImage(named: "planet_base_camp") != nil {
+                        Image("planet_base_camp")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 18, height: 18)
+                    } else {
+                        Image(systemName: "circle.dotted")
+                            .foregroundStyle(SpaceTheme.cosmicCyan)
+                    }
+                }
                 Text("Stay in orbit")
                     .font(.subheadline.weight(.bold))
                     .foregroundStyle(.primary)
