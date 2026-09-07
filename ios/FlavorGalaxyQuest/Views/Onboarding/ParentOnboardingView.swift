@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 /// First-run parent beats for Sensory Galaxy.
 /// ContentView already wires:
@@ -60,9 +61,25 @@ struct ParentOnboardingView: View {
         VStack(spacing: 20) {
             Spacer()
 
-            Image("explorer_star")
-                .resizable()
-                .scaledToFit()
+            Group {
+                if UIImage(named: ExplorerType.star.boardImageName) != nil {
+                    Image(ExplorerType.star.boardImageName)
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                } else if UIImage(named: ExplorerType.star.imageName) != nil {
+                    Image(ExplorerType.star.imageName)
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                } else {
+                    Image(systemName: "sparkles")
+                        .resizable()
+                        .scaledToFit()
+                        .foregroundStyle(SGColor.glow)
+                        .padding(36)
+                }
+            }
                 .frame(width: 160, height: 160)
                 .scaleEffect(appeared ? 1 : 0.86)
                 .opacity(appeared ? 1 : 0)
@@ -87,9 +104,25 @@ struct ParentOnboardingView: View {
         VStack(spacing: 20) {
             Spacer()
 
-            Image("explorer_cosmo")
-                .resizable()
-                .scaledToFit()
+            Group {
+                if UIImage(named: ExplorerType.cosmo.boardImageName) != nil {
+                    Image(ExplorerType.cosmo.boardImageName)
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                } else if UIImage(named: ExplorerType.cosmo.imageName) != nil {
+                    Image(ExplorerType.cosmo.imageName)
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                } else {
+                    Image(systemName: "sparkles")
+                        .resizable()
+                        .scaledToFit()
+                        .foregroundStyle(SGColor.glow)
+                        .padding(36)
+                }
+            }
                 .frame(width: 160, height: 160)
                 .scaleEffect(appeared ? 1 : 0.86)
                 .opacity(appeared ? 1 : 0)
@@ -141,10 +174,39 @@ struct ParentOnboardingView: View {
         VStack(spacing: 20) {
             Spacer()
 
-            Image("planet_base_camp")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 120, height: 120)
+            Group {
+                if UIImage(named: ExplorerType.orbit.boardImageName) != nil {
+                    Image(ExplorerType.orbit.boardImageName)
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(width: 160, height: 160)
+                } else if UIImage(named: "planet_base_camp") != nil {
+                    Image("planet_base_camp")
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(width: 120, height: 120)
+                } else {
+                    Image(systemName: "sparkles")
+                        .font(.system(size: 56))
+                        .foregroundStyle(SGColor.glow)
+                }
+            }
+            .scaleEffect(appeared ? 1 : 0.86)
+            .opacity(appeared ? 1 : 0)
+
+            HStack(spacing: 14) {
+                ForEach(["star_dust_particle", "cosmetic_day7_badge", "badge_star_coin"], id: \.self) { name in
+                    if UIImage(named: name) != nil {
+                        Image(name)
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 36, height: 36)
+                    }
+                }
+            }
 
             Text("Celebrate Progress")
                 .font(SGFont.display(32))

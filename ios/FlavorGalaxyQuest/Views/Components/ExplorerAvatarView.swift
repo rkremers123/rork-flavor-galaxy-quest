@@ -71,16 +71,24 @@ struct ExplorerAvatarView: View {
         }
     }
 
-    /// Explorer kit art, with quiet Saturn default_avatar if the kit asset is missing.
+    /// Board portrait when the avatar is large enough to show face detail; kit art otherwise.
+    /// Quiet Saturn default_avatar if both are missing.
     private var explorerArt: some View {
         Group {
-            if UIImage(named: explorerType.imageName) != nil {
+            if size >= 72, UIImage(named: explorerType.boardImageName) != nil {
+                Image(explorerType.boardImageName)
+                    .resizable()
+                    .interpolation(.high)
+                    .scaledToFit()
+            } else if UIImage(named: explorerType.imageName) != nil {
                 Image(explorerType.imageName)
                     .resizable()
+                    .interpolation(.high)
                     .scaledToFit()
             } else if UIImage(named: "default_avatar") != nil {
                 Image("default_avatar")
                     .resizable()
+                    .interpolation(.high)
                     .scaledToFit()
             } else {
                 Image(systemName: "sparkles")

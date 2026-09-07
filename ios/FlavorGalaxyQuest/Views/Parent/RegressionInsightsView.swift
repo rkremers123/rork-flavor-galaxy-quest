@@ -253,9 +253,25 @@ struct RegressionInsightsView: View {
 
     private var emptyState: some View {
         VStack(spacing: 12) {
-            Image(systemName: "chart.line.downtrend.xyaxis")
-                .font(.largeTitle)
-                .foregroundStyle(.secondary)
+            Group {
+                if UIImage(named: "empty_state_pantry") != nil {
+                    Image("empty_state_pantry")
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(width: 72, height: 72)
+                } else if UIImage(named: "safe_food_token") != nil {
+                    Image("safe_food_token")
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(width: 56, height: 56)
+                } else {
+                    Image(systemName: "chart.line.downtrend.xyaxis")
+                        .font(.largeTitle)
+                        .foregroundStyle(.secondary)
+                }
+            }
             Text("No Active Regressions")
                 .font(.subheadline.weight(.semibold))
             Text("If your child stops eating a mastered food, long-press the food card to mark it as \"Used to Eat\" for tracking.")
