@@ -87,6 +87,13 @@ struct ParentOnboardingView: View {
         VStack(spacing: 20) {
             Spacer()
 
+            Image("explorer_cosmo")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 160, height: 160)
+                .scaleEffect(appeared ? 1 : 0.86)
+                .opacity(appeared ? 1 : 0)
+
             Text("Bridge Foods")
                 .font(SGFont.display(32))
                 .foregroundStyle(SGColor.textPrimary)

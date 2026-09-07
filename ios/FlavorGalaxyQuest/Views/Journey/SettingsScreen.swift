@@ -152,9 +152,23 @@ struct SettingsScreen: View {
                     Circle()
                         .fill(SpaceTheme.starGold.opacity(0.12))
                         .frame(width: 40, height: 40)
-                    Image(systemName: "crown.fill")
-                        .font(.callout)
-                        .foregroundStyle(SpaceTheme.starGold)
+                    if UIImage(named: "cosmetic_cosmic_compass") != nil {
+                        Image("cosmetic_cosmic_compass")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 22, height: 22)
+                    } else if UIImage(named: "cosmetic_sensory_explorer_pack") != nil {
+                        Image("cosmetic_sensory_explorer_pack")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 22, height: 22)
+                    } else {
+                        Image(systemName: "crown.fill")
+                            .font(.callout)
+                            .foregroundStyle(SpaceTheme.starGold)
+                    }
                 }
 
                 VStack(alignment: .leading, spacing: 2) {

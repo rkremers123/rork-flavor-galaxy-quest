@@ -310,8 +310,16 @@ struct ParentDashboardView: View {
             HStack(spacing: 16) {
                 VStack(spacing: 4) {
                     HStack(spacing: 4) {
-                        Image(systemName: "flame.fill")
-                            .foregroundStyle(.orange)
+                        if UIImage(named: "cosmetic_day7_badge") != nil {
+                            Image("cosmetic_day7_badge")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 22, height: 22)
+                        } else {
+                            Image(systemName: "flame.fill")
+                                .foregroundStyle(.orange)
+                        }
                         Text("\(viewModel.profile.currentStreak)")
                             .font(.title.bold())
                     }
@@ -325,8 +333,20 @@ struct ParentDashboardView: View {
                     .frame(height: 40)
 
                 VStack(spacing: 4) {
-                    Text("\(viewModel.profile.longestStreak)")
-                        .font(.title.bold())
+                    HStack(spacing: 4) {
+                        if UIImage(named: "cosmetic_month1_badge") != nil {
+                            Image("cosmetic_month1_badge")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 22, height: 22)
+                        } else {
+                            Image(systemName: "trophy.fill")
+                                .foregroundStyle(.orange.opacity(0.7))
+                        }
+                        Text("\(viewModel.profile.longestStreak)")
+                            .font(.title.bold())
+                    }
                     Text("Longest")
                         .font(.caption)
                         .foregroundStyle(.secondary)
@@ -337,8 +357,17 @@ struct ParentDashboardView: View {
                     .frame(height: 40)
 
                 VStack(spacing: 4) {
-                    Text("\(viewModel.profile.todayInteractionCount)")
-                        .font(.title.bold())
+                    HStack(spacing: 4) {
+                        if UIImage(named: "star_dust_particle") != nil {
+                            Image("star_dust_particle")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 18, height: 18)
+                        }
+                        Text("\(viewModel.profile.todayInteractionCount)")
+                            .font(.title.bold())
+                    }
                     Text("Today")
                         .font(.caption)
                         .foregroundStyle(.secondary)
@@ -357,25 +386,29 @@ struct ParentDashboardView: View {
                 title: "Already like",
                 value: "\(viewModel.alreadyLikeFoodsCount)",
                 icon: "heart.fill",
-                color: .pink
+                color: .pink,
+                assetMark: "safe_food_token"
             )
             StatCard(
                 title: "Explored",
                 value: "\(viewModel.exploredFoodsCount)",
                 icon: "globe.americas.fill",
-                color: .cyan
+                color: .cyan,
+                assetMark: "level_gem"
             )
             StatCard(
                 title: "Eaten",
                 value: "\(viewModel.eatenFoodsCount)",
                 icon: "checkmark.seal.fill",
-                color: .green
+                color: .green,
+                assetMark: "badge_star_coin"
             )
             StatCard(
                 title: "Star Dust",
                 value: "\(viewModel.profile.totalStarDust)",
                 icon: "sparkles",
-                color: .yellow
+                color: .yellow,
+                assetMark: "star_dust_particle"
             )
         }
     }
@@ -1118,13 +1151,24 @@ struct StatCard: View {
     let value: String
     let icon: String
     let color: Color
+    var assetMark: String? = nil
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Image(systemName: icon)
-                    .font(.callout)
-                    .foregroundStyle(color)
+                Group {
+                    if let assetMark, UIImage(named: assetMark) != nil {
+                        Image(assetMark)
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 18, height: 18)
+                    } else {
+                        Image(systemName: icon)
+                            .font(.callout)
+                            .foregroundStyle(color)
+                    }
+                }
                 Spacer()
             }
             Text(value)

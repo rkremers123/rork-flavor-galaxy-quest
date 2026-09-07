@@ -445,11 +445,24 @@ struct OnboardingView: View {
 
                         if goalIsValid {
                             HStack(spacing: 12) {
-                                Image(systemName: "target")
-                                    .font(.title3)
-                                    .foregroundStyle(SGColor.ember)
-                                    .frame(width: 36, height: 36)
-                                    .background(Circle().fill(SGColor.ember.opacity(0.15)))
+                                ZStack {
+                                    Circle()
+                                        .fill(SGColor.ember.opacity(0.15))
+                                        .frame(width: 36, height: 36)
+                                    if let matched = FoodDatabase.food(byName: goalFoodName) {
+                                        FoodIcon(food: matched, size: 22)
+                                    } else if UIImage(named: "level_gem") != nil {
+                                        Image("level_gem")
+                                            .resizable()
+                                            .interpolation(.high)
+                                            .scaledToFit()
+                                            .frame(width: 22, height: 22)
+                                    } else {
+                                        Image(systemName: "target")
+                                            .font(.title3)
+                                            .foregroundStyle(SGColor.ember)
+                                    }
+                                }
 
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text("GOAL FOOD")
