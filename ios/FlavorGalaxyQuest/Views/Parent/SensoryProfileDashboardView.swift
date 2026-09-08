@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct SensoryProfileDashboardView: View {
     let sensoryProfile: SensoryProfile
@@ -30,8 +31,18 @@ struct SensoryProfileDashboardView: View {
 
             if sensoryProfile.totalFoodsConsumed == 0 {
                 HStack(spacing: 10) {
-                    Image(systemName: "info.circle.fill")
-                        .foregroundStyle(.secondary)
+                    Group {
+                        if UIImage(named: "empty_state_pantry") != nil {
+                            Image("empty_state_pantry")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 32, height: 32)
+                        } else {
+                            Image(systemName: "info.circle.fill")
+                                .foregroundStyle(.secondary)
+                        }
+                    }
                     Text("Complete a few food quests to see personalized insights here.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
@@ -91,14 +102,46 @@ struct SensoryProfileDashboardView: View {
             case .challenge: "flame.fill"
             }
         }
+
+        var preferredAsset: String? {
+            switch self {
+            case .strength: "safe_food_token"
+            case .growth: "step_look"
+            case .challenge: "step_touch"
+            }
+        }
+
+        var fallbackAsset: String? {
+            switch self {
+            case .strength: "badge_star_coin"
+            case .growth: "planet_sensory_grove"
+            case .challenge: "cosmetic_day7_badge"
+            }
+        }
     }
 
     private func insightCard(type: InsightType, title: String, text: String) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 8) {
-                Image(systemName: type.icon)
-                    .font(.caption)
-                    .foregroundStyle(type.color)
+                Group {
+                    if let asset = type.preferredAsset, UIImage(named: asset) != nil {
+                        Image(asset)
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 14, height: 14)
+                    } else if let alt = type.fallbackAsset, UIImage(named: alt) != nil {
+                        Image(alt)
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 14, height: 14)
+                    } else {
+                        Image(systemName: type.icon)
+                            .font(.caption)
+                            .foregroundStyle(type.color)
+                    }
+                }
                 Text(title)
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(type.color)
@@ -116,9 +159,19 @@ struct SensoryProfileDashboardView: View {
 
     private var progressionNote: some View {
         HStack(spacing: 10) {
-            Image(systemName: "chart.line.uptrend.xyaxis")
-                .font(.caption)
-                .foregroundStyle(.blue)
+            Group {
+                if UIImage(named: "star_dust_particle") != nil {
+                    Image("star_dust_particle")
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(width: 14, height: 14)
+                } else {
+                    Image(systemName: "chart.line.uptrend.xyaxis")
+                        .font(.caption)
+                        .foregroundStyle(.blue)
+                }
+            }
             Text("\(sensoryProfile.childName) has tried \(sensoryProfile.totalFoodsConsumed) food\(sensoryProfile.totalFoodsConsumed == 1 ? "" : "s") in \(sensoryProfile.daysActive) day\(sensoryProfile.daysActive == 1 ? "" : "s"). Keep the momentum going!")
                 .font(.caption)
                 .foregroundStyle(.secondary)
@@ -143,9 +196,31 @@ struct SensoryProfileDashboardView: View {
                             )
                         )
                         .frame(width: 56, height: 56)
-                    Image(systemName: "dna")
-                        .font(.title2)
-                        .foregroundStyle(.white)
+                    Group {
+                        if UIImage(named: "level_gem") != nil {
+                            Image("level_gem")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 28, height: 28)
+                        } else if UIImage(named: "badge_saturn") != nil {
+                            Image("badge_saturn")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 28, height: 28)
+                        } else if UIImage(named: "cosmic_connector_star") != nil {
+                            Image("cosmic_connector_star")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 28, height: 28)
+                        } else {
+                            Image(systemName: "dna")
+                                .font(.title2)
+                                .foregroundStyle(.white)
+                        }
+                    }
                 }
 
                 VStack(alignment: .leading, spacing: 4) {
@@ -194,8 +269,18 @@ struct SensoryProfileDashboardView: View {
 
             if sensoryProfile.totalFoodsConsumed == 0 {
                 HStack(spacing: 10) {
-                    Image(systemName: "info.circle.fill")
-                        .foregroundStyle(.secondary)
+                    Group {
+                        if UIImage(named: "empty_state_pantry") != nil {
+                            Image("empty_state_pantry")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 32, height: 32)
+                        } else {
+                            Image(systemName: "info.circle.fill")
+                                .foregroundStyle(.secondary)
+                        }
+                    }
                     Text("Start exploring foods to see group distribution.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
@@ -269,7 +354,21 @@ struct SensoryProfileDashboardView: View {
     private var colorVarietyCard: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Label("Color Variety", systemImage: "paintpalette.fill")
+                Label {
+                    Text("Color Variety")
+                } icon: {
+                    Group {
+                        if UIImage(named: "badge_star_coin") != nil {
+                            Image("badge_star_coin")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 16, height: 16)
+                        } else {
+                            Image(systemName: "paintpalette.fill")
+                        }
+                    }
+                }
                     .font(.headline)
                 Spacer()
                 let unlocked = colorUnlockedCount
@@ -315,8 +414,24 @@ struct SensoryProfileDashboardView: View {
 
             if colorUnlockedCount >= 7 {
                 HStack(spacing: 8) {
-                    Image(systemName: "rainbow")
-                        .foregroundStyle(.green)
+                    Group {
+                        if UIImage(named: "cosmic_connector_star") != nil {
+                            Image("cosmic_connector_star")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 16, height: 16)
+                        } else if UIImage(named: "badge_star_coin") != nil {
+                            Image("badge_star_coin")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 16, height: 16)
+                        } else {
+                            Image(systemName: "rainbow")
+                                .foregroundStyle(.green)
+                        }
+                    }
                     Text(colorUnlockedCount >= 9 ? "Rainbow Master! All colors explored!" : "Almost a Rainbow Week! Keep going!")
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(.green)
@@ -474,7 +589,21 @@ struct SensoryProfileDashboardView: View {
         Group {
             if !sensoryProfile.successZoneTextures.isEmpty || !sensoryProfile.successZoneFlavors.isEmpty || !sensoryProfile.successZoneTemperatures.isEmpty {
                 VStack(alignment: .leading, spacing: 12) {
-                    Label("Success Zones", systemImage: "checkmark.seal.fill")
+                    Label {
+                        Text("Success Zones")
+                    } icon: {
+                        Group {
+                            if UIImage(named: "safe_food_token") != nil {
+                                Image("safe_food_token")
+                                    .resizable()
+                                    .interpolation(.high)
+                                    .scaledToFit()
+                                    .frame(width: 16, height: 16)
+                            } else {
+                                Image(systemName: "checkmark.seal.fill")
+                            }
+                        }
+                    }
                         .font(.headline)
                         .foregroundStyle(.green)
 
@@ -505,16 +634,40 @@ struct SensoryProfileDashboardView: View {
         Group {
             if !sensoryProfile.avoidanceZoneTextures.isEmpty || !sensoryProfile.avoidanceZoneFlavors.isEmpty {
                 VStack(alignment: .leading, spacing: 12) {
-                    Label("Challenge Zones", systemImage: "exclamationmark.triangle.fill")
+                    Label {
+                        Text("Challenge Zones")
+                    } icon: {
+                        Group {
+                            if UIImage(named: "empty_state_allergen") != nil {
+                                Image("empty_state_allergen")
+                                    .resizable()
+                                    .interpolation(.high)
+                                    .scaledToFit()
+                                    .frame(width: 16, height: 16)
+                            } else {
+                                Image(systemName: "exclamationmark.triangle.fill")
+                            }
+                        }
+                    }
                         .font(.headline)
                         .foregroundStyle(.orange)
 
                     VStack(alignment: .leading, spacing: 8) {
                         ForEach(sensoryProfile.avoidanceZoneTextures, id: \.self) { texture in
                             HStack(spacing: 8) {
-                                Image(systemName: "xmark.circle.fill")
-                                    .font(.caption)
-                                    .foregroundStyle(.orange)
+                                Group {
+                                    if UIImage(named: "empty_state_allergen") != nil {
+                                        Image("empty_state_allergen")
+                                            .resizable()
+                                            .interpolation(.high)
+                                            .scaledToFit()
+                                            .frame(width: 12, height: 12)
+                                    } else {
+                                        Image(systemName: "xmark.circle.fill")
+                                            .font(.caption)
+                                            .foregroundStyle(.orange)
+                                    }
+                                }
                                 Text("\(texture.label) textures are challenging right now")
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
@@ -522,9 +675,19 @@ struct SensoryProfileDashboardView: View {
                         }
                         ForEach(sensoryProfile.avoidanceZoneFlavors, id: \.self) { flavor in
                             HStack(spacing: 8) {
-                                Image(systemName: "xmark.circle.fill")
-                                    .font(.caption)
-                                    .foregroundStyle(.orange)
+                                Group {
+                                    if UIImage(named: "empty_state_allergen") != nil {
+                                        Image("empty_state_allergen")
+                                            .resizable()
+                                            .interpolation(.high)
+                                            .scaledToFit()
+                                            .frame(width: 12, height: 12)
+                                    } else {
+                                        Image(systemName: "xmark.circle.fill")
+                                            .font(.caption)
+                                            .foregroundStyle(.orange)
+                                    }
+                                }
                                 Text("\(flavor.label) flavors need more time")
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
@@ -629,8 +792,18 @@ struct SuccessZonePill: View {
 
     var body: some View {
         HStack(spacing: 4) {
-            Image(systemName: systemImage)
-                .font(.caption2.weight(.semibold))
+            Group {
+                if UIImage(named: "safe_food_token") != nil {
+                    Image("safe_food_token")
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(width: 12, height: 12)
+                } else {
+                    Image(systemName: systemImage)
+                        .font(.caption2.weight(.semibold))
+                }
+            }
             Text(label)
                 .font(.caption2.weight(.semibold))
         }
