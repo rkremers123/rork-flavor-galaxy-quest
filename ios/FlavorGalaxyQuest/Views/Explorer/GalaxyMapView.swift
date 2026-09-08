@@ -127,9 +127,17 @@ struct GalaxyMapView: View {
                     )
                     if viewModel.profile.currentStreak > 0 {
                         HStack(spacing: 2) {
-                            Image(systemName: "flame.fill")
-                                .font(.caption2)
-                                .foregroundStyle(.orange)
+                            if UIImage(named: "cosmetic_day7_badge") != nil {
+                                Image("cosmetic_day7_badge")
+                                    .resizable()
+                                    .interpolation(.high)
+                                    .scaledToFit()
+                                    .frame(width: 12, height: 12)
+                            } else {
+                                Image(systemName: "flame.fill")
+                                    .font(.caption2)
+                                    .foregroundStyle(.orange)
+                            }
                             Text("\(viewModel.profile.currentStreak)")
                                 .font(.system(.caption, design: .rounded, weight: .bold))
                                 .foregroundStyle(.orange)

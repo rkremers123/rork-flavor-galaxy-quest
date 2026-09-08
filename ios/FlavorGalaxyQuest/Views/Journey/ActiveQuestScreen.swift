@@ -174,9 +174,17 @@ struct ActiveQuestScreen: View {
 
             if viewModel.profile.currentStreak > 0 {
                 HStack(spacing: 6) {
-                    Image(systemName: "flame.fill")
-                        .font(.caption)
-                        .foregroundStyle(.orange)
+                    if UIImage(named: "cosmetic_day7_badge") != nil {
+                        Image("cosmetic_day7_badge")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 14, height: 14)
+                    } else {
+                        Image(systemName: "flame.fill")
+                            .font(.caption)
+                            .foregroundStyle(.orange)
+                    }
                     Text("\(viewModel.profile.currentStreak) day streak")
                         .font(.system(.caption, design: .rounded, weight: .bold))
                         .foregroundStyle(.orange)
@@ -190,9 +198,7 @@ struct ActiveQuestScreen: View {
 
             if let reason = whyThisFood {
                 HStack(spacing: 8) {
-                    Image(systemName: isGoalFood ? "target" : isSafeFood ? "checkmark.shield.fill" : "arrow.triangle.branch")
-                        .font(.caption)
-                        .foregroundStyle(isGoalFood ? SpaceTheme.starGold : isSafeFood ? SpaceTheme.planetGreen : SpaceTheme.cosmicCyan)
+                    whyThisFoodMark
                     Text(reason)
                         .font(.system(.caption, design: .rounded, weight: .medium))
                         .foregroundStyle(isGoalFood ? SpaceTheme.starGold : isSafeFood ? SpaceTheme.planetGreen : SpaceTheme.cosmicCyan)
@@ -219,6 +225,34 @@ struct ActiveQuestScreen: View {
                     Capsule().fill(SpaceTheme.cosmicCyan.opacity(0.1))
                 )
             }
+        }
+    }
+
+    @ViewBuilder
+    private var whyThisFoodMark: some View {
+        let tint = isGoalFood ? SpaceTheme.starGold : isSafeFood ? SpaceTheme.planetGreen : SpaceTheme.cosmicCyan
+        if isSafeFood, UIImage(named: "safe_food_token") != nil {
+            Image("safe_food_token")
+                .resizable()
+                .interpolation(.high)
+                .scaledToFit()
+                .frame(width: 14, height: 14)
+        } else if isGoalFood, UIImage(named: "level_gem") != nil {
+            Image("level_gem")
+                .resizable()
+                .interpolation(.high)
+                .scaledToFit()
+                .frame(width: 14, height: 14)
+        } else if !isGoalFood, !isSafeFood, UIImage(named: "cosmic_connector_star") != nil {
+            Image("cosmic_connector_star")
+                .resizable()
+                .interpolation(.high)
+                .scaledToFit()
+                .frame(width: 14, height: 14)
+        } else {
+            Image(systemName: isGoalFood ? "target" : isSafeFood ? "checkmark.shield.fill" : "arrow.triangle.branch")
+                .font(.caption)
+                .foregroundStyle(tint)
         }
     }
 

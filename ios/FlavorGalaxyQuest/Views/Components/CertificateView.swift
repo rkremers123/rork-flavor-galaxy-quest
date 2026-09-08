@@ -144,9 +144,9 @@ struct CertificateView: View {
                 .padding(.horizontal, 20)
 
             HStack(spacing: 20) {
-                certStat(value: "\(foodsExplored)", label: "Foods\nExplored", icon: "globe.americas.fill")
-                certStat(value: "\(starDust)", label: "Star Dust\nEarned", icon: "sparkles")
-                certStat(value: "\(daysActive)", label: "Days\nActive", icon: "calendar")
+                certStat(value: "\(foodsExplored)", label: "Foods\nExplored", icon: "globe.americas.fill", assetMark: "safe_food_token")
+                certStat(value: "\(starDust)", label: "Star Dust\nEarned", icon: "sparkles", assetMark: "star_dust_particle")
+                certStat(value: "\(daysActive)", label: "Days\nActive", icon: "calendar", assetMark: "cosmetic_day7_badge")
             }
 
             Rectangle()
@@ -198,11 +198,21 @@ struct CertificateView: View {
         )
     }
 
-    private func certStat(value: String, label: String, icon: String) -> some View {
+    private func certStat(value: String, label: String, icon: String, assetMark: String? = nil) -> some View {
         VStack(spacing: 6) {
-            Image(systemName: icon)
-                .font(.caption)
-                .foregroundStyle(SpaceTheme.starGold.opacity(0.6))
+            Group {
+                if let assetMark, UIImage(named: assetMark) != nil {
+                    Image(assetMark)
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(width: 16, height: 16)
+                } else {
+                    Image(systemName: icon)
+                        .font(.caption)
+                        .foregroundStyle(SpaceTheme.starGold.opacity(0.6))
+                }
+            }
             Text(value)
                 .font(.system(.title3, design: .rounded, weight: .bold))
                 .foregroundStyle(.white)

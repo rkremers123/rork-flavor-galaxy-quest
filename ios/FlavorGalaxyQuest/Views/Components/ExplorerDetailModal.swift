@@ -52,7 +52,8 @@ struct ExplorerDetailModal: View {
                         icon: "star.fill",
                         value: "Level \(profile.currentLevel.rawValue)",
                         label: profile.currentLevel.title,
-                        color: SpaceTheme.starGold
+                        color: SpaceTheme.starGold,
+                        assetMark: "level_gem"
                     )
 
                     if profile.currentStreak > 0 {
