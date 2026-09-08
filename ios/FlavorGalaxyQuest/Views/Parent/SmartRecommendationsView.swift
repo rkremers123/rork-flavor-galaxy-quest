@@ -118,8 +118,19 @@ struct SmartRecommendationsView: View {
 
     private var headerSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Label("Smart Recommendations", systemImage: "brain.head.profile.fill")
+            HStack(spacing: 8) {
+                if UIImage(named: "safe_food_token") != nil {
+                    Image("safe_food_token")
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(width: 22, height: 22)
+                } else {
+                    Image(systemName: "link")
+                        .font(.headline)
+                        .foregroundStyle(.blue)
+                }
+                Text("Bridge Food picks")
                     .font(.headline)
                 Spacer()
                 Button {
@@ -130,7 +141,7 @@ struct SmartRecommendationsView: View {
                         .foregroundStyle(.blue)
                 }
             }
-            Text("Personalized food suggestions based on \(childName)'s sensory profile")
+            Text("Suggestions near foods \(childName) already accepts — Bridge Food matcher, not AI")
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }

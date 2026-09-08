@@ -301,15 +301,31 @@ struct FoodBrowserScreen: View {
 
     private var upgradeCard: some View {
         VStack(spacing: 16) {
-            Image(systemName: "brain.head.profile.fill")
-                .font(.largeTitle)
-                .foregroundStyle(SpaceTheme.nebulaPink)
+            Group {
+                if UIImage(named: "safe_food_token") != nil {
+                    Image("safe_food_token")
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(width: 48, height: 48)
+                } else if UIImage(named: "level_gem") != nil {
+                    Image("level_gem")
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(width: 48, height: 48)
+                } else {
+                    Image(systemName: "link")
+                        .font(.largeTitle)
+                        .foregroundStyle(SpaceTheme.nebulaPink)
+                }
+            }
 
-            Text("Smart Recommendations")
+            Text("Bridge Food picks")
                 .font(.system(.headline, design: .rounded, weight: .bold))
                 .foregroundStyle(.white)
 
-            Text("Get personalized food suggestions based on your child's sensory profile.")
+            Text("Matcher suggestions near foods already on the plate — not AI, not a medical device.")
                 .font(.system(.caption, design: .rounded))
                 .foregroundStyle(.white.opacity(0.5))
                 .multilineTextAlignment(.center)

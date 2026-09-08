@@ -122,24 +122,24 @@ struct PaywallView: View {
     private var featuresSection: some View {
         VStack(spacing: 0) {
             featureRow(
-                icon: "wand.and.stars",
+                icon: "link",
                 color: SpaceTheme.cosmicCyan,
-                title: "Smart Recommendations",
-                subtitle: "AI-powered food suggestions based on success patterns"
+                title: "Bridge Food picks",
+                subtitle: "Matcher suggestions from foods they already accept — not AI, not a medical device"
             )
             Divider().overlay(.white.opacity(0.06)).padding(.leading, 52)
             featureRow(
                 icon: "chart.bar.fill",
                 color: .purple,
-                title: "Deep Analytics",
-                subtitle: "Texture, flavor & temperature profile visualizations"
+                title: "Sensory profile",
+                subtitle: "Texture, flavor, color & prep patterns from logged dinners"
             )
             Divider().overlay(.white.opacity(0.06)).padding(.leading, 52)
             featureRow(
                 icon: "magnifyingglass",
                 color: .orange,
-                title: "Pattern Detection",
-                subtitle: "Detect regressions and sensory avoidance trends"
+                title: "Gentle pattern notes",
+                subtitle: "Spot soft regressions early — stay in orbit, keep pressure low"
             )
             Divider().overlay(.white.opacity(0.06)).padding(.leading, 52)
             featureRow(

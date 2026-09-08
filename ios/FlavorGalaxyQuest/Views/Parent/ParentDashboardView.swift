@@ -177,13 +177,29 @@ struct ParentDashboardView: View {
     private var upgradePromptCard: some View {
         VStack(spacing: 12) {
             HStack(spacing: 10) {
-                Image(systemName: "brain.head.profile.fill")
-                    .font(.title3)
-                    .foregroundStyle(.purple)
+                Group {
+                    if UIImage(named: "safe_food_token") != nil {
+                        Image("safe_food_token")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 28, height: 28)
+                    } else if UIImage(named: "level_gem") != nil {
+                        Image("level_gem")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 28, height: 28)
+                    } else {
+                        Image(systemName: "link")
+                            .font(.title3)
+                            .foregroundStyle(.purple)
+                    }
+                }
                 VStack(alignment: .leading, spacing: 2) {
                     Text("\(viewModel.profile.explorerDisplayName)'s sensory profile is ready!")
                         .font(.subheadline.weight(.semibold))
-                    Text("Unlock personalized recommendations & analytics")
+                    Text("Unlock Bridge Food picks & sensory profile charts")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -684,9 +700,9 @@ struct ParentDashboardView: View {
                 )
             } else {
                 paywallGateView(
-                    icon: "sparkles",
-                    title: "Smart Recommendations",
-                    description: "Get personalized food suggestions scored by match quality, bridge potential, and confidence level."
+                    icon: "link",
+                    title: "Bridge Food picks",
+                    description: "See matcher suggestions scored by how close they sit to foods already on the plate — no AI claims."
                 )
             }
         }
@@ -1135,8 +1151,8 @@ enum ParentTab: CaseIterable {
         case .progress: "calendar"
         case .foodLibrary: "books.vertical.fill"
         case .regressions: "arrow.down.right.circle.fill"
-        case .analytics: "brain.head.profile.fill"
-        case .recommendations: "sparkles"
+        case .analytics: "chart.xyaxis.line"
+        case .recommendations: "link"
         case .settings: "gearshape.fill"
         }
     }
