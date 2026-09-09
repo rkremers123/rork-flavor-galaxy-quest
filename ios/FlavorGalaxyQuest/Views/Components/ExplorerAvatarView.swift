@@ -164,8 +164,9 @@ struct ExplorerAvatarView: View {
     }
 }
 
-/// Illustrated cosmetic art when `imageName` is set; emoji otherwise.
-/// Auras stay procedural in `ExplorerAvatarView`; this is for badges, bags, handhelds, and particle tokens.
+/// Illustrated cosmetic art when `imageName` is set.
+/// Auras (no asset) get a mini procedural glow — same idea as `ExplorerAvatarView`.
+/// Missing badges/bags/handhelds fall back to the category SF Symbol, never emoji.
 struct CosmeticArt: View {
     let cosmetic: Cosmetic
     var size: CGFloat = 24
@@ -177,12 +178,36 @@ struct CosmeticArt: View {
                     .resizable()
                     .interpolation(.high)
                     .scaledToFit()
+            } else if cosmetic.category == .aura {
+                auraFallback
             } else {
-                Text(cosmetic.emoji)
-                    .font(.system(size: max(10, size * 0.85)))
+                Image(systemName: cosmetic.category.icon)
+                    .resizable()
+                    .scaledToFit()
+                    .padding(size * 0.12)
+                    .foregroundStyle(SpaceTheme.planetColor(hex: cosmetic.primaryColorHex).opacity(0.9))
             }
         }
         .frame(width: size, height: size)
         .accessibilityHidden(true)
+    }
+
+    private var auraFallback: some View {
+        let primary = SpaceTheme.planetColor(hex: cosmetic.primaryColorHex)
+        let secondary = SpaceTheme.planetColor(hex: cosmetic.secondaryColorHex)
+        return ZStack {
+            Circle()
+                .fill(
+                    RadialGradient(
+                        colors: [primary.opacity(0.55), secondary.opacity(0.25), .clear],
+                        center: .center,
+                        startRadius: size * 0.05,
+                        endRadius: size * 0.5
+                    )
+                )
+            Circle()
+                .stroke(primary.opacity(0.45), lineWidth: max(1, size * 0.06))
+                .frame(width: size * 0.72, height: size * 0.72)
+        }
     }
 }

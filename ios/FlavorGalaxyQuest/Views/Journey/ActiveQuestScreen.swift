@@ -520,7 +520,9 @@ struct ActiveQuestScreen: View {
                         .scaledToFit()
                         .frame(width: 72, height: 72)
                 } else {
-                    Text("🎉").font(.system(size: 60))
+                    Image(systemName: "checkmark.seal.fill")
+                        .font(.system(size: 52, weight: .bold))
+                        .foregroundStyle(SpaceTheme.starGold)
                 }
             }
 
@@ -734,7 +736,9 @@ struct ActiveQuestScreen: View {
                                 .scaledToFit()
                                 .frame(width: 64, height: 64)
                         } else {
-                            Text(milestone.emoji).font(.system(size: 56))
+                            Image(systemName: "flame.fill")
+                                .font(.system(size: 44, weight: .bold))
+                                .foregroundStyle(SpaceTheme.starGold)
                         }
                     }
 

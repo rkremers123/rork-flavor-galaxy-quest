@@ -1,7 +1,7 @@
 import SwiftUI
 import UIKit
 
-/// Illustrated sensory-step mark when the xcasset exists; emoji (then SF Symbol) otherwise.
+/// Illustrated sensory-step mark when the xcasset exists; SF Symbol otherwise (no emoji).
 struct StepMark: View {
     let step: SensoryStep
     var size: CGFloat = 22
@@ -15,8 +15,10 @@ struct StepMark: View {
                     .interpolation(.high)
                     .scaledToFit()
             } else {
-                Text(step.emoji)
-                    .font(.system(size: max(10, size * 0.78)))
+                Image(systemName: step.icon)
+                    .resizable()
+                    .scaledToFit()
+                    .padding(size * 0.08)
             }
         }
         .frame(width: size, height: size)
