@@ -33,7 +33,13 @@ struct LevelUpCelebrationView: View {
 
             VStack(spacing: 24) {
                 Group {
-                    if UIImage(named: explorerType.imageName) != nil {
+                    if UIImage(named: explorerType.boardImageName) != nil {
+                        Image(explorerType.boardImageName)
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFill()
+                            .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                    } else if UIImage(named: explorerType.imageName) != nil {
                         Image(explorerType.imageName)
                             .resizable()
                             .scaledToFit()
@@ -49,7 +55,7 @@ struct LevelUpCelebrationView: View {
                             .padding(12)
                     }
                 }
-                .frame(height: 100)
+                .frame(width: 100, height: 100)
                 .scaleEffect(showContent ? 1.0 : 0.3)
 
                 if UIImage(named: "level_gem") != nil {

@@ -187,9 +187,29 @@ struct OnboardingView: View {
                     .opacity(appeared ? 1 : 0)
             }
 
-            Image(randomExplorer.imageName)
-                .resizable()
-                .scaledToFit()
+            Group {
+                if UIImage(named: randomExplorer.boardImageName) != nil {
+                    Image(randomExplorer.boardImageName)
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFill()
+                        .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
+                } else if UIImage(named: randomExplorer.imageName) != nil {
+                    Image(randomExplorer.imageName)
+                        .resizable()
+                        .scaledToFit()
+                } else if UIImage(named: "default_avatar") != nil {
+                    Image("default_avatar")
+                        .resizable()
+                        .scaledToFit()
+                } else {
+                    Image(systemName: "sparkles")
+                        .resizable()
+                        .scaledToFit()
+                        .foregroundStyle(.white.opacity(0.85))
+                        .padding(28)
+                }
+            }
                 .frame(width: 160, height: 160)
                 .scaleEffect(appeared ? 1 : 0.86)
                 .opacity(appeared ? 1 : 0)
@@ -428,9 +448,25 @@ struct OnboardingView: View {
                 SGCard {
                     VStack(alignment: .leading, spacing: 16) {
                         HStack(spacing: 14) {
-                            Image(selectedExplorerType.imageName)
-                                .resizable()
-                                .scaledToFit()
+                            Group {
+                                if UIImage(named: selectedExplorerType.boardImageName) != nil {
+                                    Image(selectedExplorerType.boardImageName)
+                                        .resizable()
+                                        .interpolation(.high)
+                                        .scaledToFill()
+                                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                                } else if UIImage(named: selectedExplorerType.imageName) != nil {
+                                    Image(selectedExplorerType.imageName)
+                                        .resizable()
+                                        .scaledToFit()
+                                } else {
+                                    Image(systemName: "sparkles")
+                                        .resizable()
+                                        .scaledToFit()
+                                        .foregroundStyle(.white.opacity(0.85))
+                                        .padding(10)
+                                }
+                            }
                                 .frame(width: 64, height: 64)
 
                             VStack(alignment: .leading, spacing: 4) {

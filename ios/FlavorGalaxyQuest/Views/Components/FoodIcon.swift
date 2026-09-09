@@ -1,8 +1,8 @@
 import SwiftUI
 import UIKit
 
-/// Illustrated food art when the xcasset exists; emoji otherwise.
-/// Custom (non-catalog) foods fall back to `food_custom_gem`, then emoji.
+/// Illustrated food art when the xcasset exists; SF Symbol otherwise.
+/// Custom (non-catalog) foods fall back to `food_custom_gem`, then fork.knife.
 struct FoodIcon: View {
     let food: FoodItem
     var size: CGFloat = 24
@@ -15,8 +15,9 @@ struct FoodIcon: View {
                     .interpolation(.high)
                     .scaledToFit()
             } else {
-                Text(food.emoji)
-                    .font(.system(size: max(12, size * 0.78)))
+                Image(systemName: "fork.knife")
+                    .font(.system(size: max(11, size * 0.62), weight: .semibold))
+                    .foregroundStyle(.white.opacity(0.85))
             }
         }
         .frame(width: size, height: size)

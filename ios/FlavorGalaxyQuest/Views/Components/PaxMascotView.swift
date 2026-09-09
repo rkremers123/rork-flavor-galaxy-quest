@@ -22,7 +22,13 @@ struct PaxMascotView: View {
                     .frame(width: size, height: size)
 
                 Group {
-                    if UIImage(named: explorerType.imageName) != nil {
+                    if size >= 72, UIImage(named: explorerType.boardImageName) != nil {
+                        Image(explorerType.boardImageName)
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFill()
+                            .clipShape(Circle())
+                    } else if UIImage(named: explorerType.imageName) != nil {
                         Image(explorerType.imageName)
                             .resizable()
                             .scaledToFit()

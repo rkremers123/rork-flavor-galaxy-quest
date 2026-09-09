@@ -44,7 +44,14 @@ struct WarpTransitionView: View {
 
             VStack(spacing: 16) {
                 Group {
-                    if UIImage(named: explorerType.imageName) != nil {
+                    if UIImage(named: explorerType.boardImageName) != nil {
+                        Image(explorerType.boardImageName)
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFill()
+                            .frame(width: 72, height: 72)
+                            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                    } else if UIImage(named: explorerType.imageName) != nil {
                         Image(explorerType.imageName)
                             .resizable()
                             .interpolation(.high)

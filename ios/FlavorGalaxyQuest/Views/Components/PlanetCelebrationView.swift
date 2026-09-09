@@ -33,9 +33,25 @@ struct PlanetCelebrationView: View {
                         .frame(width: 180, height: 180)
                         .scaleEffect(appeared ? 1.0 : 0.3)
 
-                    Image(planet.imageName)
-                        .resizable()
-                        .scaledToFit()
+                    Group {
+                        if UIImage(named: planet.imageName) != nil {
+                            Image(planet.imageName)
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                        } else if UIImage(named: "planet_base_camp") != nil {
+                            Image("planet_base_camp")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                        } else {
+                            Image(systemName: "globe.americas.fill")
+                                .resizable()
+                                .scaledToFit()
+                                .foregroundStyle(.white.opacity(0.85))
+                                .padding(28)
+                        }
+                    }
                         .frame(width: 140, height: 140)
                         .clipShape(Circle())
                         .scaleEffect(appeared ? 1.0 : 0.2)
@@ -53,10 +69,30 @@ struct PlanetCelebrationView: View {
                 .opacity(appeared ? 1 : 0)
                 .offset(y: appeared ? 0 : 20)
 
-                Image(explorerType.imageName)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(height: 60)
+                Group {
+                    if UIImage(named: explorerType.boardImageName) != nil {
+                        Image(explorerType.boardImageName)
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFill()
+                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    } else if UIImage(named: explorerType.imageName) != nil {
+                        Image(explorerType.imageName)
+                            .resizable()
+                            .scaledToFit()
+                    } else if UIImage(named: "default_avatar") != nil {
+                        Image("default_avatar")
+                            .resizable()
+                            .scaledToFit()
+                    } else {
+                        Image(systemName: "sparkles")
+                            .resizable()
+                            .scaledToFit()
+                            .foregroundStyle(.white.opacity(0.85))
+                            .padding(8)
+                    }
+                }
+                    .frame(width: 64, height: 64)
                     .scaleEffect(appeared ? 1.0 : 0.5)
                     .rotationEffect(.degrees(appeared ? 0 : -15))
             }
