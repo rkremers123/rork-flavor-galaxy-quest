@@ -256,8 +256,9 @@ struct CertificateView: View {
                 .scaledToFit()
                 .frame(height: size * 0.4)
         } else {
-            Text("🌌")
-                .font(.system(size: size))
+            Image(systemName: "sparkles")
+                .font(.system(size: size * 0.7, weight: .bold))
+                .foregroundStyle(SpaceTheme.starGold)
         }
     }
 }
@@ -288,7 +289,7 @@ struct CertificateRenderContent: View {
                             .font(.system(.headline, design: .rounded, weight: .heavy))
                     }
                 } else {
-                    Text("🌌 SENSORY GALAXY")
+                    Text("SENSORY GALAXY")
                         .font(.system(.headline, design: .rounded, weight: .heavy))
                 }
             }

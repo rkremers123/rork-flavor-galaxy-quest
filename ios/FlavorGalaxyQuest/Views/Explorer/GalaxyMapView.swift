@@ -271,7 +271,7 @@ struct GalaxyMapView: View {
                                                     .scaledToFit()
                                                     .frame(width: 14, height: 14)
                                             } else {
-                                                Text("✦")
+                                                Image(systemName: "diamond.fill")
                                                     .font(.system(size: 8, weight: .bold))
                                                     .foregroundStyle(SpaceTheme.cosmicCyan)
                                             }
@@ -583,8 +583,9 @@ struct GalaxyMapView: View {
                             .scaledToFit()
                             .frame(width: 72, height: 72)
                     } else {
-                        Text("📡")
-                            .font(.system(size: 60))
+                        Image(systemName: "antenna.radiowaves.left.and.right")
+                            .font(.system(size: 48, weight: .bold))
+                            .foregroundStyle(SpaceTheme.starGold)
                     }
                 }
 

@@ -86,8 +86,9 @@ struct CustomFoodCreationModal: View {
                             .scaledToFit()
                             .frame(width: 48, height: 48)
                     } else {
-                        Text("🍽️")
-                            .font(.system(size: 40))
+                        Image(systemName: "fork.knife")
+                            .font(.system(size: 32, weight: .bold))
+                            .foregroundStyle(SpaceTheme.starGold)
                     }
                 }
             }
@@ -325,8 +326,9 @@ struct CustomFoodCreationModal: View {
                             .scaledToFit()
                             .frame(width: 56, height: 56)
                     } else {
-                        Text("🍽️")
-                            .font(.system(size: 48))
+                        Image(systemName: "fork.knife")
+                            .font(.system(size: 36, weight: .bold))
+                            .foregroundStyle(SpaceTheme.starGold)
                     }
                 }
 

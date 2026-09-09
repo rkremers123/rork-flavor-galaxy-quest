@@ -336,8 +336,9 @@ struct JourneyMapScreen: View {
                             .scaledToFit()
                             .frame(width: 36, height: 36)
                     } else {
-                        Text("🎯")
-                            .font(.system(size: 36))
+                        Image(systemName: "target")
+                            .font(.system(size: 28, weight: .bold))
+                            .foregroundStyle(SpaceTheme.starGold)
                     }
                 }
                 .frame(width: 56, height: 56)
@@ -593,7 +594,9 @@ struct JourneyMapScreen: View {
                             .scaledToFit()
                             .frame(width: 72, height: 72)
                     } else {
-                        Text("📡").font(.system(size: 60))
+                        Image(systemName: "antenna.radiowaves.left.and.right")
+                            .font(.system(size: 48, weight: .bold))
+                            .foregroundStyle(SpaceTheme.starGold)
                     }
                 }
 

@@ -451,7 +451,7 @@ struct FoodBrowserScreen: View {
                                     .scaledToFit()
                                     .frame(width: 14, height: 14)
                             } else {
-                                Text("✦")
+                                Image(systemName: "diamond.fill")
                                     .font(.system(size: 8, weight: .bold))
                                     .foregroundStyle(SpaceTheme.cosmicCyan)
                             }
