@@ -514,8 +514,18 @@ struct OnboardingView: View {
                         }
 
                         HStack(spacing: 10) {
-                            Image(systemName: "checkmark.seal.fill")
-                                .foregroundStyle(SGColor.leaf)
+                            Group {
+                                if UIImage(named: "safe_food_token") != nil {
+                                    Image("safe_food_token")
+                                        .resizable()
+                                        .interpolation(.high)
+                                        .scaledToFit()
+                                        .frame(width: 18, height: 18)
+                                } else {
+                                    Image(systemName: "checkmark.seal.fill")
+                                        .foregroundStyle(SGColor.leaf)
+                                }
+                            }
                             Text("Foods they like: \(selectedSafeFoods.count)")
                                 .font(SGFont.headline())
                                 .foregroundStyle(SGColor.textPrimary)

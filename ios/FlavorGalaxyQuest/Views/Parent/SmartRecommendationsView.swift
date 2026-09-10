@@ -221,9 +221,17 @@ struct SmartRecommendationsView: View {
 
                     if !rec.matchingAttributes.isEmpty {
                         HStack(spacing: 4) {
-                            Image(systemName: "checkmark.circle.fill")
-                                .font(.caption2)
-                                .foregroundStyle(.green)
+                            if UIImage(named: "safe_food_token") != nil {
+                                Image("safe_food_token")
+                                    .resizable()
+                                    .interpolation(.high)
+                                    .scaledToFit()
+                                    .frame(width: 12, height: 12)
+                            } else {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .font(.caption2)
+                                    .foregroundStyle(.green)
+                            }
                             Text("Familiar: \(rec.matchingAttributes.joined(separator: ", "))")
                                 .font(.caption2)
                                 .foregroundStyle(.secondary)
@@ -232,9 +240,17 @@ struct SmartRecommendationsView: View {
 
                     if !rec.newAttributes.isEmpty {
                         HStack(spacing: 4) {
-                            Image(systemName: "sparkles")
-                                .font(.caption2)
-                                .foregroundStyle(.orange)
+                            if UIImage(named: "cosmic_connector_star") != nil {
+                                Image("cosmic_connector_star")
+                                    .resizable()
+                                    .interpolation(.high)
+                                    .scaledToFit()
+                                    .frame(width: 12, height: 12)
+                            } else {
+                                Image(systemName: "sparkles")
+                                    .font(.caption2)
+                                    .foregroundStyle(.orange)
+                            }
                             Text("New: \(rec.newAttributes.joined(separator: ", "))")
                                 .font(.caption2)
                                 .foregroundStyle(.secondary)
