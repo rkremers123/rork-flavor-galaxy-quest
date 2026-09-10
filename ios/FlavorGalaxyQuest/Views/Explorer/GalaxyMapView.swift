@@ -162,11 +162,23 @@ struct GalaxyMapView: View {
             Button {
                 showParentGate = true
             } label: {
-                Image(systemName: "gearshape.fill")
-                    .font(.title3)
-                    .foregroundStyle(.white.opacity(0.5))
-                    .frame(width: 44, height: 44)
+                Group {
+                    if UIImage(named: "grownups_chip") != nil {
+                        Image("grownups_chip")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 28, height: 28)
+                            .opacity(0.9)
+                    } else {
+                        Image(systemName: "gearshape.fill")
+                            .font(.title3)
+                            .foregroundStyle(.white.opacity(0.5))
+                    }
+                }
+                .frame(width: 44, height: 44)
             }
+            .accessibilityLabel("Grown-ups")
         }
         .padding(.horizontal, 20)
         .padding(.top, 8)

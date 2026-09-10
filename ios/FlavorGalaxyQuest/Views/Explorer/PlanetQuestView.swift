@@ -290,7 +290,21 @@ struct PlanetQuestView: View {
                     completeCurrentStep(step)
                 } label: {
                     HStack(spacing: 8) {
-                        Image(systemName: "sparkles")
+                        if UIImage(named: "star_dust_particle") != nil {
+                            Image("star_dust_particle")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 16, height: 16)
+                        } else if UIImage(named: "badge_star_coin") != nil {
+                            Image("badge_star_coin")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 16, height: 16)
+                        } else {
+                            Image(systemName: "sparkles")
+                        }
                         Text("Mission Complete!")
                     }
                     .font(.system(.headline, design: .rounded, weight: .bold))
@@ -320,8 +334,16 @@ struct PlanetQuestView: View {
             }
 
             HStack(spacing: 4) {
-                Image(systemName: "sparkles")
-                    .font(.caption2)
+                if UIImage(named: "star_dust_particle") != nil {
+                    Image("star_dust_particle")
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(width: 10, height: 10)
+                } else {
+                    Image(systemName: "sparkles")
+                        .font(.caption2)
+                }
                 Text("+\(step.starDustReward) Star Dust")
                     .font(.system(.caption, design: .rounded, weight: .semibold))
             }

@@ -309,9 +309,23 @@ struct SmartRecommendationsView: View {
             if !topRecs.isEmpty {
                 VStack(alignment: .leading, spacing: 12) {
                     HStack(spacing: 8) {
-                        Image(systemName: "star.circle.fill")
-                            .font(.callout)
-                            .foregroundStyle(.yellow)
+                        if UIImage(named: "cosmic_connector_star") != nil {
+                            Image("cosmic_connector_star")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 18, height: 18)
+                        } else if UIImage(named: "badge_star_coin") != nil {
+                            Image("badge_star_coin")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 18, height: 18)
+                        } else {
+                            Image(systemName: "star.circle.fill")
+                                .font(.callout)
+                                .foregroundStyle(.yellow)
+                        }
                         Text("Try Next")
                             .font(.subheadline.weight(.bold))
                     }

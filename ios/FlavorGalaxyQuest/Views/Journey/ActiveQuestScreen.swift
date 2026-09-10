@@ -603,7 +603,15 @@ struct ActiveQuestScreen: View {
                 viewModel.selectedTab = 2
             } label: {
                 HStack(spacing: 8) {
-                    Image(systemName: "fork.knife")
+                    if UIImage(named: "safe_food_token") != nil {
+                        Image("safe_food_token")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 18, height: 18)
+                    } else {
+                        Image(systemName: "fork.knife")
+                    }
                     Text("Browse Foods")
                 }
                 .font(.system(.headline, design: .rounded, weight: .bold))
