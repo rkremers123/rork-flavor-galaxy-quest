@@ -416,8 +416,9 @@ struct PlanetQuestView: View {
                             .scaledToFit()
                             .frame(width: 72, height: 72)
                     } else {
-                        Text("⭐️")
-                            .font(.system(size: 64))
+                        Image(systemName: "sparkles")
+                            .font(.system(size: 56))
+                            .foregroundStyle(SpaceTheme.starGold)
                     }
                 }
 

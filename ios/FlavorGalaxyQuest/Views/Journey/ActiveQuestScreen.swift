@@ -454,8 +454,16 @@ struct ActiveQuestScreen: View {
                         .foregroundStyle(SpaceTheme.cosmicCyan)
                     if step.starDustReward > 0 {
                         HStack(spacing: 4) {
-                            Image(systemName: "sparkles")
-                                .font(.system(size: 9))
+                            if UIImage(named: "star_dust_particle") != nil {
+                                Image("star_dust_particle")
+                                    .resizable()
+                                    .interpolation(.high)
+                                    .scaledToFit()
+                                    .frame(width: 10, height: 10)
+                            } else {
+                                Image(systemName: "sparkles")
+                                    .font(.system(size: 9))
+                            }
                             Text("+\(step.starDustReward) Star Dust")
                                 .font(.system(.caption2, design: .rounded, weight: .semibold))
                         }
@@ -772,7 +780,9 @@ struct ActiveQuestScreen: View {
                                 .scaledToFit()
                                 .frame(width: 64, height: 64)
                         } else {
-                            Text("⭐️").font(.system(size: 56))
+                            Image(systemName: "sparkles")
+                                .font(.system(size: 48))
+                                .foregroundStyle(SpaceTheme.starGold)
                         }
                     }
 
@@ -815,8 +825,16 @@ struct ActiveQuestScreen: View {
 
                 if viewModel.profile.currentStreak > 0 {
                     HStack(spacing: 6) {
-                        Image(systemName: "flame.fill")
-                            .foregroundStyle(.orange)
+                        if UIImage(named: "cosmetic_day7_badge") != nil {
+                            Image("cosmetic_day7_badge")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 18, height: 18)
+                        } else {
+                            Image(systemName: "flame.fill")
+                                .foregroundStyle(.orange)
+                        }
                         Text("Streak: Day \(viewModel.profile.currentStreak)!")
                             .foregroundStyle(.orange)
                     }
