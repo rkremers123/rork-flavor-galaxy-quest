@@ -547,7 +547,12 @@ struct ParentVerificationSheet: View {
                         onVerify(.swallowed)
                     }
 
-                    verificationButton("Just a lick", icon: "hand.thumbsup.fill", color: .blue) {
+                    verificationButton(
+                        "Just a lick",
+                        icon: "hand.thumbsup.fill",
+                        assetName: SensoryStep.lick.imageName,
+                        color: .blue
+                    ) {
                         onVerify(.lickOnly)
                     }
 

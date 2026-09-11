@@ -231,8 +231,8 @@ struct JourneyMapScreen: View {
 
     private var statsRow: some View {
         HStack(spacing: 12) {
-            journeyStat(icon: "globe.americas.fill", value: "\(foodsExplored)", label: "Explored", color: SpaceTheme.cosmicCyan)
-            journeyStat(icon: "checkmark.seal.fill", value: "\(viewModel.completedQuestsCount)", label: "Mastered", color: SpaceTheme.planetGreen)
+            journeyStat(icon: "globe.americas.fill", value: "\(foodsExplored)", label: "Explored", color: SpaceTheme.cosmicCyan, assetMark: "safe_food_token")
+            journeyStat(icon: "checkmark.seal.fill", value: "\(viewModel.completedQuestsCount)", label: "Mastered", color: SpaceTheme.planetGreen, assetMark: "badge_star_coin")
             streakStat
         }
     }
