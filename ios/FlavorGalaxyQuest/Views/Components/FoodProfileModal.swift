@@ -148,9 +148,14 @@ struct FoodProfileModal: View {
                                 .fill(isCompleted ? stepColor.opacity(0.2) : .white.opacity(0.04))
                                 .frame(width: 36, height: 36)
                             if isCompleted {
-                                Image(systemName: "checkmark")
-                                    .font(.caption.bold())
-                                    .foregroundStyle(stepColor)
+                                ZStack(alignment: .bottomTrailing) {
+                                    StepMark(step: step, size: 16, tint: stepColor)
+                                    Image(systemName: "checkmark.circle.fill")
+                                        .font(.system(size: 9, weight: .bold))
+                                        .foregroundStyle(stepColor)
+                                        .background(Circle().fill(SpaceTheme.deepNavy))
+                                        .offset(x: 3, y: 3)
+                                }
                             } else if isSkipped {
                                 Image(systemName: "arrow.uturn.right")
                                     .font(.system(size: 10))

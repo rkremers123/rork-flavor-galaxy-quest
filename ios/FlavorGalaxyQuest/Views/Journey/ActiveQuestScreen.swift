@@ -296,9 +296,14 @@ struct ActiveQuestScreen: View {
                                 )
 
                             if isCompleted {
-                                Image(systemName: "checkmark")
-                                    .font(.callout.bold())
-                                    .foregroundStyle(stepColor)
+                                ZStack(alignment: .bottomTrailing) {
+                                    StepMark(step: step, size: 20, tint: stepColor)
+                                    Image(systemName: "checkmark.circle.fill")
+                                        .font(.system(size: 11, weight: .bold))
+                                        .foregroundStyle(stepColor)
+                                        .background(Circle().fill(SpaceTheme.deepNavy))
+                                        .offset(x: 4, y: 4)
+                                }
                             } else if isSkipped {
                                 Image(systemName: "arrow.uturn.right")
                                     .font(.caption.bold())
@@ -477,8 +482,12 @@ struct ActiveQuestScreen: View {
                     performStepCompletion(step, food: food)
                 } label: {
                     HStack(spacing: 8) {
-                        Image(systemName: "checkmark.circle.fill")
-                            .font(.subheadline)
+                        if UIImage(named: step.imageName) != nil {
+                            StepMark(step: step, size: 16, tint: SpaceTheme.deepNavy)
+                        } else {
+                            Image(systemName: "checkmark.circle.fill")
+                                .font(.subheadline)
+                        }
                         Text("I Did It!")
                             .font(.system(.subheadline, design: .rounded, weight: .bold))
                     }

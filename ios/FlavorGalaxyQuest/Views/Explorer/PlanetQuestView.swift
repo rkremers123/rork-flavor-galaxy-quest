@@ -210,9 +210,18 @@ struct PlanetQuestView: View {
                                     )
 
                                 if isCompleted {
-                                    Image(systemName: "checkmark")
-                                        .font(.headline.bold())
-                                        .foregroundStyle(SpaceTheme.planetColor(hex: step.color))
+                                    ZStack(alignment: .bottomTrailing) {
+                                        StepMark(
+                                            step: step,
+                                            size: 22,
+                                            tint: SpaceTheme.planetColor(hex: step.color)
+                                        )
+                                        Image(systemName: "checkmark.circle.fill")
+                                            .font(.system(size: 12, weight: .bold))
+                                            .foregroundStyle(SpaceTheme.planetColor(hex: step.color))
+                                            .background(Circle().fill(SpaceTheme.deepNavy))
+                                            .offset(x: 5, y: 5)
+                                    }
                                 } else if isSkipped {
                                     Image(systemName: "arrow.uturn.right")
                                         .font(.caption.bold())
