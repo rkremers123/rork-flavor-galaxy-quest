@@ -263,6 +263,18 @@ nonisolated enum CosmeticCategory: String, Codable, CaseIterable, Sendable {
         case .particle: "bubbles.and.sparkles.fill"
         }
     }
+
+    /// Representative shipped mark for category chrome (picker chips). Auras stay procedural.
+    var markImageName: String? {
+        switch self {
+        case .achievementBadge: "cosmetic_flavor_pioneer_badge"
+        case .milestoneBadge: "cosmetic_day7_badge"
+        case .backpack: "cosmetic_cosmic_backpack"
+        case .handheld: "cosmetic_cosmic_compass"
+        case .aura: nil
+        case .particle: "star_dust_particle"
+        }
+    }
 }
 
 nonisolated enum CosmeticUnlockCondition: Sendable {

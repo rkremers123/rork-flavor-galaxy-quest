@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct CosmeticsView: View {
     let viewModel: AppViewModel
@@ -76,8 +77,7 @@ struct CosmeticsView: View {
                         }
                     } label: {
                         VStack(spacing: 4) {
-                            Image(systemName: category.icon)
-                                .font(.system(size: 16, weight: .semibold))
+                            CategoryMark(category: category, size: 18)
 
                             Text(category.label)
                                 .font(.system(size: 10, weight: .semibold, design: .rounded))
@@ -109,7 +109,7 @@ struct CosmeticsView: View {
         let items = Cosmetic.allCases.filter { $0.category == selectedCategory }
         return VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Image(systemName: selectedCategory.icon)
+                CategoryMark(category: selectedCategory, size: 16)
                     .foregroundStyle(SpaceTheme.cosmicCyan)
                 Text(selectedCategory.label)
                     .font(.system(.subheadline, design: .rounded, weight: .bold))
@@ -202,3 +202,27 @@ struct CosmeticsView: View {
         .sensoryFeedback(.impact(flexibility: .soft), trigger: isEquipped)
     }
 }
+
+
+/// Category chrome: prefer a representative shipped mark, else SF Symbol.
+private struct CategoryMark: View {
+    let category: CosmeticCategory
+    var size: CGFloat = 16
+
+    var body: some View {
+        Group {
+            if let name = category.markImageName, UIImage(named: name) != nil {
+                Image(name)
+                    .resizable()
+                    .interpolation(.high)
+                    .scaledToFit()
+            } else {
+                Image(systemName: category.icon)
+                    .font(.system(size: size * 0.9, weight: .semibold))
+            }
+        }
+        .frame(width: size, height: size)
+        .accessibilityHidden(true)
+    }
+}
+
