@@ -293,9 +293,25 @@ struct ParentDashboardView: View {
                 .clipShape(.rect(cornerRadius: 14))
             } else {
                 VStack(spacing: 8) {
-                    Image(systemName: "target")
-                        .font(.title2)
-                        .foregroundStyle(.secondary)
+                    if UIImage(named: "safe_food_token") != nil {
+                        Image("safe_food_token")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 36, height: 36)
+                            .opacity(0.7)
+                    } else if UIImage(named: "cosmic_connector_star") != nil {
+                        Image("cosmic_connector_star")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 36, height: 36)
+                            .opacity(0.7)
+                    } else {
+                        Image(systemName: "target")
+                            .font(.title2)
+                            .foregroundStyle(.secondary)
+                    }
                     Text("No target food set")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
@@ -536,9 +552,25 @@ struct ParentDashboardView: View {
 
             if recentQuests.isEmpty {
                 VStack(spacing: 8) {
-                    Image(systemName: "tray")
-                        .font(.title2)
-                        .foregroundStyle(.secondary)
+                    if UIImage(named: "empty_state_no_quest") != nil {
+                        Image("empty_state_no_quest")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 56, height: 56)
+                            .opacity(0.75)
+                    } else if UIImage(named: "empty_state_pantry") != nil {
+                        Image("empty_state_pantry")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 56, height: 56)
+                            .opacity(0.75)
+                    } else {
+                        Image(systemName: "tray")
+                            .font(.title2)
+                            .foregroundStyle(.secondary)
+                    }
                     Text("No activity yet")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)

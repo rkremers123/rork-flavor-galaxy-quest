@@ -679,9 +679,17 @@ struct ActiveQuestScreen: View {
     private var similarFoodsSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 6) {
-                Image(systemName: "sparkle.magnifyingglass")
-                    .font(.caption)
-                    .foregroundStyle(SpaceTheme.cosmicCyan)
+                if UIImage(named: "cosmic_connector_star") != nil {
+                    Image("cosmic_connector_star")
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(width: 14, height: 14)
+                } else {
+                    Image(systemName: "sparkle.magnifyingglass")
+                        .font(.caption)
+                        .foregroundStyle(SpaceTheme.cosmicCyan)
+                }
                 Text("Similar Foods")
                     .font(.system(.subheadline, design: .rounded, weight: .bold))
                     .foregroundStyle(.white)

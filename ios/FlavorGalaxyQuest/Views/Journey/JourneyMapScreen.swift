@@ -871,9 +871,25 @@ struct PlanetDetailSheet: View {
             let foods = viewModel.foodsForPlanet(planet)
             if foods.isEmpty {
                 VStack(spacing: 8) {
-                    Image(systemName: "sparkle")
-                        .font(.title2)
-                        .foregroundStyle(.white.opacity(0.15))
+                    if UIImage(named: "empty_state_no_quest") != nil {
+                        Image("empty_state_no_quest")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 72, height: 72)
+                            .opacity(0.55)
+                    } else if UIImage(named: "star_dust_particle") != nil {
+                        Image("star_dust_particle")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 28, height: 28)
+                            .opacity(0.4)
+                    } else {
+                        Image(systemName: "sparkle")
+                            .font(.title2)
+                            .foregroundStyle(.white.opacity(0.15))
+                    }
                     Text("Start a quest to explore foods on this planet.")
                         .font(.system(.callout, design: .rounded))
                         .foregroundStyle(.white.opacity(0.3))

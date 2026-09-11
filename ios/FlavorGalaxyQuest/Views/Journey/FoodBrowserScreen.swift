@@ -283,9 +283,18 @@ struct FoodBrowserScreen: View {
 
     private var recommendationEmptyState: some View {
         VStack(spacing: 12) {
-            Image(systemName: "sparkle.magnifyingglass")
-                .font(.largeTitle)
-                .foregroundStyle(.white.opacity(0.2))
+            if UIImage(named: "cosmic_connector_star") != nil {
+                Image("cosmic_connector_star")
+                    .resizable()
+                    .interpolation(.high)
+                    .scaledToFit()
+                    .frame(width: 48, height: 48)
+                    .opacity(0.55)
+            } else {
+                Image(systemName: "sparkle.magnifyingglass")
+                    .font(.largeTitle)
+                    .foregroundStyle(.white.opacity(0.2))
+            }
             Text("Complete a few food quests to unlock recommendations")
                 .font(.system(.subheadline, design: .rounded))
                 .foregroundStyle(.white.opacity(0.4))

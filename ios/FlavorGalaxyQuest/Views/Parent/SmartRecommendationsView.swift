@@ -379,9 +379,18 @@ struct SmartRecommendationsView: View {
 
     private var emptyState: some View {
         VStack(spacing: 12) {
-            Image(systemName: "sparkle.magnifyingglass")
-                .font(.largeTitle)
-                .foregroundStyle(.secondary)
+            if UIImage(named: "cosmic_connector_star") != nil {
+                Image("cosmic_connector_star")
+                    .resizable()
+                    .interpolation(.high)
+                    .scaledToFit()
+                    .frame(width: 48, height: 48)
+                    .opacity(0.7)
+            } else {
+                Image(systemName: "sparkle.magnifyingglass")
+                    .font(.largeTitle)
+                    .foregroundStyle(.secondary)
+            }
             Text("Complete a few food quests to unlock recommendations")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
