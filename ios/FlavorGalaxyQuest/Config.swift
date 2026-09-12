@@ -19,4 +19,10 @@ enum Config {
         "EXPO_PUBLIC_REVENUECAT_TEST_API_KEY": EXPO_PUBLIC_REVENUECAT_TEST_API_KEY,
         "EXPO_PUBLIC_REVENUECAT_IOS_API_KEY": EXPO_PUBLIC_REVENUECAT_IOS_API_KEY,
     ]
+
+    /// RevenueCat keys are still empty in this scaffold — do not promise a live trial purchase path.
+    static var billingConfigured: Bool {
+        !EXPO_PUBLIC_REVENUECAT_IOS_API_KEY.isEmpty
+            || !EXPO_PUBLIC_REVENUECAT_TEST_API_KEY.isEmpty
+    }
 }

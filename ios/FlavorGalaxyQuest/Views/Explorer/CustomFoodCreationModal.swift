@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct CustomFoodCreationModal: View {
     let initialName: String
@@ -77,14 +78,27 @@ struct CustomFoodCreationModal: View {
                     )
                     .frame(width: 90, height: 90)
 
-                Text("🍽️")
-                    .font(.system(size: 40))
+                Group {
+                    if UIImage(named: "food_custom_gem") != nil {
+                        Image("food_custom_gem")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 48, height: 48)
+                    } else {
+                        Image(systemName: "fork.knife")
+                            .font(.system(size: 32, weight: .bold))
+                            .foregroundStyle(SpaceTheme.starGold)
+                    }
+                }
             }
 
             if !foodName.trimmingCharacters(in: .whitespaces).isEmpty {
                 HStack(spacing: 6) {
-                    Text(selectedColor.emoji)
-                        .font(.caption)
+                    Circle()
+                        .fill(SpaceTheme.planetColor(hex: selectedColor.hex))
+                        .frame(width: 10, height: 10)
+                        .overlay(Circle().stroke(.white.opacity(0.35), lineWidth: 0.5))
                     Text(foodName)
                         .font(.system(.headline, design: .rounded, weight: .bold))
                         .foregroundStyle(.white)
@@ -151,10 +165,7 @@ struct CustomFoodCreationModal: View {
 
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 70), spacing: 8)], spacing: 8) {
                 ForEach(FoodColor.allCases, id: \.self) { color in
-                    selectionChip(
-                        label: "\(color.emoji) \(color.label)",
-                        isSelected: selectedColor == color
-                    ) {
+                    colorChip(color: color, isSelected: selectedColor == color) {
                         withAnimation(.spring(duration: 0.25)) {
                             selectedColor = color
                         }
@@ -271,6 +282,32 @@ struct CustomFoodCreationModal: View {
         .sensoryFeedback(.selection, trigger: isSelected)
     }
 
+    private func colorChip(color: FoodColor, isSelected: Bool, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 6) {
+                Circle()
+                    .fill(SpaceTheme.planetColor(hex: color.hex))
+                    .frame(width: 10, height: 10)
+                    .overlay(Circle().stroke(.white.opacity(0.35), lineWidth: 0.5))
+                Text(color.label)
+                    .font(.system(.caption, design: .rounded, weight: .semibold))
+                    .foregroundStyle(isSelected ? SpaceTheme.deepNavy : .white.opacity(0.6))
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 9)
+            .frame(maxWidth: .infinity)
+            .background(
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .fill(isSelected ? SpaceTheme.cosmicCyan : .white.opacity(0.06))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .stroke(isSelected ? SpaceTheme.cosmicCyan : .white.opacity(0.08), lineWidth: 1)
+            )
+        }
+        .sensoryFeedback(.selection, trigger: isSelected)
+    }
+
     private var confirmationOverlay: some View {
         ZStack {
             Color.black.opacity(0.6).ignoresSafeArea()
@@ -281,8 +318,19 @@ struct CustomFoodCreationModal: View {
                 }
 
             VStack(spacing: 20) {
-                Text("🍽️")
-                    .font(.system(size: 48))
+                Group {
+                    if UIImage(named: "food_custom_gem") != nil {
+                        Image("food_custom_gem")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 56, height: 56)
+                    } else {
+                        Image(systemName: "fork.knife")
+                            .font(.system(size: 36, weight: .bold))
+                            .foregroundStyle(SpaceTheme.starGold)
+                    }
+                }
 
                 Text("Create Custom Food?")
                     .font(.system(.title3, design: .rounded, weight: .bold))
@@ -290,7 +338,7 @@ struct CustomFoodCreationModal: View {
 
                 VStack(spacing: 8) {
                     confirmationRow("Name", value: foodName)
-                    confirmationRow("Color", value: "\(selectedColor.emoji) \(selectedColor.label)")
+                    confirmationRow("Color", value: selectedColor.label)
                     confirmationRow("Food Group", value: selectedFoodGroup.label)
                     confirmationRow("Texture", value: selectedTexture.label)
                     confirmationRow("Flavor", value: selectedFlavor.label)

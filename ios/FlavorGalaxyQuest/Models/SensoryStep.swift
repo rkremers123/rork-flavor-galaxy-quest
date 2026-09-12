@@ -17,6 +17,33 @@ nonisolated enum SensoryStep: Int, Codable, CaseIterable, Sendable, Hashable {
         }
     }
 
+    /// Catalog name for the optional "ate / swallowed / brave bite" mark.
+    /// Not a ladder step — distinct from `.lick` / `.taste` (see `imageName`).
+    static let ateImageName = "step_ate"
+
+    /// Asset catalog name for illustrated step marks (`step_look`, …).
+    /// Lick is distinct from the optional `step_ate` asset (not a ladder step).
+    var imageName: String {
+        switch self {
+        case .look: "step_look"
+        case .touch: "step_touch"
+        case .smell: "step_smell"
+        case .lick: "step_lick"
+        case .taste: "step_taste"
+        }
+    }
+
+    /// Emoji fallback when the illustrated asset is missing.
+    var emoji: String {
+        switch self {
+        case .look: "👀"
+        case .touch: "✋"
+        case .smell: "👃"
+        case .lick: "👅"
+        case .taste: "😋"
+        }
+    }
+
     var icon: String {
         switch self {
         case .look: "eye.fill"
@@ -49,12 +76,29 @@ nonisolated enum SensoryStep: Int, Codable, CaseIterable, Sendable, Hashable {
 
     var paxEncouragement: String {
         switch self {
-        case .look: "Great scanning, Explorer! Your eyes are super powered!"
-        case .touch: "Wow, you touched it! That was so brave!"
-        case .smell: "Amazing sniffing skills! You're a real space detective!"
-        case .lick: "Incredible! A butterfly lick! You're fearless!"
-        case .taste: "LEGENDARY! You took a brave bite! You're a true Space Explorer!"
+        case .look: "Looking counts — eyes on the plate is a real first step. No rush."
+        case .touch: "Touch is brave — a poke or nudge means hands are exploring."
+        case .smell: "Smell is progress — getting closer, still exploring, still real."
+        case .lick: "Lick is real — tongue tip counts. Lick ≠ ate, and that's okay."
+        case .taste: "Tiny taste! A nibble counts even if it came back out."
         }
+    }
+
+    /// Short headline for step-celebrate overlay (highest step reached).
+    var celebrateTitle: String {
+        switch self {
+        case .look: "Looking counts"
+        case .touch: "Touch is brave"
+        case .smell: "Smell is progress"
+        case .lick: "Lick is real"
+        case .taste: "Tiny taste!"
+        }
+    }
+
+    /// Parent-facing soft regression line when tonight dipped vs a prior success.
+    static func softRegressionLine(foodName: String, prior: SensoryStep, current: SensoryStep) -> String? {
+        guard current.rawValue < prior.rawValue else { return nil }
+        return "Last success on \(foodName) dipped to \(current.label.lowercased()) (was \(prior.label.lowercased())) — still progress, keep it gentle."
     }
 
     var starDustReward: Int {

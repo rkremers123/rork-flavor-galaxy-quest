@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 /// Sensory Galaxy primary / ghost button.
 /// Kid = solid gold + navy type. Parent = solid cyan + navy type.
@@ -25,7 +26,7 @@ struct SGButton: View {
         } label: {
             HStack(spacing: 10) {
                 if let icon {
-                    Image(systemName: icon)
+                    buttonIcon(icon)
                 }
                 Text(title)
             }
@@ -42,6 +43,21 @@ struct SGButton: View {
         .opacity(enabled ? 1 : 0.35)
         .sensoryFeedback(.impact, trigger: tapTick)
         .accessibilityAddTraits(.isButton)
+    }
+
+
+    @ViewBuilder
+    private func buttonIcon(_ icon: String) -> some View {
+        // Prefer shipped dust art when callers still pass the old sparkles SF name.
+        if icon == "sparkles", UIImage(named: "star_dust_particle") != nil {
+            Image("star_dust_particle")
+                .resizable()
+                .interpolation(.high)
+                .scaledToFit()
+                .frame(width: 18, height: 18)
+        } else {
+            Image(systemName: icon)
+        }
     }
 
     private var labelColor: Color {

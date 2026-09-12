@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct JourneyMapScreen: View {
     @Bindable var viewModel: AppViewModel
@@ -101,8 +102,7 @@ struct JourneyMapScreen: View {
             Spacer()
             Button { showParentSettings = true } label: {
                 HStack(spacing: 5) {
-                    Image(systemName: "lock.fill")
-                        .font(.system(size: 10, weight: .bold))
+                    grownUpsChipMark
                     Text("Grown-ups")
                         .font(SGFont.caption())
                 }
@@ -115,6 +115,20 @@ struct JourneyMapScreen: View {
             .buttonStyle(.plain)
             .accessibilityLabel("Grown-ups")
             .accessibilityHint("Opens parent settings. A PIN is required.")
+        }
+    }
+
+    @ViewBuilder
+    private var grownUpsChipMark: some View {
+        if UIImage(named: "grownups_chip") != nil {
+            Image("grownups_chip")
+                .resizable()
+                .interpolation(.high)
+                .scaledToFit()
+                .frame(width: 14, height: 14)
+        } else {
+            Image(systemName: "lock.fill")
+                .font(.system(size: 10, weight: .bold))
         }
     }
 
@@ -155,8 +169,20 @@ struct JourneyMapScreen: View {
     private var streakBrokenBanner: some View {
         VStack {
             HStack(spacing: 12) {
-                Text("💔")
-                    .font(.title2)
+                Group {
+                    if UIImage(named: "star_dust_particle") != nil {
+                        Image("star_dust_particle")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 28, height: 28)
+                            .opacity(0.85)
+                    } else {
+                        Image(systemName: "heart.slash.fill")
+                            .font(.title2)
+                            .foregroundStyle(SpaceTheme.warningOrange)
+                    }
+                }
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Streak broken")
@@ -205,8 +231,8 @@ struct JourneyMapScreen: View {
 
     private var statsRow: some View {
         HStack(spacing: 12) {
-            journeyStat(icon: "globe.americas.fill", value: "\(foodsExplored)", label: "Explored", color: SpaceTheme.cosmicCyan)
-            journeyStat(icon: "checkmark.seal.fill", value: "\(viewModel.completedQuestsCount)", label: "Mastered", color: SpaceTheme.planetGreen)
+            journeyStat(icon: "globe.americas.fill", value: "\(foodsExplored)", label: "Explored", color: SpaceTheme.cosmicCyan, assetMark: "safe_food_token")
+            journeyStat(icon: "checkmark.seal.fill", value: "\(viewModel.completedQuestsCount)", label: "Mastered", color: SpaceTheme.planetGreen, assetMark: "badge_star_coin")
             streakStat
         }
     }
@@ -214,18 +240,28 @@ struct JourneyMapScreen: View {
     private var streakStat: some View {
         Group {
             if viewModel.profile.currentStreak > 0 {
-                journeyStat(icon: "flame.fill", value: "\(viewModel.profile.currentStreak)", label: "Streak", color: .orange)
+                journeyStat(icon: "flame.fill", value: "\(viewModel.profile.currentStreak)", label: "Streak", color: .orange, assetMark: "cosmetic_day7_badge")
             } else if viewModel.profile.longestStreak > 0 {
-                journeyStat(icon: "flame", value: "\(viewModel.profile.longestStreak)", label: "Best", color: .orange.opacity(0.5))
+                journeyStat(icon: "flame", value: "\(viewModel.profile.longestStreak)", label: "Best", color: .orange.opacity(0.5), assetMark: "cosmetic_month1_badge")
             }
         }
     }
 
-    private func journeyStat(icon: String, value: String, label: String, color: Color) -> some View {
+    private func journeyStat(icon: String, value: String, label: String, color: Color, assetMark: String? = nil) -> some View {
         HStack(spacing: 6) {
-            Image(systemName: icon)
-                .font(.caption2)
-                .foregroundStyle(color)
+            Group {
+                if let assetMark, UIImage(named: assetMark) != nil {
+                    Image(assetMark)
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(width: 12, height: 12)
+                } else {
+                    Image(systemName: icon)
+                        .font(.caption2)
+                        .foregroundStyle(color)
+                }
+            }
             VStack(alignment: .leading, spacing: 1) {
                 Text(value)
                     .font(.system(.subheadline, design: .rounded, weight: .bold))
@@ -284,9 +320,28 @@ struct JourneyMapScreen: View {
                 .foregroundStyle(SpaceTheme.starGold)
 
             HStack(spacing: 14) {
-                Text(food?.emoji ?? "🎯")
-                    .font(.system(size: 36))
-                    .frame(width: 56, height: 56)
+                Group {
+                    if let food {
+                        FoodIcon(food: food, size: 36)
+                    } else if UIImage(named: "planet_base_camp") != nil {
+                        Image("planet_base_camp")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 36, height: 36)
+                    } else if UIImage(named: "safe_food_token") != nil {
+                        Image("safe_food_token")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 36, height: 36)
+                    } else {
+                        Image(systemName: "target")
+                            .font(.system(size: 28, weight: .bold))
+                            .foregroundStyle(SpaceTheme.starGold)
+                    }
+                }
+                .frame(width: 56, height: 56)
                     .background(
                         Circle().fill(SpaceTheme.starGold.opacity(0.15))
                     )
@@ -364,7 +419,7 @@ struct JourneyMapScreen: View {
         let total = viewModel.dynamicFoodsForPlanet(planet)
         let planetColor = SpaceTheme.planetColor(hex: planet.accentColor)
         let planetSize: CGFloat = 140
-        let explorerSize: CGFloat = 100
+        let explorerSize: CGFloat = 52
         let explorerOverlap: CGFloat = 30
 
         return Button {
@@ -483,12 +538,11 @@ struct JourneyMapScreen: View {
     }
 
     private func explorerSideView(size: CGFloat) -> some View {
-        ExplorerAvatarView(
-            explorerType: viewModel.profile.explorerType,
-            equippedCosmetics: viewModel.profile.equippedCosmetics,
-            size: size
-        )
-        .shadow(color: SpaceTheme.planetColor(hex: viewModel.profile.explorerType.accentHex).opacity(0.6), radius: 12)
+        Image(viewModel.profile.explorerType.boardImageName)
+            .resizable()
+            .scaledToFit()
+            .frame(height: size)
+            .shadow(color: SpaceTheme.planetColor(hex: viewModel.profile.explorerType.accentHex).opacity(0.6), radius: 12)
     }
 
     // MARK: - Diagonal Connector
@@ -520,7 +574,31 @@ struct JourneyMapScreen: View {
                 }
 
             VStack(spacing: 24) {
-                Text("📡").font(.system(size: 60))
+                Group {
+                    if UIImage(named: "cosmetic_sensory_scanner") != nil {
+                        Image("cosmetic_sensory_scanner")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 72, height: 72)
+                    } else if UIImage(named: "badge_star_coin") != nil {
+                        Image("badge_star_coin")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 72, height: 72)
+                    } else if UIImage(named: "star_dust_particle") != nil {
+                        Image("star_dust_particle")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 72, height: 72)
+                    } else {
+                        Image(systemName: "antenna.radiowaves.left.and.right")
+                            .font(.system(size: 48, weight: .bold))
+                            .foregroundStyle(SpaceTheme.starGold)
+                    }
+                }
 
                 Text("Transmission from Earth!")
                     .font(.system(.title2, design: .rounded, weight: .bold))
@@ -793,9 +871,25 @@ struct PlanetDetailSheet: View {
             let foods = viewModel.foodsForPlanet(planet)
             if foods.isEmpty {
                 VStack(spacing: 8) {
-                    Image(systemName: "sparkle")
-                        .font(.title2)
-                        .foregroundStyle(.white.opacity(0.15))
+                    if UIImage(named: "empty_state_no_quest") != nil {
+                        Image("empty_state_no_quest")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 72, height: 72)
+                            .opacity(0.55)
+                    } else if UIImage(named: "star_dust_particle") != nil {
+                        Image("star_dust_particle")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 28, height: 28)
+                            .opacity(0.4)
+                    } else {
+                        Image(systemName: "sparkle")
+                            .font(.title2)
+                            .foregroundStyle(.white.opacity(0.15))
+                    }
                     Text("Start a quest to explore foods on this planet.")
                         .font(.system(.callout, design: .rounded))
                         .foregroundStyle(.white.opacity(0.3))
@@ -806,8 +900,7 @@ struct PlanetDetailSheet: View {
                 ForEach(foods, id: \.id) { food in
                     let progress = viewModel.questProgress(for: food.id)
                     HStack(spacing: 14) {
-                        Text(food.emoji)
-                            .font(.title2)
+                        FoodIcon(food: food, size: 26)
                             .frame(width: 44, height: 44)
                             .background(
                                 Circle().fill(SpaceTheme.planetColor(hex: food.planetColorHex).opacity(0.15))

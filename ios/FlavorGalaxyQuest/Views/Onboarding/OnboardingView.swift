@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 /// Kid first-run for Sensory Galaxy.
 /// Same galaxy chrome as ParentOnboardingView: SGScreen, SGDotBar, SGButton, SGCard.
@@ -177,9 +178,38 @@ struct OnboardingView: View {
         VStack(spacing: 20) {
             Spacer()
 
-            Image(randomExplorer.imageName)
-                .resizable()
-                .scaledToFit()
+            if UIImage(named: "wordmark_sensory_galaxy") != nil {
+                Image("wordmark_sensory_galaxy")
+                    .resizable()
+                    .interpolation(.high)
+                    .scaledToFit()
+                    .frame(height: 28)
+                    .opacity(appeared ? 1 : 0)
+            }
+
+            Group {
+                if UIImage(named: randomExplorer.boardImageName) != nil {
+                    Image(randomExplorer.boardImageName)
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFill()
+                        .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
+                } else if UIImage(named: randomExplorer.imageName) != nil {
+                    Image(randomExplorer.imageName)
+                        .resizable()
+                        .scaledToFit()
+                } else if UIImage(named: "default_avatar") != nil {
+                    Image("default_avatar")
+                        .resizable()
+                        .scaledToFit()
+                } else {
+                    Image(systemName: "sparkles")
+                        .resizable()
+                        .scaledToFit()
+                        .foregroundStyle(.white.opacity(0.85))
+                        .padding(28)
+                }
+            }
                 .frame(width: 160, height: 160)
                 .scaleEffect(appeared ? 1 : 0.86)
                 .opacity(appeared ? 1 : 0)
@@ -317,7 +347,7 @@ struct OnboardingView: View {
                 if let matchedFood = FoodDatabase.food(byName: goalFoodName) {
                     SGCard(accent: SGColor.leaf.opacity(0.45)) {
                         HStack(spacing: 8) {
-                            Text(matchedFood.color.emoji)
+                            FoodIcon(food: matchedFood, size: 22)
                             Text(matchedFood.name)
                                 .font(SGFont.caption())
                                 .foregroundStyle(SGColor.textPrimary)
@@ -418,16 +448,32 @@ struct OnboardingView: View {
                 SGCard {
                     VStack(alignment: .leading, spacing: 16) {
                         HStack(spacing: 14) {
-                            Image(selectedExplorerType.imageName)
-                                .resizable()
-                                .scaledToFit()
+                            Group {
+                                if UIImage(named: selectedExplorerType.boardImageName) != nil {
+                                    Image(selectedExplorerType.boardImageName)
+                                        .resizable()
+                                        .interpolation(.high)
+                                        .scaledToFill()
+                                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                                } else if UIImage(named: selectedExplorerType.imageName) != nil {
+                                    Image(selectedExplorerType.imageName)
+                                        .resizable()
+                                        .scaledToFit()
+                                } else {
+                                    Image(systemName: "sparkles")
+                                        .resizable()
+                                        .scaledToFit()
+                                        .foregroundStyle(.white.opacity(0.85))
+                                        .padding(10)
+                                }
+                            }
                                 .frame(width: 64, height: 64)
 
                             VStack(alignment: .leading, spacing: 4) {
                                 Text(childName.trimmingCharacters(in: .whitespaces).isEmpty ? selectedExplorerType.defaultName : childName)
                                     .font(SGFont.title())
                                     .foregroundStyle(SGColor.textPrimary)
-                                Text("Age \(childAge) Â· \(selectedExplorerType.defaultName)")
+                                Text("Age \(childAge) · \(selectedExplorerType.defaultName)")
                                     .font(SGFont.caption())
                                     .foregroundStyle(SGColor.textSecondary)
                             }
@@ -435,11 +481,24 @@ struct OnboardingView: View {
 
                         if goalIsValid {
                             HStack(spacing: 12) {
-                                Image(systemName: "target")
-                                    .font(.title3)
-                                    .foregroundStyle(SGColor.ember)
-                                    .frame(width: 36, height: 36)
-                                    .background(Circle().fill(SGColor.ember.opacity(0.15)))
+                                ZStack {
+                                    Circle()
+                                        .fill(SGColor.ember.opacity(0.15))
+                                        .frame(width: 36, height: 36)
+                                    if let matched = FoodDatabase.food(byName: goalFoodName) {
+                                        FoodIcon(food: matched, size: 22)
+                                    } else if UIImage(named: "level_gem") != nil {
+                                        Image("level_gem")
+                                            .resizable()
+                                            .interpolation(.high)
+                                            .scaledToFit()
+                                            .frame(width: 22, height: 22)
+                                    } else {
+                                        Image(systemName: "target")
+                                            .font(.title3)
+                                            .foregroundStyle(SGColor.ember)
+                                    }
+                                }
 
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text("GOAL FOOD")
@@ -455,8 +514,18 @@ struct OnboardingView: View {
                         }
 
                         HStack(spacing: 10) {
-                            Image(systemName: "checkmark.seal.fill")
-                                .foregroundStyle(SGColor.leaf)
+                            Group {
+                                if UIImage(named: "safe_food_token") != nil {
+                                    Image("safe_food_token")
+                                        .resizable()
+                                        .interpolation(.high)
+                                        .scaledToFit()
+                                        .frame(width: 18, height: 18)
+                                } else {
+                                    Image(systemName: "checkmark.seal.fill")
+                                        .foregroundStyle(SGColor.leaf)
+                                }
+                            }
                             Text("Foods they like: \(selectedSafeFoods.count)")
                                 .font(SGFont.headline())
                                 .foregroundStyle(SGColor.textPrimary)
@@ -469,7 +538,7 @@ struct OnboardingView: View {
                                 HStack(spacing: 8) {
                                     ForEach(liked) { food in
                                         HStack(spacing: 6) {
-                                            Text(food.emoji)
+                                            FoodIcon(food: food, size: 14)
                                             Text(food.name)
                                                 .font(SGFont.caption())
                                                 .foregroundStyle(SGColor.textPrimary)
@@ -525,7 +594,10 @@ struct OnboardingView: View {
                         .font(SGFont.caption())
                         .foregroundStyle(SGColor.textSecondary)
                     ForEach(Array(uniqueColors).sorted(by: { $0.rawValue < $1.rawValue }), id: \.self) { color in
-                        Text(color.emoji)
+                        Circle()
+                            .fill(SpaceTheme.planetColor(hex: color.hex))
+                            .frame(width: 10, height: 10)
+                            .overlay(Circle().stroke(.white.opacity(0.25), lineWidth: 0.5))
                     }
                 }
             }
@@ -547,11 +619,11 @@ struct OnboardingView: View {
             }
         } label: {
             VStack(spacing: 4) {
-                Text(food.emoji)
-                    .font(.title2)
+                FoodIcon(food: food, size: 28)
                 HStack(spacing: 2) {
-                    Text(food.color.emoji)
-                        .font(.system(size: 8))
+                    Circle()
+                        .fill(SpaceTheme.planetColor(hex: food.color.hex))
+                        .frame(width: 6, height: 6)
                     Text(food.name)
                         .font(SGFont.caption())
                         .foregroundStyle(SGColor.textPrimary)

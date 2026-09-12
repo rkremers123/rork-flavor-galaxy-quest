@@ -24,11 +24,19 @@ struct CharacterSelectionView: View {
                         }
                     } label: {
                         VStack(spacing: 10) {
-                            Image(type.imageName)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(height: 100)
-                                .scaleEffect(isSelected ? 1.1 : 1.0)
+                            Group {
+                                if UIImage(named: type.boardImageName) != nil {
+                                    Image(type.boardImageName)
+                                        .resizable()
+                                        .scaledToFit()
+                                } else {
+                                    Image(type.imageName)
+                                        .resizable()
+                                        .scaledToFit()
+                                }
+                            }
+                            .frame(height: 100)
+                            .scaleEffect(isSelected ? 1.1 : 1.0)
 
                             Text(type.defaultName)
                                 .font(.system(.headline, design: .rounded, weight: .bold))

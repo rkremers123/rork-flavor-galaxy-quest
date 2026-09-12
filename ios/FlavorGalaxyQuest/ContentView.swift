@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import UIKit
 
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
@@ -31,7 +32,7 @@ struct ContentView: View {
                     }
 
                     if viewModel.isTransitioning {
-                        WarpTransitionView()
+                        WarpTransitionView(explorerType: viewModel.profile.explorerType)
                             .transition(.opacity)
                             .zIndex(100)
                     }
@@ -121,13 +122,14 @@ struct MainTabView: View {
 }
 
 /// Kid-visible tabs only: Journey, Quest, Foods. No Settings / Parent / Paywall / Dashboard.
+/// Prefer shipped chrome art when present; SF Symbols remain the fallback.
 struct KidGalaxyTabBar: View {
     @Binding var selectedTab: Int
 
-    private let items: [(id: Int, title: String, icon: String)] = [
-        (0, "Journey", "map.fill"),
-        (1, "Quest", "star.circle.fill"),
-        (2, "Foods", "fork.knife"),
+    private let items: [(id: Int, title: String, icon: String, asset: String)] = [
+        (0, "Journey", "map.fill", "planet_base_camp"),
+        (1, "Quest", "star.circle.fill", "badge_star_coin"),
+        (2, "Foods", "fork.knife", "safe_food_token"),
     ]
 
     var body: some View {
@@ -138,8 +140,7 @@ struct KidGalaxyTabBar: View {
                     selectedTab = item.id
                 } label: {
                     VStack(spacing: 4) {
-                        Image(systemName: item.icon)
-                            .font(.system(size: 22, weight: .semibold))
+                        tabMark(asset: item.asset, systemIcon: item.icon, selected: selected)
                         Text(item.title)
                             .font(SGFont.caption())
                     }
@@ -165,5 +166,20 @@ struct KidGalaxyTabBar: View {
                 }
                 .ignoresSafeArea(edges: .bottom)
         )
+    }
+
+    @ViewBuilder
+    private func tabMark(asset: String, systemIcon: String, selected: Bool) -> some View {
+        if UIImage(named: asset) != nil {
+            Image(asset)
+                .resizable()
+                .interpolation(.high)
+                .scaledToFit()
+                .frame(width: 24, height: 24)
+                .opacity(selected ? 1.0 : 0.72)
+        } else {
+            Image(systemName: systemIcon)
+                .font(.system(size: 22, weight: .semibold))
+        }
     }
 }

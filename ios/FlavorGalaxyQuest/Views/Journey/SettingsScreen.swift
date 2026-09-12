@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct SettingsScreen: View {
     let viewModel: AppViewModel
@@ -99,8 +100,16 @@ struct SettingsScreen: View {
 
             VStack(alignment: .trailing, spacing: 4) {
                 HStack(spacing: 4) {
-                    Image(systemName: "sparkles")
-                        .font(.caption2)
+                    if UIImage(named: "star_dust_particle") != nil {
+                        Image("star_dust_particle")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 12, height: 12)
+                    } else {
+                        Image(systemName: "sparkles")
+                            .font(.caption2)
+                    }
                     Text("\(viewModel.profile.totalStarDust)")
                         .font(.system(.subheadline, design: .rounded, weight: .bold))
                 }
@@ -108,8 +117,16 @@ struct SettingsScreen: View {
 
                 if viewModel.profile.currentStreak > 0 {
                     HStack(spacing: 4) {
-                        Image(systemName: "flame.fill")
-                            .font(.caption2)
+                        if UIImage(named: "cosmetic_day7_badge") != nil {
+                            Image("cosmetic_day7_badge")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 12, height: 12)
+                        } else {
+                            Image(systemName: "flame.fill")
+                                .font(.caption2)
+                        }
                         Text("\(viewModel.profile.currentStreak) day streak")
                             .font(.system(.caption2, design: .rounded, weight: .medium))
                     }
@@ -135,9 +152,23 @@ struct SettingsScreen: View {
                     Circle()
                         .fill(SpaceTheme.starGold.opacity(0.12))
                         .frame(width: 40, height: 40)
-                    Image(systemName: "crown.fill")
-                        .font(.callout)
-                        .foregroundStyle(SpaceTheme.starGold)
+                    if UIImage(named: "cosmetic_cosmic_compass") != nil {
+                        Image("cosmetic_cosmic_compass")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 22, height: 22)
+                    } else if UIImage(named: "cosmetic_sensory_explorer_pack") != nil {
+                        Image("cosmetic_sensory_explorer_pack")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 22, height: 22)
+                    } else {
+                        Image(systemName: "crown.fill")
+                            .font(.callout)
+                            .foregroundStyle(SpaceTheme.starGold)
+                    }
                 }
 
                 VStack(alignment: .leading, spacing: 2) {
@@ -170,9 +201,19 @@ struct SettingsScreen: View {
     private var starJarCard: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 8) {
-                Image(systemName: viewModel.profile.starJarRewardUnlocked ? "gift.fill" : "star.circle.fill")
-                    .font(.callout)
-                    .foregroundStyle(SpaceTheme.starGold)
+                Group {
+                    if UIImage(named: "badge_star_coin") != nil {
+                        Image("badge_star_coin")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 18, height: 18)
+                    } else {
+                        Image(systemName: viewModel.profile.starJarRewardUnlocked ? "gift.fill" : "star.circle.fill")
+                            .font(.callout)
+                            .foregroundStyle(SpaceTheme.starGold)
+                    }
+                }
                 Text("Star Jar")
                     .font(.system(.subheadline, design: .rounded, weight: .bold))
                     .foregroundStyle(.white)
@@ -219,9 +260,20 @@ struct SettingsScreen: View {
 
     private var parentGate: some View {
         VStack(spacing: 16) {
-            Image(systemName: "lock.shield.fill")
-                .font(.system(size: 32))
-                .foregroundStyle(.white.opacity(0.3))
+            Group {
+                if UIImage(named: "empty_state_pin") != nil {
+                    Image("empty_state_pin")
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(maxWidth: 220)
+                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                } else {
+                    Image(systemName: "lock.shield.fill")
+                        .font(.system(size: 32))
+                        .foregroundStyle(.white.opacity(0.3))
+                }
+            }
 
             Text("Parent Zone")
                 .font(.system(.headline, design: .rounded, weight: .bold))
@@ -318,9 +370,29 @@ struct SettingsScreen: View {
                     Circle()
                         .fill(SpaceTheme.cosmicCyan.opacity(0.12))
                         .frame(width: 40, height: 40)
-                    Image(systemName: "chart.bar.fill")
-                        .font(.callout)
-                        .foregroundStyle(SpaceTheme.cosmicCyan)
+                    if UIImage(named: "grownups_chip") != nil {
+                        Image("grownups_chip")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 22, height: 22)
+                    } else if UIImage(named: "badge_saturn") != nil {
+                        Image("badge_saturn")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 22, height: 22)
+                    } else if UIImage(named: "level_gem") != nil {
+                        Image("level_gem")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 22, height: 22)
+                    } else {
+                        Image(systemName: "chart.bar.fill")
+                            .font(.callout)
+                            .foregroundStyle(SpaceTheme.cosmicCyan)
+                    }
                 }
 
                 VStack(alignment: .leading, spacing: 2) {
@@ -410,9 +482,18 @@ struct SettingsScreen: View {
 
     private var allergenCard: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("Allergen Filters")
-                .font(.system(.caption, design: .rounded, weight: .bold))
-                .foregroundStyle(.white.opacity(0.6))
+            HStack(spacing: 6) {
+                if UIImage(named: "empty_state_allergen") != nil {
+                    Image("empty_state_allergen")
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(width: 16, height: 16)
+                }
+                Text("Allergen Filters")
+                    .font(.system(.caption, design: .rounded, weight: .bold))
+                    .foregroundStyle(.white.opacity(0.6))
+            }
 
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 90), spacing: 6)], spacing: 6) {
                 ForEach(Allergen.allCases, id: \.self) { allergen in
@@ -456,7 +537,7 @@ struct SettingsScreen: View {
 
             ForEach(viewModel.neverOfferFoods) { food in
                 HStack(spacing: 8) {
-                    Text(food.emoji)
+                    FoodIcon(food: food, size: 16)
                     Text(food.name)
                         .font(.system(.caption, design: .rounded, weight: .medium))
                         .foregroundStyle(.white)
@@ -544,7 +625,7 @@ struct SettingsScreen: View {
             profileRow("Name", value: viewModel.profile.name)
             profileRow("Age", value: "\(viewModel.profile.age)")
             profileRow("Target Food", value: viewModel.profile.targetFoodName.isEmpty ? "Not set" : viewModel.profile.targetFoodName)
-            profileRow("Safe Foods", value: "\(viewModel.profile.safeFoodIds.count)")
+            profileRow("Safe Foods", value: "\(viewModel.profile.safeFoodIds.count)", assetMark: "safe_food_token")
             profileRow("Days Active", value: "\(daysActive)")
         }
         .background(
@@ -557,8 +638,15 @@ struct SettingsScreen: View {
         )
     }
 
-    private func profileRow(_ title: String, value: String) -> some View {
-        HStack {
+    private func profileRow(_ title: String, value: String, assetMark: String? = nil) -> some View {
+        HStack(spacing: 8) {
+            if let assetMark, UIImage(named: assetMark) != nil {
+                Image(assetMark)
+                    .resizable()
+                    .interpolation(.high)
+                    .scaledToFit()
+                    .frame(width: 14, height: 14)
+            }
             Text(title)
                 .font(.system(.caption, design: .rounded))
                 .foregroundStyle(.white.opacity(0.5))
@@ -583,9 +671,17 @@ struct SettingsScreen: View {
             HStack(spacing: 20) {
                 VStack(spacing: 4) {
                     HStack(spacing: 4) {
-                        Image(systemName: "flame.fill")
-                            .font(.title3)
-                            .foregroundStyle(.orange)
+                        if UIImage(named: "cosmetic_day7_badge") != nil {
+                            Image("cosmetic_day7_badge")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 22, height: 22)
+                        } else {
+                            Image(systemName: "flame.fill")
+                                .font(.title3)
+                                .foregroundStyle(.orange)
+                        }
                         Text("\(viewModel.profile.currentStreak)")
                             .font(.system(.title2, design: .rounded, weight: .bold))
                             .foregroundStyle(.white)
@@ -602,9 +698,17 @@ struct SettingsScreen: View {
 
                 VStack(spacing: 4) {
                     HStack(spacing: 4) {
-                        Image(systemName: "trophy.fill")
-                            .font(.title3)
-                            .foregroundStyle(SpaceTheme.starGold)
+                        if UIImage(named: "cosmetic_month1_badge") != nil {
+                            Image("cosmetic_month1_badge")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 22, height: 22)
+                        } else {
+                            Image(systemName: "trophy.fill")
+                                .font(.title3)
+                                .foregroundStyle(SpaceTheme.starGold)
+                        }
                         Text("\(viewModel.profile.longestStreak)")
                             .font(.system(.title2, design: .rounded, weight: .bold))
                             .foregroundStyle(.white)

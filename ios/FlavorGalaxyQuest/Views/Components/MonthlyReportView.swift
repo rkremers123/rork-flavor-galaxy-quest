@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct MonthlyReportView: View {
     let viewModel: AppViewModel
@@ -56,9 +57,19 @@ struct MonthlyReportView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             HStack(spacing: 10) {
-                Image(systemName: "doc.text.fill")
-                    .font(.title3)
-                    .foregroundStyle(SpaceTheme.cosmicCyan)
+                Group {
+                    if UIImage(named: "badge_saturn") != nil {
+                        Image("badge_saturn")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 22, height: 22)
+                    } else {
+                        Image(systemName: "doc.text.fill")
+                            .font(.title3)
+                            .foregroundStyle(SpaceTheme.cosmicCyan)
+                    }
+                }
                 Text("Monthly Report")
                     .font(.system(.headline, design: .rounded, weight: .bold))
                     .foregroundStyle(.white)
@@ -91,9 +102,27 @@ struct MonthlyReportView: View {
                 .tracking(1)
 
             HStack(spacing: 12) {
-                reportMetric(value: "\(monthStats.foodsLogged)", label: "Foods Logged", color: SpaceTheme.cosmicCyan)
-                reportMetric(value: "\(monthStats.daysActive)/30", label: "Days Active", color: SpaceTheme.planetGreen)
-                reportMetric(value: "🔥 \(monthStats.longestStreak)", label: "Best Streak", color: .orange)
+                reportMetric(
+                    value: "\(monthStats.foodsLogged)",
+                    label: "Foods Logged",
+                    color: SpaceTheme.cosmicCyan,
+                    systemImage: "fork.knife",
+                    assetName: "safe_food_token"
+                )
+                reportMetric(
+                    value: "\(monthStats.daysActive)/30",
+                    label: "Days Active",
+                    color: SpaceTheme.planetGreen,
+                    systemImage: "calendar",
+                    assetName: "star_dust_particle"
+                )
+                reportMetric(
+                    value: "\(monthStats.longestStreak)",
+                    label: "Best Streak",
+                    color: .orange,
+                    systemImage: "flame.fill",
+                    assetName: "cosmetic_day7_badge"
+                )
             }
         }
     }
@@ -126,8 +155,18 @@ struct MonthlyReportView: View {
 
             if monthStats.regressionCount == 0 {
                 HStack(spacing: 8) {
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundStyle(SpaceTheme.planetGreen)
+                    Group {
+                        if UIImage(named: "safe_food_token") != nil {
+                            Image("safe_food_token")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 18, height: 18)
+                        } else {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundStyle(SpaceTheme.planetGreen)
+                        }
+                    }
                     Text("No regressions detected this month")
                         .font(.system(.caption, design: .rounded, weight: .medium))
                         .foregroundStyle(.white.opacity(0.6))
@@ -140,8 +179,18 @@ struct MonthlyReportView: View {
                 )
             } else {
                 HStack(spacing: 8) {
-                    Image(systemName: "exclamationmark.triangle.fill")
-                        .foregroundStyle(.orange)
+                    Group {
+                        if UIImage(named: "empty_state_allergen") != nil {
+                            Image("empty_state_allergen")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 18, height: 18)
+                        } else {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .foregroundStyle(.orange)
+                        }
+                    }
                     VStack(alignment: .leading, spacing: 2) {
                         Text("\(monthStats.regressionCount) food\(monthStats.regressionCount == 1 ? "" : "s") regressed")
                             .font(.system(.caption, design: .rounded, weight: .semibold))
@@ -161,11 +210,30 @@ struct MonthlyReportView: View {
         }
     }
 
-    private func reportMetric(value: String, label: String, color: Color) -> some View {
+    private func reportMetric(
+        value: String,
+        label: String,
+        color: Color,
+        systemImage: String? = nil,
+        assetName: String? = nil
+    ) -> some View {
         VStack(spacing: 4) {
-            Text(value)
-                .font(.system(.headline, design: .rounded, weight: .bold))
-                .foregroundStyle(.white)
+            HStack(spacing: 4) {
+                if let assetName, UIImage(named: assetName) != nil {
+                    Image(assetName)
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(width: 16, height: 16)
+                } else if let systemImage {
+                    Image(systemName: systemImage)
+                        .font(.system(.subheadline, design: .rounded, weight: .bold))
+                        .foregroundStyle(color)
+                }
+                Text(value)
+                    .font(.system(.headline, design: .rounded, weight: .bold))
+                    .foregroundStyle(.white)
+            }
             Text(label)
                 .font(.system(size: 9, design: .rounded))
                 .foregroundStyle(.white.opacity(0.4))

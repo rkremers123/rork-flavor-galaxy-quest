@@ -1,0 +1,1 @@
+iPad mini 8.3 inch App Store screenshots 1488x2266, composed from locked 1242x2208 stills. Width-fit, top-crop (phone art is taller), no stretch. Listing 01-10. Spares 11-14 present (allergen, parent-gate, you-see-the-log, ot-share) but listing stays 01-10. 05-sos.png mapped to 05-ladder.png.

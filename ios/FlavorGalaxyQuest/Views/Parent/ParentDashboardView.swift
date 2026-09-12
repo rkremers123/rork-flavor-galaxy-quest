@@ -177,13 +177,29 @@ struct ParentDashboardView: View {
     private var upgradePromptCard: some View {
         VStack(spacing: 12) {
             HStack(spacing: 10) {
-                Image(systemName: "brain.head.profile.fill")
-                    .font(.title3)
-                    .foregroundStyle(.purple)
+                Group {
+                    if UIImage(named: "safe_food_token") != nil {
+                        Image("safe_food_token")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 28, height: 28)
+                    } else if UIImage(named: "level_gem") != nil {
+                        Image("level_gem")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 28, height: 28)
+                    } else {
+                        Image(systemName: "link")
+                            .font(.title3)
+                            .foregroundStyle(.purple)
+                    }
+                }
                 VStack(alignment: .leading, spacing: 2) {
                     Text("\(viewModel.profile.explorerDisplayName)'s sensory profile is ready!")
                         .font(.subheadline.weight(.semibold))
-                    Text("Unlock personalized recommendations & analytics")
+                    Text("Unlock Bridge Food picks & sensory profile charts")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -193,7 +209,7 @@ struct ParentDashboardView: View {
             Button {
                 showPaywall = true
             } label: {
-                Text("Start 7-Day Free Trial")
+                Text(Config.billingConfigured ? "Start 7-Day Free Trial" : "See Premium Plans")
                     .font(.subheadline.weight(.semibold))
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 10)
@@ -223,8 +239,7 @@ struct ParentDashboardView: View {
 
                 VStack(spacing: 12) {
                     HStack(spacing: 12) {
-                        Text(target.emoji)
-                            .font(.largeTitle)
+                        FoodIcon(food: target, size: 40)
 
                         VStack(alignment: .leading, spacing: 4) {
                             Text(target.name)
@@ -278,9 +293,25 @@ struct ParentDashboardView: View {
                 .clipShape(.rect(cornerRadius: 14))
             } else {
                 VStack(spacing: 8) {
-                    Image(systemName: "target")
-                        .font(.title2)
-                        .foregroundStyle(.secondary)
+                    if UIImage(named: "safe_food_token") != nil {
+                        Image("safe_food_token")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 36, height: 36)
+                            .opacity(0.7)
+                    } else if UIImage(named: "cosmic_connector_star") != nil {
+                        Image("cosmic_connector_star")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 36, height: 36)
+                            .opacity(0.7)
+                    } else {
+                        Image(systemName: "target")
+                            .font(.title2)
+                            .foregroundStyle(.secondary)
+                    }
                     Text("No target food set")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
@@ -311,8 +342,16 @@ struct ParentDashboardView: View {
             HStack(spacing: 16) {
                 VStack(spacing: 4) {
                     HStack(spacing: 4) {
-                        Image(systemName: "flame.fill")
-                            .foregroundStyle(.orange)
+                        if UIImage(named: "cosmetic_day7_badge") != nil {
+                            Image("cosmetic_day7_badge")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 22, height: 22)
+                        } else {
+                            Image(systemName: "flame.fill")
+                                .foregroundStyle(.orange)
+                        }
                         Text("\(viewModel.profile.currentStreak)")
                             .font(.title.bold())
                     }
@@ -326,8 +365,20 @@ struct ParentDashboardView: View {
                     .frame(height: 40)
 
                 VStack(spacing: 4) {
-                    Text("\(viewModel.profile.longestStreak)")
-                        .font(.title.bold())
+                    HStack(spacing: 4) {
+                        if UIImage(named: "cosmetic_month1_badge") != nil {
+                            Image("cosmetic_month1_badge")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 22, height: 22)
+                        } else {
+                            Image(systemName: "trophy.fill")
+                                .foregroundStyle(.orange.opacity(0.7))
+                        }
+                        Text("\(viewModel.profile.longestStreak)")
+                            .font(.title.bold())
+                    }
                     Text("Longest")
                         .font(.caption)
                         .foregroundStyle(.secondary)
@@ -338,8 +389,17 @@ struct ParentDashboardView: View {
                     .frame(height: 40)
 
                 VStack(spacing: 4) {
-                    Text("\(viewModel.profile.todayInteractionCount)")
-                        .font(.title.bold())
+                    HStack(spacing: 4) {
+                        if UIImage(named: "star_dust_particle") != nil {
+                            Image("star_dust_particle")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 18, height: 18)
+                        }
+                        Text("\(viewModel.profile.todayInteractionCount)")
+                            .font(.title.bold())
+                    }
                     Text("Today")
                         .font(.caption)
                         .foregroundStyle(.secondary)
@@ -358,25 +418,29 @@ struct ParentDashboardView: View {
                 title: "Already like",
                 value: "\(viewModel.alreadyLikeFoodsCount)",
                 icon: "heart.fill",
-                color: .pink
+                color: .pink,
+                assetMark: "safe_food_token"
             )
             StatCard(
                 title: "Explored",
                 value: "\(viewModel.exploredFoodsCount)",
                 icon: "globe.americas.fill",
-                color: .cyan
+                color: .cyan,
+                assetMark: "level_gem"
             )
             StatCard(
                 title: "Eaten",
                 value: "\(viewModel.eatenFoodsCount)",
                 icon: "checkmark.seal.fill",
-                color: .green
+                color: .green,
+                assetMark: "badge_star_coin"
             )
             StatCard(
                 title: "Star Dust",
                 value: "\(viewModel.profile.totalStarDust)",
                 icon: "sparkles",
-                color: .yellow
+                color: .yellow,
+                assetMark: "star_dust_particle"
             )
         }
     }
@@ -388,8 +452,18 @@ struct ParentDashboardView: View {
 
             VStack(spacing: 8) {
                 HStack {
-                    Image(systemName: "star.fill")
-                        .foregroundStyle(.yellow)
+                    Group {
+                        if UIImage(named: "badge_star_coin") != nil {
+                            Image("badge_star_coin")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 18, height: 18)
+                        } else {
+                            Image(systemName: "star.fill")
+                                .foregroundStyle(.yellow)
+                        }
+                    }
                     Text(viewModel.profile.starJarRewardName)
                         .font(.subheadline.weight(.medium))
                     Spacer()
@@ -431,8 +505,7 @@ struct ParentDashboardView: View {
                     VStack(spacing: 0) {
                         ForEach(viewModel.bridgeSuggestions) { suggestion in
                             HStack(spacing: 12) {
-                                Text(suggestion.bridgeFood.emoji)
-                                    .font(.title3)
+                                FoodIcon(food: suggestion.bridgeFood, size: 22)
 
                                 VStack(alignment: .leading, spacing: 2) {
                                     HStack(spacing: 6) {
@@ -479,9 +552,25 @@ struct ParentDashboardView: View {
 
             if recentQuests.isEmpty {
                 VStack(spacing: 8) {
-                    Image(systemName: "tray")
-                        .font(.title2)
-                        .foregroundStyle(.secondary)
+                    if UIImage(named: "empty_state_no_quest") != nil {
+                        Image("empty_state_no_quest")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 56, height: 56)
+                            .opacity(0.75)
+                    } else if UIImage(named: "empty_state_pantry") != nil {
+                        Image("empty_state_pantry")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 56, height: 56)
+                            .opacity(0.75)
+                    } else {
+                        Image(systemName: "tray")
+                            .font(.title2)
+                            .foregroundStyle(.secondary)
+                    }
                     Text("No activity yet")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
@@ -496,8 +585,7 @@ struct ParentDashboardView: View {
                         let food = FoodDatabase.food(byId: quest.foodId) ?? viewModel.customFoodItems.first { $0.id == quest.foodId }
                         if let food {
                             HStack(spacing: 12) {
-                                Text(food.emoji)
-                                    .font(.title3)
+                                FoodIcon(food: food, size: 22)
 
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text(food.name)
@@ -551,8 +639,7 @@ struct ParentDashboardView: View {
                                 let isSafe = viewModel.profile.safeFoodIds.contains(food.id)
 
                                 HStack(spacing: 12) {
-                                    Text(food.emoji)
-                                        .font(.title3)
+                                    FoodIcon(food: food, size: 22)
 
                                     VStack(alignment: .leading, spacing: 2) {
                                         HStack(spacing: 6) {
@@ -624,6 +711,7 @@ struct ParentDashboardView: View {
             } else {
                 paywallGateView(
                     icon: "chart.bar.fill",
+                    assetMarks: ["level_gem", "badge_saturn", "cosmic_connector_star"],
                     title: "Sensory Analytics",
                     description: "See \(viewModel.profile.explorerDisplayName)'s texture, flavor & temperature profile with visual charts, success zones, and personalized insights."
                 )
@@ -645,15 +733,21 @@ struct ParentDashboardView: View {
                 )
             } else {
                 paywallGateView(
-                    icon: "sparkles",
-                    title: "Smart Recommendations",
-                    description: "Get personalized food suggestions scored by match quality, bridge potential, and confidence level."
+                    icon: "link",
+                    assetMarks: ["safe_food_token", "cosmic_connector_star"],
+                    title: "Bridge Food picks",
+                    description: "See matcher suggestions scored by how close they sit to foods already on the plate — no AI claims."
                 )
             }
         }
     }
 
-    private func paywallGateView(icon: String, title: String, description: String) -> some View {
+    private func paywallGateView(
+        icon: String,
+        assetMarks: [String] = [],
+        title: String,
+        description: String
+    ) -> some View {
         VStack(spacing: 24) {
             Spacer()
 
@@ -668,9 +762,17 @@ struct ParentDashboardView: View {
                             )
                         )
                         .frame(width: 80, height: 80)
-                    Image(systemName: icon)
-                        .font(.largeTitle)
-                        .foregroundStyle(.purple)
+                    if let mark = assetMarks.first(where: { UIImage(named: $0) != nil }) {
+                        Image(mark)
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 44, height: 44)
+                    } else {
+                        Image(systemName: icon)
+                            .font(.largeTitle)
+                            .foregroundStyle(.purple)
+                    }
                 }
 
                 Text(title)
@@ -689,7 +791,7 @@ struct ParentDashboardView: View {
                 HStack(spacing: 8) {
                     Image(systemName: "lock.open.fill")
                         .font(.subheadline)
-                    Text("Unlock with Free Trial")
+                    Text(Config.billingConfigured ? "Unlock with Free Trial" : "See Premium Plans")
                         .font(.subheadline.weight(.semibold))
                 }
                 .frame(maxWidth: .infinity)
@@ -779,8 +881,17 @@ struct ParentDashboardView: View {
 
     private var allergenSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Allergen Filters")
-                .font(.headline)
+            HStack(spacing: 8) {
+                if UIImage(named: "empty_state_allergen") != nil {
+                    Image("empty_state_allergen")
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(width: 22, height: 22)
+                }
+                Text("Allergen Filters")
+                    .font(.headline)
+            }
 
             Text("Excluded allergens and Do not give foods will not appear in recommendations, bridges, or Start Quest.")
                 .font(.caption)
@@ -827,7 +938,7 @@ struct ParentDashboardView: View {
 
             ForEach(viewModel.neverOfferFoods) { food in
                 HStack(spacing: 8) {
-                    Text(food.emoji)
+                    FoodIcon(food: food, size: 20)
                     Text(food.name)
                         .font(.subheadline)
                     Spacer()
@@ -904,7 +1015,7 @@ struct ParentDashboardView: View {
                 profileRow("Name", value: viewModel.profile.name)
                 profileRow("Age", value: "\(viewModel.profile.age)")
                 profileRow("Target Food", value: viewModel.profile.targetFoodName.isEmpty ? "Not set" : viewModel.profile.targetFoodName)
-                profileRow("Safe Foods", value: "\(viewModel.profile.safeFoodIds.count) foods")
+                profileRow("Safe Foods", value: "\(viewModel.profile.safeFoodIds.count) foods", assetMark: "safe_food_token")
                 profileRow("Days Active", value: "\(daysActive)")
             }
             .background(Color(.secondarySystemGroupedBackground))
@@ -912,8 +1023,15 @@ struct ParentDashboardView: View {
         }
     }
 
-    private func profileRow(_ title: String, value: String) -> some View {
-        HStack {
+    private func profileRow(_ title: String, value: String, assetMark: String? = nil) -> some View {
+        HStack(spacing: 8) {
+            if let assetMark, UIImage(named: assetMark) != nil {
+                Image(assetMark)
+                    .resizable()
+                    .interpolation(.high)
+                    .scaledToFit()
+                    .frame(width: 16, height: 16)
+            }
             Text(title)
                 .font(.subheadline)
             Spacer()
@@ -933,9 +1051,25 @@ struct ParentDashboardView: View {
                 }
             } label: {
                 HStack(spacing: 10) {
-                    Image(systemName: "book.fill")
-                        .font(.callout)
-                        .foregroundStyle(.blue)
+                    Group {
+                        if UIImage(named: "step_look") != nil {
+                            Image("step_look")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 18, height: 18)
+                        } else if UIImage(named: "badge_saturn") != nil {
+                            Image("badge_saturn")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 18, height: 18)
+                        } else {
+                            Image(systemName: "book.fill")
+                                .font(.callout)
+                                .foregroundStyle(.blue)
+                        }
+                    }
                     Text("Why This Works")
                         .font(.subheadline.weight(.semibold))
                         .foregroundStyle(.primary)
@@ -962,12 +1096,12 @@ struct ParentDashboardView: View {
                             .font(.caption.weight(.medium))
 
                         VStack(alignment: .leading, spacing: 8) {
-                            educationTimelineRow("eye.fill", .cyan, "LOOK", "Day 1–3", "\"I can see it without fear\"")
-                            educationTimelineRow("hand.raised.fill", .blue, "TOUCH", "Day 3–7", "\"I can handle the texture\"")
-                            educationTimelineRow("nose.fill", .purple, "SMELL", "Day 5–10", "\"I'm getting used to the aroma\"")
-                            educationTimelineRow("mouth.fill", .orange, "LICK", "Day 7–14", "\"My mouth says it's safe\"")
-                            educationTimelineRow("fork.knife", .green, "TASTE", "Day 10–21", "\"I tried it!\"")
-                            educationTimelineRow("checkmark.circle.fill", .green, "SWALLOW", "Day 14+", "\"I can eat it\"")
+                            educationTimelineRow(step: .look, color: .cyan, title: "LOOK", timeline: "Day 1–3", description: "\"I can see it without fear\"")
+                            educationTimelineRow(step: .touch, color: .blue, title: "TOUCH", timeline: "Day 3–7", description: "\"I can handle the texture\"")
+                            educationTimelineRow(step: .smell, color: .purple, title: "SMELL", timeline: "Day 5–10", description: "\"I'm getting used to the aroma\"")
+                            educationTimelineRow(step: .lick, color: .orange, title: "LICK", timeline: "Day 7–14", description: "\"My mouth says it's safe\"")
+                            educationTimelineRow(step: .taste, color: .green, title: "TASTE", timeline: "Day 10–21", description: "\"I tried it!\"")
+                            educationTimelineRow(ateMark: true, color: .green, title: "SWALLOW", timeline: "Day 14+", description: "\"I can eat it\"")
                         }
                     }
 
@@ -991,14 +1125,40 @@ struct ParentDashboardView: View {
         .clipShape(.rect(cornerRadius: 14))
     }
 
-    private func educationTimelineRow(_ icon: String, _ color: Color, _ step: String, _ timeline: String, _ description: String) -> some View {
+    private func educationTimelineRow(
+        step: SensoryStep? = nil,
+        ateMark: Bool = false,
+        color: Color,
+        title: String,
+        timeline: String,
+        description: String
+    ) -> some View {
         HStack(spacing: 10) {
-            Image(systemName: icon)
-                .font(.caption)
-                .foregroundStyle(color)
-                .frame(width: 20)
+            Group {
+                if ateMark {
+                    if UIImage(named: SensoryStep.ateImageName) != nil {
+                        Image(SensoryStep.ateImageName)
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 20, height: 20)
+                    } else {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.caption)
+                            .foregroundStyle(color)
+                            .frame(width: 20)
+                    }
+                } else if let step {
+                    StepMark(step: step, size: 20, tint: color)
+                } else {
+                    Image(systemName: "circle")
+                        .font(.caption)
+                        .foregroundStyle(color)
+                        .frame(width: 20)
+                }
+            }
 
-            Text(step)
+            Text(title)
                 .font(.caption.weight(.bold))
                 .frame(width: 56, alignment: .leading)
 
@@ -1063,8 +1223,8 @@ enum ParentTab: CaseIterable {
         case .progress: "calendar"
         case .foodLibrary: "books.vertical.fill"
         case .regressions: "arrow.down.right.circle.fill"
-        case .analytics: "brain.head.profile.fill"
-        case .recommendations: "sparkles"
+        case .analytics: "chart.xyaxis.line"
+        case .recommendations: "link"
         case .settings: "gearshape.fill"
         }
     }
@@ -1079,13 +1239,24 @@ struct StatCard: View {
     let value: String
     let icon: String
     let color: Color
+    var assetMark: String? = nil
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Image(systemName: icon)
-                    .font(.callout)
-                    .foregroundStyle(color)
+                Group {
+                    if let assetMark, UIImage(named: assetMark) != nil {
+                        Image(assetMark)
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 18, height: 18)
+                    } else {
+                        Image(systemName: icon)
+                            .font(.callout)
+                            .foregroundStyle(color)
+                    }
+                }
                 Spacer()
             }
             Text(value)
@@ -1131,7 +1302,7 @@ struct NeverOfferPickerSheet: View {
                     viewModel.toggleNeverOffer(food: food)
                 } label: {
                     HStack(spacing: 10) {
-                        Text(food.emoji)
+                        FoodIcon(food: food, size: 20)
                         Text(food.name)
                             .foregroundStyle(.primary)
                         Spacer()

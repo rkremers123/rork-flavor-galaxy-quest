@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct SmartRecommendationsView: View {
     let recommendations: [FoodRecommendation]
@@ -22,6 +23,9 @@ struct SmartRecommendationsView: View {
         ScrollView {
             VStack(spacing: 20) {
                 headerSection
+                if MatcherContext.stayInOrbit {
+                    stayInOrbitCoachCard
+                }
                 if recommendations.isEmpty {
                     emptyState
                 } else {
@@ -33,6 +37,47 @@ struct SmartRecommendationsView: View {
             }
             .padding(16)
         }
+    }
+
+
+    private var stayInOrbitCoachCard: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 8) {
+                Group {
+                    if UIImage(named: "step_look") != nil {
+                        Image("step_look")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 18, height: 18)
+                    } else if UIImage(named: "planet_base_camp") != nil {
+                        Image("planet_base_camp")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 18, height: 18)
+                    } else {
+                        Image(systemName: "circle.dotted")
+                            .foregroundStyle(SpaceTheme.cosmicCyan)
+                    }
+                }
+                Text("Stay in orbit")
+                    .font(.subheadline.weight(.bold))
+                    .foregroundStyle(.primary)
+            }
+            Text(MatcherContext.stayInOrbitCoach
+                 ?? "Still exploring with eyes and hands — that's real. Tonight keep it close.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+            Text("Safe Pick preferred · Stretch tucked away until a lick shows up.")
+                .font(.caption2)
+                .foregroundStyle(.tertiary)
+        }
+        .padding(14)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(SpaceTheme.cosmicCyan.opacity(0.08))
+        .clipShape(.rect(cornerRadius: 12))
     }
 
     private var bridgeFoodEducationBox: some View {
@@ -73,8 +118,19 @@ struct SmartRecommendationsView: View {
 
     private var headerSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Label("Smart Recommendations", systemImage: "brain.head.profile.fill")
+            HStack(spacing: 8) {
+                if UIImage(named: "safe_food_token") != nil {
+                    Image("safe_food_token")
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(width: 22, height: 22)
+                } else {
+                    Image(systemName: "link")
+                        .font(.headline)
+                        .foregroundStyle(.blue)
+                }
+                Text("Bridge Food picks")
                     .font(.headline)
                 Spacer()
                 Button {
@@ -85,7 +141,7 @@ struct SmartRecommendationsView: View {
                         .foregroundStyle(.blue)
                 }
             }
-            Text("Personalized food suggestions based on \(childName)'s sensory profile")
+            Text("Suggestions near foods \(childName) already accepts — Bridge Food matcher, not AI")
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }
@@ -118,8 +174,7 @@ struct SmartRecommendationsView: View {
                 }
             } label: {
                 HStack(spacing: 12) {
-                    Text(rec.food.emoji)
-                        .font(.title3)
+                    FoodIcon(food: rec.food, size: 22)
                         .frame(width: 36)
 
                     VStack(alignment: .leading, spacing: 3) {
@@ -128,8 +183,10 @@ struct SmartRecommendationsView: View {
                                 .font(.subheadline.weight(.medium))
                                 .foregroundStyle(.primary)
 
-                            Text(rec.food.color.emoji)
-                                .font(.caption2)
+                            Circle()
+                                .fill(SpaceTheme.planetColor(hex: rec.food.color.hex))
+                                .frame(width: 8, height: 8)
+                                .overlay(Circle().stroke(Color.primary.opacity(0.15), lineWidth: 0.5))
 
                             Text(rec.food.foodGroup.label)
                                 .font(.system(.caption2, weight: .bold))
@@ -164,9 +221,17 @@ struct SmartRecommendationsView: View {
 
                     if !rec.matchingAttributes.isEmpty {
                         HStack(spacing: 4) {
-                            Image(systemName: "checkmark.circle.fill")
-                                .font(.caption2)
-                                .foregroundStyle(.green)
+                            if UIImage(named: "safe_food_token") != nil {
+                                Image("safe_food_token")
+                                    .resizable()
+                                    .interpolation(.high)
+                                    .scaledToFit()
+                                    .frame(width: 12, height: 12)
+                            } else {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .font(.caption2)
+                                    .foregroundStyle(.green)
+                            }
                             Text("Familiar: \(rec.matchingAttributes.joined(separator: ", "))")
                                 .font(.caption2)
                                 .foregroundStyle(.secondary)
@@ -175,9 +240,17 @@ struct SmartRecommendationsView: View {
 
                     if !rec.newAttributes.isEmpty {
                         HStack(spacing: 4) {
-                            Image(systemName: "sparkles")
-                                .font(.caption2)
-                                .foregroundStyle(.orange)
+                            if UIImage(named: "cosmic_connector_star") != nil {
+                                Image("cosmic_connector_star")
+                                    .resizable()
+                                    .interpolation(.high)
+                                    .scaledToFit()
+                                    .frame(width: 12, height: 12)
+                            } else {
+                                Image(systemName: "sparkles")
+                                    .font(.caption2)
+                                    .foregroundStyle(.orange)
+                            }
                             Text("New: \(rec.newAttributes.joined(separator: ", "))")
                                 .font(.caption2)
                                 .foregroundStyle(.secondary)
@@ -236,9 +309,23 @@ struct SmartRecommendationsView: View {
             if !topRecs.isEmpty {
                 VStack(alignment: .leading, spacing: 12) {
                     HStack(spacing: 8) {
-                        Image(systemName: "star.circle.fill")
-                            .font(.callout)
-                            .foregroundStyle(.yellow)
+                        if UIImage(named: "cosmic_connector_star") != nil {
+                            Image("cosmic_connector_star")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 18, height: 18)
+                        } else if UIImage(named: "badge_star_coin") != nil {
+                            Image("badge_star_coin")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 18, height: 18)
+                        } else {
+                            Image(systemName: "star.circle.fill")
+                                .font(.callout)
+                                .foregroundStyle(.yellow)
+                        }
                         Text("Try Next")
                             .font(.subheadline.weight(.bold))
                     }
@@ -251,15 +338,16 @@ struct SmartRecommendationsView: View {
                                     .foregroundStyle(.secondary)
                                     .frame(width: 24)
 
-                                Text(rec.food.emoji)
-                                    .font(.title3)
+                                FoodIcon(food: rec.food, size: 22)
 
                                 VStack(alignment: .leading, spacing: 3) {
                                     HStack(spacing: 4) {
                                         Text(rec.food.name)
                                             .font(.subheadline.weight(.semibold))
-                                        Text(rec.food.color.emoji)
-                                            .font(.caption2)
+                                        Circle()
+                                            .fill(SpaceTheme.planetColor(hex: rec.food.color.hex))
+                                            .frame(width: 8, height: 8)
+                                            .overlay(Circle().stroke(Color.primary.opacity(0.15), lineWidth: 0.5))
                                         Text(rec.food.foodGroup.label)
                                             .font(.system(.caption2, weight: .medium))
                                             .foregroundStyle(.secondary)
@@ -291,9 +379,18 @@ struct SmartRecommendationsView: View {
 
     private var emptyState: some View {
         VStack(spacing: 12) {
-            Image(systemName: "sparkle.magnifyingglass")
-                .font(.largeTitle)
-                .foregroundStyle(.secondary)
+            if UIImage(named: "cosmic_connector_star") != nil {
+                Image("cosmic_connector_star")
+                    .resizable()
+                    .interpolation(.high)
+                    .scaledToFit()
+                    .frame(width: 48, height: 48)
+                    .opacity(0.7)
+            } else {
+                Image(systemName: "sparkle.magnifyingglass")
+                    .font(.largeTitle)
+                    .foregroundStyle(.secondary)
+            }
             Text("Complete a few food quests to unlock recommendations")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)

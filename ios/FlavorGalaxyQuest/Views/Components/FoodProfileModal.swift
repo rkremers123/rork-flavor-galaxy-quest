@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct FoodProfileModal: View {
     let food: FoodItem
@@ -41,8 +42,7 @@ struct FoodProfileModal: View {
 
     private var headerSection: some View {
         VStack(spacing: 12) {
-            Text(food.emoji)
-                .font(.system(size: 64))
+            FoodIcon(food: food, size: 64)
 
             Text(food.name)
                 .font(.system(.title2, design: .rounded, weight: .bold))
@@ -50,7 +50,10 @@ struct FoodProfileModal: View {
 
             HStack(spacing: 12) {
                 HStack(spacing: 4) {
-                    Text(food.color.emoji)
+                    Circle()
+                        .fill(SpaceTheme.planetColor(hex: food.color.hex))
+                        .frame(width: 10, height: 10)
+                        .overlay(Circle().stroke(.white.opacity(0.35), lineWidth: 0.5))
                     Text(food.color.label)
                         .font(.system(.caption, design: .rounded, weight: .semibold))
                         .foregroundStyle(.white.opacity(0.7))
@@ -73,20 +76,50 @@ struct FoodProfileModal: View {
 
             HStack(spacing: 16) {
                 if isGoalFood {
-                    Label("Goal Food", systemImage: "target")
-                        .font(.system(.caption2, design: .rounded, weight: .bold))
-                        .foregroundStyle(SpaceTheme.starGold)
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 5)
-                        .background(Capsule().fill(SpaceTheme.starGold.opacity(0.12)))
+                    HStack(spacing: 4) {
+                        if UIImage(named: "cosmic_connector_star") != nil {
+                            Image("cosmic_connector_star")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 12, height: 12)
+                        } else if UIImage(named: "level_gem") != nil {
+                            Image("level_gem")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 12, height: 12)
+                        } else {
+                            Image(systemName: "target")
+                                .font(.caption2)
+                        }
+                        Text("Goal Food")
+                    }
+                    .font(.system(.caption2, design: .rounded, weight: .bold))
+                    .foregroundStyle(SpaceTheme.starGold)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 5)
+                    .background(Capsule().fill(SpaceTheme.starGold.opacity(0.12)))
                 }
                 if isSafeFood {
-                    Label("Safe Food", systemImage: "checkmark.shield.fill")
-                        .font(.system(.caption2, design: .rounded, weight: .bold))
-                        .foregroundStyle(SpaceTheme.planetGreen)
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 5)
-                        .background(Capsule().fill(SpaceTheme.planetGreen.opacity(0.12)))
+                    HStack(spacing: 4) {
+                        if UIImage(named: "safe_food_token") != nil {
+                            Image("safe_food_token")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 12, height: 12)
+                        } else {
+                            Image(systemName: "checkmark.shield.fill")
+                                .font(.caption2)
+                        }
+                        Text("Safe Food")
+                    }
+                    .font(.system(.caption2, design: .rounded, weight: .bold))
+                    .foregroundStyle(SpaceTheme.planetGreen)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 5)
+                    .background(Capsule().fill(SpaceTheme.planetGreen.opacity(0.12)))
                 }
             }
         }
@@ -99,10 +132,10 @@ struct FoodProfileModal: View {
                 .foregroundStyle(.white.opacity(0.6))
 
             VStack(spacing: 10) {
-                sensoryRow(emoji: "👅", label: "Texture", value: food.texture.label)
-                sensoryRow(emoji: "🍍", label: "Flavor", value: food.flavor.label)
-                sensoryRow(emoji: "🌡️", label: "Temperature", value: food.temperature.label)
-                sensoryRow(emoji: "👃", label: "Aroma", value: food.aroma.label)
+                sensoryRow(systemImage: "hand.raised.fill", label: "Texture", value: food.texture.label)
+                sensoryRow(systemImage: "takeoutbag.and.cup.and.straw", label: "Flavor", value: food.flavor.label)
+                sensoryRow(systemImage: "thermometer.medium", label: "Temperature", value: food.temperature.label)
+                sensoryRow(systemImage: "nose.fill", label: "Aroma", value: food.aroma.label)
             }
             .padding(14)
             .background(
@@ -112,10 +145,12 @@ struct FoodProfileModal: View {
         }
     }
 
-    private func sensoryRow(emoji: String, label: String, value: String) -> some View {
+    private func sensoryRow(systemImage: String, label: String, value: String) -> some View {
         HStack {
-            Text(emoji)
+            Image(systemName: systemImage)
                 .font(.callout)
+                .foregroundStyle(SpaceTheme.cosmicCyan)
+                .frame(width: 22, alignment: .center)
             Text(label)
                 .font(.system(.caption, design: .rounded, weight: .medium))
                 .foregroundStyle(.white.opacity(0.5))
@@ -144,17 +179,20 @@ struct FoodProfileModal: View {
                                 .fill(isCompleted ? stepColor.opacity(0.2) : .white.opacity(0.04))
                                 .frame(width: 36, height: 36)
                             if isCompleted {
-                                Image(systemName: "checkmark")
-                                    .font(.caption.bold())
-                                    .foregroundStyle(stepColor)
+                                ZStack(alignment: .bottomTrailing) {
+                                    StepMark(step: step, size: 16, tint: stepColor)
+                                    Image(systemName: "checkmark.circle.fill")
+                                        .font(.system(size: 9, weight: .bold))
+                                        .foregroundStyle(stepColor)
+                                        .background(Circle().fill(SpaceTheme.deepNavy))
+                                        .offset(x: 3, y: 3)
+                                }
                             } else if isSkipped {
                                 Image(systemName: "arrow.uturn.right")
                                     .font(.system(size: 10))
                                     .foregroundStyle(.white.opacity(0.2))
                             } else {
-                                Image(systemName: step.icon)
-                                    .font(.caption2)
-                                    .foregroundStyle(.white.opacity(0.2))
+                                StepMark(step: step, size: 14, tint: .white.opacity(0.2))
                             }
                         }
                         Text(step.label.uppercased())
@@ -176,9 +214,18 @@ struct FoodProfileModal: View {
         Group {
             if !food.allergens.isEmpty {
                 VStack(alignment: .leading, spacing: 10) {
-                    Text("Allergens")
-                        .font(.system(.subheadline, design: .rounded, weight: .bold))
-                        .foregroundStyle(.white.opacity(0.6))
+                    HStack(spacing: 6) {
+                        if UIImage(named: "empty_state_allergen") != nil {
+                            Image("empty_state_allergen")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 18, height: 18)
+                        }
+                        Text("Allergens")
+                            .font(.system(.subheadline, design: .rounded, weight: .bold))
+                            .foregroundStyle(.white.opacity(0.6))
+                    }
 
                     HStack(spacing: 8) {
                         ForEach(Array(food.allergens).sorted(by: { $0.rawValue < $1.rawValue }), id: \.self) { allergen in

@@ -681,8 +681,7 @@ class AppViewModel {
         if let bridge = bridgeSuggestions.first(where: { !isHardExcluded($0.bridgeFood) }) {
             return bridge.bridgeFood
         }
-        let all = FoodDatabase.allFoods + customFoodItems
-        return all.first { !isHardExcluded($0) && !isKnownSafeOrLiked($0) }
+        return nil
     }
 
     func toggleNeverOffer(food: FoodItem) {

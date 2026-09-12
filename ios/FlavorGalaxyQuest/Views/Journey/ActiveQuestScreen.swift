@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct ActiveQuestScreen: View {
     @Bindable var viewModel: AppViewModel
@@ -9,6 +10,7 @@ struct ActiveQuestScreen: View {
     @State private var showFoodProfile = false
     @State private var completedStep: SensoryStep?
     @State private var lookLoggedThisSitting = false
+    @State private var softRegressionNote: String? = nil
 
     private var food: FoodItem? { viewModel.activeQuestFood }
     private var progress: QuestProgressModel? { viewModel.activeQuestProgress }
@@ -135,8 +137,7 @@ struct ActiveQuestScreen: View {
                     )
                     .frame(width: 200, height: 200)
 
-                Text(food.emoji)
-                    .font(.system(size: 90))
+                FoodIcon(food: food, size: 90)
             }
 
             Button { showFoodProfile = true } label: {
@@ -151,8 +152,10 @@ struct ActiveQuestScreen: View {
             }
 
             HStack(spacing: 8) {
-                Text(food.color.emoji)
-                    .font(.caption)
+                Circle()
+                    .fill(SpaceTheme.planetColor(hex: food.color.hex))
+                    .frame(width: 10, height: 10)
+                    .overlay(Circle().stroke(.white.opacity(0.25), lineWidth: 0.5))
                 Text(food.color.label)
                     .font(.system(.caption2, design: .rounded, weight: .semibold))
                     .foregroundStyle(.white.opacity(0.6))
@@ -171,9 +174,17 @@ struct ActiveQuestScreen: View {
 
             if viewModel.profile.currentStreak > 0 {
                 HStack(spacing: 6) {
-                    Image(systemName: "flame.fill")
-                        .font(.caption)
-                        .foregroundStyle(.orange)
+                    if UIImage(named: "cosmetic_day7_badge") != nil {
+                        Image("cosmetic_day7_badge")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 14, height: 14)
+                    } else {
+                        Image(systemName: "flame.fill")
+                            .font(.caption)
+                            .foregroundStyle(.orange)
+                    }
                     Text("\(viewModel.profile.currentStreak) day streak")
                         .font(.system(.caption, design: .rounded, weight: .bold))
                         .foregroundStyle(.orange)
@@ -187,9 +198,7 @@ struct ActiveQuestScreen: View {
 
             if let reason = whyThisFood {
                 HStack(spacing: 8) {
-                    Image(systemName: isGoalFood ? "target" : isSafeFood ? "checkmark.shield.fill" : "arrow.triangle.branch")
-                        .font(.caption)
-                        .foregroundStyle(isGoalFood ? SpaceTheme.starGold : isSafeFood ? SpaceTheme.planetGreen : SpaceTheme.cosmicCyan)
+                    whyThisFoodMark
                     Text(reason)
                         .font(.system(.caption, design: .rounded, weight: .medium))
                         .foregroundStyle(isGoalFood ? SpaceTheme.starGold : isSafeFood ? SpaceTheme.planetGreen : SpaceTheme.cosmicCyan)
@@ -219,11 +228,39 @@ struct ActiveQuestScreen: View {
         }
     }
 
+    @ViewBuilder
+    private var whyThisFoodMark: some View {
+        let tint = isGoalFood ? SpaceTheme.starGold : isSafeFood ? SpaceTheme.planetGreen : SpaceTheme.cosmicCyan
+        if isSafeFood, UIImage(named: "safe_food_token") != nil {
+            Image("safe_food_token")
+                .resizable()
+                .interpolation(.high)
+                .scaledToFit()
+                .frame(width: 14, height: 14)
+        } else if isGoalFood, UIImage(named: "level_gem") != nil {
+            Image("level_gem")
+                .resizable()
+                .interpolation(.high)
+                .scaledToFit()
+                .frame(width: 14, height: 14)
+        } else if !isGoalFood, !isSafeFood, UIImage(named: "cosmic_connector_star") != nil {
+            Image("cosmic_connector_star")
+                .resizable()
+                .interpolation(.high)
+                .scaledToFit()
+                .frame(width: 14, height: 14)
+        } else {
+            Image(systemName: isGoalFood ? "target" : isSafeFood ? "checkmark.shield.fill" : "arrow.triangle.branch")
+                .font(.caption)
+                .foregroundStyle(tint)
+        }
+    }
+
     private func sensoryProfilePills(_ food: FoodItem) -> some View {
         HStack(spacing: 10) {
-            sensoryPill("👅 \(food.texture.label)", icon: nil)
-            sensoryPill("🍍 \(food.flavor.label)", icon: nil)
-            sensoryPill("🌡️ \(food.temperature.label)", icon: nil)
+            sensoryPill(food.texture.label, icon: "waveform")
+            sensoryPill(food.flavor.label, icon: "drop.fill")
+            sensoryPill(food.temperature.label, icon: "thermometer.medium")
         }
     }
 
@@ -259,17 +296,24 @@ struct ActiveQuestScreen: View {
                                 )
 
                             if isCompleted {
-                                Image(systemName: "checkmark")
-                                    .font(.callout.bold())
-                                    .foregroundStyle(stepColor)
+                                ZStack(alignment: .bottomTrailing) {
+                                    StepMark(step: step, size: 20, tint: stepColor)
+                                    Image(systemName: "checkmark.circle.fill")
+                                        .font(.system(size: 11, weight: .bold))
+                                        .foregroundStyle(stepColor)
+                                        .background(Circle().fill(SpaceTheme.deepNavy))
+                                        .offset(x: 4, y: 4)
+                                }
                             } else if isSkipped {
                                 Image(systemName: "arrow.uturn.right")
                                     .font(.caption.bold())
                                     .foregroundStyle(.white.opacity(0.3))
                             } else {
-                                Image(systemName: step.icon)
-                                    .font(.callout)
-                                    .foregroundStyle(isCurrent ? SpaceTheme.cosmicCyan : .white.opacity(0.2))
+                                StepMark(
+                                    step: step,
+                                    size: 18,
+                                    tint: isCurrent ? SpaceTheme.cosmicCyan : .white.opacity(0.2)
+                                )
                             }
                         }
 
@@ -390,6 +434,11 @@ struct ActiveQuestScreen: View {
                     .background(Capsule().fill(.white.opacity(0.05)))
             }
 
+            Text("Not today is okay — the plate will still be there another night.")
+                .font(.system(.caption2, design: .rounded))
+                .foregroundStyle(.white.opacity(0.35))
+                .multilineTextAlignment(.center)
+
             if lookLoggedThisSitting {
                 Text("Looking still counted if you already logged it.")
                     .font(.system(.caption2, design: .rounded))
@@ -410,8 +459,16 @@ struct ActiveQuestScreen: View {
                         .foregroundStyle(SpaceTheme.cosmicCyan)
                     if step.starDustReward > 0 {
                         HStack(spacing: 4) {
-                            Image(systemName: "sparkles")
-                                .font(.system(size: 9))
+                            if UIImage(named: "star_dust_particle") != nil {
+                                Image("star_dust_particle")
+                                    .resizable()
+                                    .interpolation(.high)
+                                    .scaledToFit()
+                                    .frame(width: 10, height: 10)
+                            } else {
+                                Image(systemName: "sparkles")
+                                    .font(.system(size: 9))
+                            }
                             Text("+\(step.starDustReward) Star Dust")
                                 .font(.system(.caption2, design: .rounded, weight: .semibold))
                         }
@@ -425,8 +482,12 @@ struct ActiveQuestScreen: View {
                     performStepCompletion(step, food: food)
                 } label: {
                     HStack(spacing: 8) {
-                        Image(systemName: "checkmark.circle.fill")
-                            .font(.subheadline)
+                        if UIImage(named: step.imageName) != nil {
+                            StepMark(step: step, size: 16, tint: SpaceTheme.deepNavy)
+                        } else {
+                            Image(systemName: "checkmark.circle.fill")
+                                .font(.subheadline)
+                        }
                         Text("I Did It!")
                             .font(.system(.subheadline, design: .rounded, weight: .bold))
                     }
@@ -456,7 +517,31 @@ struct ActiveQuestScreen: View {
 
     private func completedArea(_ food: FoodItem) -> some View {
         VStack(spacing: 20) {
-            Text("🎉").font(.system(size: 60))
+            Group {
+                if UIImage(named: "level_gem") != nil {
+                    Image("level_gem")
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(width: 72, height: 72)
+                } else if UIImage(named: "badge_saturn") != nil {
+                    Image("badge_saturn")
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(width: 72, height: 72)
+                } else if UIImage(named: "badge_star_coin") != nil {
+                    Image("badge_star_coin")
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(width: 72, height: 72)
+                } else {
+                    Image(systemName: "checkmark.seal.fill")
+                        .font(.system(size: 52, weight: .bold))
+                        .foregroundStyle(SpaceTheme.starGold)
+                }
+            }
 
             Text("Quest Complete!")
                 .font(.system(.title2, design: .rounded, weight: .bold))
@@ -494,13 +579,24 @@ struct ActiveQuestScreen: View {
         VStack(spacing: 24) {
             Spacer()
 
-            ZStack {
-                Circle()
-                    .fill(SpaceTheme.cosmicCyan.opacity(0.06))
-                    .frame(width: 140, height: 140)
-                Image(systemName: "star.circle")
-                    .font(.system(size: 56))
-                    .foregroundStyle(SpaceTheme.cosmicCyan.opacity(0.35))
+            Group {
+                if UIImage(named: "empty_state_no_quest") != nil {
+                    Image("empty_state_no_quest")
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(maxWidth: 280)
+                        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+                } else {
+                    ZStack {
+                        Circle()
+                            .fill(SpaceTheme.cosmicCyan.opacity(0.06))
+                            .frame(width: 140, height: 140)
+                        Image(systemName: "star.circle")
+                            .font(.system(size: 56))
+                            .foregroundStyle(SpaceTheme.cosmicCyan.opacity(0.35))
+                    }
+                }
             }
 
             Text("No Active Quest")
@@ -516,7 +612,15 @@ struct ActiveQuestScreen: View {
                 viewModel.selectedTab = 2
             } label: {
                 HStack(spacing: 8) {
-                    Image(systemName: "fork.knife")
+                    if UIImage(named: "safe_food_token") != nil {
+                        Image("safe_food_token")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 18, height: 18)
+                    } else {
+                        Image(systemName: "fork.knife")
+                    }
                     Text("Browse Foods")
                 }
                 .font(.system(.headline, design: .rounded, weight: .bold))
@@ -546,6 +650,17 @@ struct ActiveQuestScreen: View {
     }
 
     private func performStepCompletion(_ step: SensoryStep, food: FoodItem) {
+        // Soft regression: tonight's step vs prior-day peak success on same food.
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let priorPeak = viewModel.profile.interactions
+            .filter { $0.foodId == food.id && $0.completed && calendar.startOfDay(for: $0.timestamp) < today }
+            .map(\.sensoryStep)
+            .max(by: { $0.rawValue < $1.rawValue })
+        softRegressionNote = priorPeak.flatMap {
+            SensoryStep.softRegressionLine(foodName: food.name, prior: $0, current: step)
+        }
+
         completedStep = step
         if step == .look {
             lookLoggedThisSitting = true
@@ -573,9 +688,17 @@ struct ActiveQuestScreen: View {
     private var similarFoodsSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 6) {
-                Image(systemName: "sparkle.magnifyingglass")
-                    .font(.caption)
-                    .foregroundStyle(SpaceTheme.cosmicCyan)
+                if UIImage(named: "cosmic_connector_star") != nil {
+                    Image("cosmic_connector_star")
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(width: 14, height: 14)
+                } else {
+                    Image(systemName: "sparkle.magnifyingglass")
+                        .font(.caption)
+                        .foregroundStyle(SpaceTheme.cosmicCyan)
+                }
                 Text("Similar Foods")
                     .font(.system(.subheadline, design: .rounded, weight: .bold))
                     .foregroundStyle(.white)
@@ -588,15 +711,15 @@ struct ActiveQuestScreen: View {
                             viewModel.setActiveQuest(food: similar)
                         } label: {
                             VStack(spacing: 6) {
-                                Text(similar.emoji)
-                                    .font(.title2)
+                                FoodIcon(food: similar, size: 28)
                                 Text(similar.name)
                                     .font(.system(.caption2, design: .rounded, weight: .semibold))
                                     .foregroundStyle(.white)
                                     .lineLimit(1)
                                 HStack(spacing: 2) {
-                                    Text(similar.color.emoji)
-                                        .font(.system(size: 8))
+                                    Circle()
+                                        .fill(SpaceTheme.planetColor(hex: similar.color.hex))
+                                        .frame(width: 8, height: 8)
                                     Text(similar.foodGroup.label)
                                         .font(.system(size: 9, design: .rounded))
                                         .foregroundStyle(.white.opacity(0.4))
@@ -632,7 +755,25 @@ struct ActiveQuestScreen: View {
 
             VStack(spacing: 16) {
                 if let milestone = viewModel.streakMilestone {
-                    Text(milestone.emoji).font(.system(size: 56))
+                    Group {
+                        if UIImage(named: milestone.imageName) != nil {
+                            Image(milestone.imageName)
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 72, height: 72)
+                        } else if UIImage(named: "badge_star_coin") != nil {
+                            Image("badge_star_coin")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 64, height: 64)
+                        } else {
+                            Image(systemName: "flame.fill")
+                                .font(.system(size: 44, weight: .bold))
+                                .foregroundStyle(SpaceTheme.starGold)
+                        }
+                    }
 
                     Text(milestone.title)
                         .font(.system(.title2, design: .rounded, weight: .bold))
@@ -644,9 +785,33 @@ struct ActiveQuestScreen: View {
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 24)
                 } else {
-                    Text("⭐️").font(.system(size: 56))
+                    Group {
+                        if step == .taste, UIImage(named: SensoryStep.ateImageName) != nil {
+                            Image(SensoryStep.ateImageName)
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 64, height: 64)
+                        } else if UIImage(named: "badge_star_coin") != nil {
+                            Image("badge_star_coin")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 64, height: 64)
+                        } else if UIImage(named: "star_dust_particle") != nil {
+                            Image("star_dust_particle")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 64, height: 64)
+                        } else {
+                            Image(systemName: "sparkles")
+                                .font(.system(size: 48))
+                                .foregroundStyle(SpaceTheme.starGold)
+                        }
+                    }
 
-                    Text("Amazing!")
+                    Text(step.celebrateTitle)
                         .font(.system(.title2, design: .rounded, weight: .bold))
                         .foregroundStyle(.white)
 
@@ -655,11 +820,28 @@ struct ActiveQuestScreen: View {
                         .foregroundStyle(.white.opacity(0.8))
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 24)
+
+                    if let soft = softRegressionNote {
+                        Text(soft)
+                            .font(.system(.caption, design: .rounded))
+                            .foregroundStyle(SpaceTheme.starGold.opacity(0.9))
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 20)
+                            .padding(.top, 4)
+                    }
                 }
 
                 if step.starDustReward > 0 {
                     HStack(spacing: 4) {
-                        Image(systemName: "sparkles")
+                        if UIImage(named: "star_dust_particle") != nil {
+                            Image("star_dust_particle")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 22, height: 22)
+                        } else {
+                            Image(systemName: "sparkles")
+                        }
                         Text("+\(step.starDustReward) Star Dust")
                     }
                     .font(.system(.headline, design: .rounded, weight: .bold))
@@ -668,8 +850,16 @@ struct ActiveQuestScreen: View {
 
                 if viewModel.profile.currentStreak > 0 {
                     HStack(spacing: 6) {
-                        Image(systemName: "flame.fill")
-                            .foregroundStyle(.orange)
+                        if UIImage(named: "cosmetic_day7_badge") != nil {
+                            Image("cosmetic_day7_badge")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 18, height: 18)
+                        } else {
+                            Image(systemName: "flame.fill")
+                                .foregroundStyle(.orange)
+                        }
                         Text("Streak: Day \(viewModel.profile.currentStreak)!")
                             .foregroundStyle(.orange)
                     }

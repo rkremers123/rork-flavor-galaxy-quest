@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct LevelBadgeView: View {
     let level: ExplorerLevel
@@ -19,6 +20,15 @@ struct LevelBadgeView: View {
                     )
                     .frame(width: 26, height: 26)
                     .rotationEffect(.degrees(-90))
+
+                if UIImage(named: "level_gem") != nil {
+                    Image("level_gem")
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(width: 18, height: 18)
+                        .opacity(0.9)
+                }
 
                 Text("\(level.rawValue)")
                     .font(.system(size: 10, weight: .bold, design: .rounded))

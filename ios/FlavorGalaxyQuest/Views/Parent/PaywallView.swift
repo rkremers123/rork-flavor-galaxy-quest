@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 import RevenueCat
 
 struct PaywallView: View {
@@ -102,15 +103,7 @@ struct PaywallView: View {
                     )
                     .frame(width: 100, height: 100)
 
-                Image(systemName: "sparkles")
-                    .font(.system(size: 40))
-                    .foregroundStyle(
-                        LinearGradient(
-                            colors: [SpaceTheme.cosmicCyan, .purple],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
+                paywallHeroMark
             }
 
             Text("Keep Your Adventure Going")
@@ -129,27 +122,31 @@ struct PaywallView: View {
     private var featuresSection: some View {
         VStack(spacing: 0) {
             featureRow(
-                icon: "wand.and.stars",
+                assetMarks: ["safe_food_token", "cosmic_connector_star"],
+                icon: "link",
                 color: SpaceTheme.cosmicCyan,
-                title: "Smart Recommendations",
-                subtitle: "AI-powered food suggestions based on success patterns"
+                title: "Bridge Food picks",
+                subtitle: "Matcher suggestions from foods they already accept — not AI, not a medical device"
             )
             Divider().overlay(.white.opacity(0.06)).padding(.leading, 52)
             featureRow(
+                assetMarks: ["level_gem", "badge_saturn"],
                 icon: "chart.bar.fill",
                 color: .purple,
-                title: "Deep Analytics",
-                subtitle: "Texture, flavor & temperature profile visualizations"
+                title: "Sensory profile",
+                subtitle: "Texture, flavor, color & prep patterns from logged dinners"
             )
             Divider().overlay(.white.opacity(0.06)).padding(.leading, 52)
             featureRow(
+                assetMarks: ["step_look", "cosmetic_sensory_scanner", "cosmic_connector_star"],
                 icon: "magnifyingglass",
                 color: .orange,
-                title: "Pattern Detection",
-                subtitle: "Detect regressions and sensory avoidance trends"
+                title: "Gentle pattern notes",
+                subtitle: "Spot soft regressions early — stay in orbit, keep pressure low"
             )
             Divider().overlay(.white.opacity(0.06)).padding(.leading, 52)
             featureRow(
+                assetMarks: ["badge_saturn", "cosmetic_day7_badge", "star_dust_particle"],
                 icon: "doc.text.fill",
                 color: SpaceTheme.planetGreen,
                 title: "Progress summary",
@@ -166,15 +163,23 @@ struct PaywallView: View {
         )
     }
 
-    private func featureRow(icon: String, color: Color, title: String, subtitle: String) -> some View {
+    private func featureRow(assetMarks: [String] = [], icon: String, color: Color, title: String, subtitle: String) -> some View {
         HStack(spacing: 14) {
             ZStack {
                 Circle()
                     .fill(color.opacity(0.12))
                     .frame(width: 36, height: 36)
-                Image(systemName: icon)
-                    .font(.callout)
-                    .foregroundStyle(color)
+                if let mark = assetMarks.first(where: { UIImage(named: $0) != nil }) {
+                    Image(mark)
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(width: 20, height: 20)
+                } else {
+                    Image(systemName: icon)
+                        .font(.callout)
+                        .foregroundStyle(color)
+                }
             }
 
             VStack(alignment: .leading, spacing: 2) {
@@ -288,7 +293,9 @@ struct PaywallView: View {
                 }
             } label: {
                 VStack(spacing: 4) {
-                    Text("Start \(SGOffer.trialDays)-day free trial")
+                    Text(billingConfigured
+                        ? "Start \(SGOffer.trialDays)-day free trial"
+                        : "Subscription billing not connected yet")
                         .font(.system(.headline, design: .rounded))
                     Text(ctaSubtitleText)
                         .font(.system(.caption, design: .rounded))
@@ -325,7 +332,9 @@ struct PaywallView: View {
 
     private var legalSection: some View {
         VStack(spacing: 6) {
-            Text("Start with a \(SGOffer.trialDays)-day free trial. Then \(SGOffer.monthly)/month or \(SGOffer.yearly)/year.")
+            Text(billingConfigured
+                ? "Start with a \(SGOffer.trialDays)-day free trial. Then \(SGOffer.monthly)/month or \(SGOffer.yearly)/year."
+                : "Pricing is \(SGOffer.monthly)/mo or \(SGOffer.yearly)/yr after a \(SGOffer.trialDays)-day trial — RevenueCat keys are empty in this build, so purchase is not live yet.")
                 .font(.system(.caption2, design: .rounded, weight: .medium))
                 .foregroundStyle(.white.opacity(0.45))
                 .multilineTextAlignment(.center)
@@ -354,6 +363,45 @@ struct PaywallView: View {
     private var yearlyPackage: Package? {
         availablePackages.first { $0.packageType == .annual }
     }
+
+
+    /// Illustrated paywall mark: trial-ended empty, then Saturn badge / wordmark, then SF fallback.
+    @ViewBuilder
+    private var paywallHeroMark: some View {
+        if UIImage(named: "empty_state_trial_ended") != nil {
+            Image("empty_state_trial_ended")
+                .resizable()
+                .interpolation(.high)
+                .scaledToFit()
+                .frame(width: 88, height: 88)
+                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+        } else if UIImage(named: "badge_saturn") != nil {
+            Image("badge_saturn")
+                .resizable()
+                .interpolation(.high)
+                .scaledToFit()
+                .frame(width: 56, height: 56)
+        } else if UIImage(named: "wordmark_sensory_galaxy") != nil {
+            Image("wordmark_sensory_galaxy")
+                .resizable()
+                .interpolation(.high)
+                .scaledToFit()
+                .frame(width: 120, height: 28)
+        } else {
+            Image(systemName: "sparkles")
+                .font(.system(size: 40))
+                .foregroundStyle(
+                    LinearGradient(
+                        colors: [SpaceTheme.cosmicCyan, .purple],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+        }
+    }
+
+    /// RevenueCat keys are still empty in Config — do not promise a live trial purchase path.
+    private var billingConfigured: Bool { Config.billingConfigured }
 
     private var monthlyPriceLabel: String {
         monthlyPackage?.storeProduct.localizedPriceString ?? SGOffer.monthly

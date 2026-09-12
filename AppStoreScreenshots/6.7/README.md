@@ -1,0 +1,1 @@
+6.7 inch App Store screenshots 1290x2796, composed from locked 1242x2208 listing stills. No stretch. Listing 01-10. Spares 11-14 present (allergen, parent-gate, you-see-the-log, ot-share) but listing stays 01-10.

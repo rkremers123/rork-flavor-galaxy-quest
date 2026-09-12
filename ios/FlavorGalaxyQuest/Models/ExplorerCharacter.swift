@@ -33,6 +33,15 @@ nonisolated enum ExplorerType: String, Codable, CaseIterable, Sendable, Hashable
         }
     }
 
+    var boardImageName: String {
+        switch self {
+        case .nova: "explorer_nova_board"
+        case .cosmo: "explorer_cosmo_board"
+        case .star: "explorer_star_board"
+        case .orbit: "explorer_orbit_board"
+        }
+    }
+
     var title: String {
         switch self {
         case .nova: "Speed Explorer"
@@ -254,6 +263,18 @@ nonisolated enum CosmeticCategory: String, Codable, CaseIterable, Sendable {
         case .particle: "bubbles.and.sparkles.fill"
         }
     }
+
+    /// Representative shipped mark for category chrome (picker chips). Auras stay procedural.
+    var markImageName: String? {
+        switch self {
+        case .achievementBadge: "cosmetic_flavor_pioneer_badge"
+        case .milestoneBadge: "cosmetic_day7_badge"
+        case .backpack: "cosmetic_cosmic_backpack"
+        case .handheld: "cosmetic_cosmic_compass"
+        case .aura: nil
+        case .particle: "star_dust_particle"
+        }
+    }
 }
 
 nonisolated enum CosmeticUnlockCondition: Sendable {
@@ -361,6 +382,34 @@ nonisolated enum Cosmetic: String, Codable, CaseIterable, Sendable, Hashable {
         }
     }
 
+    var imageName: String? {
+        switch self {
+        case .speedExplorerBadge: "cosmetic_speed_explorer_badge"
+        case .scienceMasterBadge: "cosmetic_science_master_badge"
+        case .flavorPioneerBadge: "cosmetic_flavor_pioneer_badge"
+        case .sensoryWizardBadge: "cosmetic_sensory_wizard_badge"
+        case .galaxyLegendBadge: "cosmetic_galaxy_legend_badge"
+        case .day7Badge: "cosmetic_day7_badge"
+        case .week2Badge: "cosmetic_week2_badge"
+        case .month1Badge: "cosmetic_month1_badge"
+        case .days100Badge: "cosmetic_days100_badge"
+        case .year1Badge: "cosmetic_year1_badge"
+        case .cosmicBackpack: "cosmetic_cosmic_backpack"
+        case .sensoryExplorerPack: "cosmetic_sensory_explorer_pack"
+        case .flavorQuestSatchel: "cosmetic_flavor_quest_satchel"
+        case .scientistBag: "cosmetic_scientist_bag"
+        case .cosmicCompass: "cosmetic_cosmic_compass"
+        case .flavorTelescope: "cosmetic_flavor_telescope"
+        case .explorerStaff: "cosmetic_explorer_staff"
+        case .discoveryWand: "cosmetic_discovery_wand"
+        case .sensoryScanner: "cosmetic_sensory_scanner"
+        case .cyanNebulaAura, .goldCosmicAura, .purpleMysticAura, .rainbowGalaxyAura:
+            nil
+        case .stardustTrail, .cosmicSparkles, .galaxyShimmer:
+            "star_dust_particle"
+        }
+    }
+
     var category: CosmeticCategory {
         switch self {
         case .speedExplorerBadge, .scienceMasterBadge, .flavorPioneerBadge,
@@ -416,7 +465,7 @@ nonisolated enum Cosmetic: String, Codable, CaseIterable, Sendable, Hashable {
         case .foodsLogged(let n): "Log \(n) foods"
         case .daysLogged(let n): "\(n) days logging"
         case .reachPhase(let step): "Complete \(step.label) Phase"
-        case .completeAllPhases: "Complete all 5 SOS phases"
+        case .completeAllPhases: "Complete all 5 ladder phases"
         case .foodFamilies(let n): "Try \(n) food families"
         case .planetsUnlocked(let n): "Unlock \(n) planets"
         }

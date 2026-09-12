@@ -8,6 +8,7 @@ struct SensoryProfileCalculator {
         profile: ChildProfileModel,
         allFoods: [FoodItem]
     ) -> SensoryProfile {
+        MatcherContext.profile = profile
         let calendar = Calendar.current
         let daysActive = max((calendar.dateComponents([.day], from: profile.createdDate, to: Date()).day ?? 0) + 1, 1)
 

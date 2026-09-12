@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct GalaxyMapView: View {
     let viewModel: AppViewModel
@@ -126,9 +127,17 @@ struct GalaxyMapView: View {
                     )
                     if viewModel.profile.currentStreak > 0 {
                         HStack(spacing: 2) {
-                            Image(systemName: "flame.fill")
-                                .font(.caption2)
-                                .foregroundStyle(.orange)
+                            if UIImage(named: "cosmetic_day7_badge") != nil {
+                                Image("cosmetic_day7_badge")
+                                    .resizable()
+                                    .interpolation(.high)
+                                    .scaledToFit()
+                                    .frame(width: 12, height: 12)
+                            } else {
+                                Image(systemName: "flame.fill")
+                                    .font(.caption2)
+                                    .foregroundStyle(.orange)
+                            }
                             Text("\(viewModel.profile.currentStreak)")
                                 .font(.system(.caption, design: .rounded, weight: .bold))
                                 .foregroundStyle(.orange)
@@ -153,11 +162,23 @@ struct GalaxyMapView: View {
             Button {
                 showParentGate = true
             } label: {
-                Image(systemName: "gearshape.fill")
-                    .font(.title3)
-                    .foregroundStyle(.white.opacity(0.5))
-                    .frame(width: 44, height: 44)
+                Group {
+                    if UIImage(named: "grownups_chip") != nil {
+                        Image("grownups_chip")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 28, height: 28)
+                            .opacity(0.9)
+                    } else {
+                        Image(systemName: "gearshape.fill")
+                            .font(.title3)
+                            .foregroundStyle(.white.opacity(0.5))
+                    }
+                }
+                .frame(width: 44, height: 44)
             }
+            .accessibilityLabel("Grown-ups")
         }
         .padding(.horizontal, 20)
         .padding(.top, 8)
@@ -254,10 +275,20 @@ struct GalaxyMapView: View {
                             PlanetView(food: food, progress: progress)
                                 .overlay(alignment: .topTrailing) {
                                     if customFoodIds.contains(food.id) {
-                                        Text("✦")
-                                            .font(.system(size: 8, weight: .bold))
-                                            .foregroundStyle(SpaceTheme.cosmicCyan)
-                                            .padding(4)
+                                        Group {
+                                            if UIImage(named: "food_custom_gem") != nil {
+                                                Image("food_custom_gem")
+                                                    .resizable()
+                                                    .interpolation(.high)
+                                                    .scaledToFit()
+                                                    .frame(width: 14, height: 14)
+                                            } else {
+                                                Image(systemName: "diamond.fill")
+                                                    .font(.system(size: 8, weight: .bold))
+                                                    .foregroundStyle(SpaceTheme.cosmicCyan)
+                                            }
+                                        }
+                                        .padding(4)
                                     }
                                 }
                         }
@@ -326,9 +357,20 @@ struct GalaxyMapView: View {
         VStack(spacing: 20) {
             Spacer().frame(height: 30)
 
-            Image(systemName: "magnifyingglass")
-                .font(.system(size: 36))
-                .foregroundStyle(.white.opacity(0.2))
+            Group {
+                if UIImage(named: "empty_state_pantry") != nil {
+                    Image("empty_state_pantry")
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(maxWidth: 240)
+                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                } else {
+                    Image(systemName: "magnifyingglass")
+                        .font(.system(size: 36))
+                        .foregroundStyle(.white.opacity(0.2))
+                }
+            }
 
             Text("No foods found for \"\(searchText)\"")
                 .font(.system(.subheadline, design: .rounded, weight: .medium))
@@ -420,7 +462,11 @@ struct GalaxyMapView: View {
                 }
 
                 VStack(alignment: .leading, spacing: 3) {
-                    Text("Try Next: \(suggestion.bridgeFood.emoji) \(suggestion.bridgeFood.name)")
+                    HStack(spacing: 6) {
+                        Text("Try Next:")
+                        FoodIcon(food: suggestion.bridgeFood, size: 16)
+                        Text(suggestion.bridgeFood.name)
+                    }
                         .font(.system(.subheadline, design: .rounded, weight: .bold))
                         .foregroundStyle(.white)
 
@@ -458,10 +504,24 @@ struct GalaxyMapView: View {
                         .fill(SpaceTheme.starGold.opacity(0.15))
                         .frame(width: 44, height: 44)
 
-                    Image(systemName: viewModel.profile.starJarRewardUnlocked ? "gift.fill" : "star.circle.fill")
-                        .font(.title2)
-                        .foregroundStyle(SpaceTheme.starGold)
-                        .symbolEffect(.pulse)
+                    if UIImage(named: "badge_star_coin") != nil {
+                        Image("badge_star_coin")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 28, height: 28)
+                    } else if UIImage(named: "star_dust_particle") != nil {
+                        Image("star_dust_particle")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 26, height: 26)
+                    } else {
+                        Image(systemName: viewModel.profile.starJarRewardUnlocked ? "gift.fill" : "star.circle.fill")
+                            .font(.title2)
+                            .foregroundStyle(SpaceTheme.starGold)
+                            .symbolEffect(.pulse)
+                    }
                 }
 
                 VStack(alignment: .leading, spacing: 3) {
@@ -515,8 +575,31 @@ struct GalaxyMapView: View {
                 }
 
             VStack(spacing: 24) {
-                Text("📡")
-                    .font(.system(size: 60))
+                Group {
+                    if UIImage(named: "cosmetic_sensory_scanner") != nil {
+                        Image("cosmetic_sensory_scanner")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 72, height: 72)
+                    } else if UIImage(named: "badge_star_coin") != nil {
+                        Image("badge_star_coin")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 72, height: 72)
+                    } else if UIImage(named: "star_dust_particle") != nil {
+                        Image("star_dust_particle")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 72, height: 72)
+                    } else {
+                        Image(systemName: "antenna.radiowaves.left.and.right")
+                            .font(.system(size: 48, weight: .bold))
+                            .foregroundStyle(SpaceTheme.starGold)
+                    }
+                }
 
                 Text("Transmission from Earth!")
                     .font(.system(.title2, design: .rounded, weight: .bold))
@@ -579,9 +662,26 @@ struct ParentGateSheet: View {
                     }
                 } else {
                     VStack(spacing: 16) {
-                        Image(systemName: "lock.shield.fill")
-                            .font(.system(size: 40))
-                            .foregroundStyle(.secondary)
+                        Group {
+                            if UIImage(named: "empty_state_pin") != nil {
+                                Image("empty_state_pin")
+                                    .resizable()
+                                    .interpolation(.high)
+                                    .scaledToFit()
+                                    .frame(maxWidth: 200)
+                                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                            } else if UIImage(named: "grownups_chip") != nil {
+                                Image("grownups_chip")
+                                    .resizable()
+                                    .interpolation(.high)
+                                    .scaledToFit()
+                                    .frame(width: 72, height: 72)
+                            } else {
+                                Image(systemName: "lock.shield.fill")
+                                    .font(.system(size: 40))
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
 
                         Text("Parent Zone")
                             .font(.title3.bold())
