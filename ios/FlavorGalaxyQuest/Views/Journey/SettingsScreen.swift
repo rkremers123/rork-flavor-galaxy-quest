@@ -462,9 +462,18 @@ struct SettingsScreen: View {
 
     private var allergenCard: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("Allergen Filters")
-                .font(.system(.caption, design: .rounded, weight: .bold))
-                .foregroundStyle(.white.opacity(0.6))
+            HStack(spacing: 6) {
+                if UIImage(named: "empty_state_allergen") != nil {
+                    Image("empty_state_allergen")
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(width: 16, height: 16)
+                }
+                Text("Allergen Filters")
+                    .font(.system(.caption, design: .rounded, weight: .bold))
+                    .foregroundStyle(.white.opacity(0.6))
+            }
 
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 90), spacing: 6)], spacing: 6) {
                 ForEach(Allergen.allCases, id: \.self) { allergen in

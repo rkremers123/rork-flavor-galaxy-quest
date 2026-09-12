@@ -711,6 +711,7 @@ struct ParentDashboardView: View {
             } else {
                 paywallGateView(
                     icon: "chart.bar.fill",
+                    assetMarks: ["level_gem", "badge_saturn", "cosmic_connector_star"],
                     title: "Sensory Analytics",
                     description: "See \(viewModel.profile.explorerDisplayName)'s texture, flavor & temperature profile with visual charts, success zones, and personalized insights."
                 )
@@ -733,6 +734,7 @@ struct ParentDashboardView: View {
             } else {
                 paywallGateView(
                     icon: "link",
+                    assetMarks: ["safe_food_token", "cosmic_connector_star"],
                     title: "Bridge Food picks",
                     description: "See matcher suggestions scored by how close they sit to foods already on the plate — no AI claims."
                 )
@@ -740,7 +742,12 @@ struct ParentDashboardView: View {
         }
     }
 
-    private func paywallGateView(icon: String, title: String, description: String) -> some View {
+    private func paywallGateView(
+        icon: String,
+        assetMarks: [String] = [],
+        title: String,
+        description: String
+    ) -> some View {
         VStack(spacing: 24) {
             Spacer()
 
@@ -755,9 +762,17 @@ struct ParentDashboardView: View {
                             )
                         )
                         .frame(width: 80, height: 80)
-                    Image(systemName: icon)
-                        .font(.largeTitle)
-                        .foregroundStyle(.purple)
+                    if let mark = assetMarks.first(where: { UIImage(named: $0) != nil }) {
+                        Image(mark)
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 44, height: 44)
+                    } else {
+                        Image(systemName: icon)
+                            .font(.largeTitle)
+                            .foregroundStyle(.purple)
+                    }
                 }
 
                 Text(title)
@@ -866,8 +881,17 @@ struct ParentDashboardView: View {
 
     private var allergenSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Allergen Filters")
-                .font(.headline)
+            HStack(spacing: 8) {
+                if UIImage(named: "empty_state_allergen") != nil {
+                    Image("empty_state_allergen")
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(width: 22, height: 22)
+                }
+                Text("Allergen Filters")
+                    .font(.headline)
+            }
 
             Text("Excluded allergens and Do not give foods will not appear in recommendations, bridges, or Start Quest.")
                 .font(.caption)
