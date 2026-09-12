@@ -136,9 +136,25 @@ struct SensoryEducationModal: View {
 
     private func credentialRow(_ text: String) -> some View {
         HStack(spacing: 8) {
-            Image(systemName: "checkmark.circle.fill")
-                .font(.caption)
-                .foregroundStyle(.green)
+            Group {
+                if UIImage(named: "safe_food_token") != nil {
+                    Image("safe_food_token")
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(width: 14, height: 14)
+                } else if UIImage(named: "step_look") != nil {
+                    Image("step_look")
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(width: 14, height: 14)
+                } else {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.caption)
+                        .foregroundStyle(.green)
+                }
+            }
             Text(text)
                 .font(.caption)
                 .foregroundStyle(.secondary)
@@ -146,7 +162,22 @@ struct SensoryEducationModal: View {
     }
 
     private var bottomCallout: some View {
-        VStack(spacing: 6) {
+        VStack(spacing: 10) {
+            Group {
+                if UIImage(named: SensoryStep.ateImageName) != nil {
+                    Image(SensoryStep.ateImageName)
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(width: 36, height: 36)
+                } else if UIImage(named: "level_gem") != nil {
+                    Image("level_gem")
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(width: 36, height: 36)
+                }
+            }
             Text("Each step is a WIN.")
                 .font(.headline)
             Text("Eating is the bonus.")

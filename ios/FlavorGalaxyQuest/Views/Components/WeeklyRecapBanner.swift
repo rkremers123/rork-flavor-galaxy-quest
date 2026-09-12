@@ -31,9 +31,25 @@ struct WeeklyRecapBanner: View {
         VStack(spacing: 14) {
             HStack {
                 HStack(spacing: 8) {
-                    Image(systemName: "chart.line.uptrend.xyaxis")
-                        .font(.callout)
-                        .foregroundStyle(SpaceTheme.cosmicCyan)
+                    Group {
+                        if UIImage(named: "badge_saturn") != nil {
+                            Image("badge_saturn")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 18, height: 18)
+                        } else if UIImage(named: "level_gem") != nil {
+                            Image("level_gem")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 18, height: 18)
+                        } else {
+                            Image(systemName: "chart.line.uptrend.xyaxis")
+                                .font(.callout)
+                                .foregroundStyle(SpaceTheme.cosmicCyan)
+                        }
+                    }
                     Text("Weekly Recap")
                         .font(.system(.subheadline, design: .rounded, weight: .bold))
                         .foregroundStyle(.white)

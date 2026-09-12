@@ -1051,9 +1051,25 @@ struct ParentDashboardView: View {
                 }
             } label: {
                 HStack(spacing: 10) {
-                    Image(systemName: "book.fill")
-                        .font(.callout)
-                        .foregroundStyle(.blue)
+                    Group {
+                        if UIImage(named: "step_look") != nil {
+                            Image("step_look")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 18, height: 18)
+                        } else if UIImage(named: "badge_saturn") != nil {
+                            Image("badge_saturn")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 18, height: 18)
+                        } else {
+                            Image(systemName: "book.fill")
+                                .font(.callout)
+                                .foregroundStyle(.blue)
+                        }
+                    }
                     Text("Why This Works")
                         .font(.subheadline.weight(.semibold))
                         .foregroundStyle(.primary)

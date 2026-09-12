@@ -72,8 +72,18 @@ struct RegressionInsightsView: View {
     private var patternsSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 8) {
-                Image(systemName: "exclamationmark.triangle.fill")
-                    .foregroundStyle(.red)
+                Group {
+                    if UIImage(named: "empty_state_allergen") != nil {
+                        Image("empty_state_allergen")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 18, height: 18)
+                    } else {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundStyle(.red)
+                    }
+                }
                 Text("Active Patterns")
                     .font(.headline)
             }
@@ -87,9 +97,19 @@ struct RegressionInsightsView: View {
     private func patternCard(_ pattern: RegressionPattern) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 8) {
-                Image(systemName: patternIcon(pattern.patternType))
-                    .foregroundStyle(patternColor(pattern.patternType))
-                    .font(.callout)
+                Group {
+                    if let asset = patternAsset(pattern.patternType), UIImage(named: asset) != nil {
+                        Image(asset)
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 16, height: 16)
+                    } else {
+                        Image(systemName: patternIcon(pattern.patternType))
+                            .foregroundStyle(patternColor(pattern.patternType))
+                            .font(.callout)
+                    }
+                }
 
                 Text("\(pattern.attributeLabel) \(pattern.patternType == .flavor ? "Flavor" : pattern.patternType == .texture ? "Texture" : "Temperature") Pattern")
                     .font(.subheadline.weight(.semibold))
@@ -109,9 +129,25 @@ struct RegressionInsightsView: View {
                 .foregroundStyle(.secondary)
 
             HStack(alignment: .top, spacing: 8) {
-                Image(systemName: "lightbulb.fill")
-                    .foregroundStyle(.yellow)
-                    .font(.caption)
+                Group {
+                    if UIImage(named: "cosmic_connector_star") != nil {
+                        Image("cosmic_connector_star")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 14, height: 14)
+                    } else if UIImage(named: "step_look") != nil {
+                        Image("step_look")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 14, height: 14)
+                    } else {
+                        Image(systemName: "lightbulb.fill")
+                            .foregroundStyle(.yellow)
+                            .font(.caption)
+                    }
+                }
                 Text(pattern.suggestion)
                     .font(.caption.weight(.medium))
                     .foregroundStyle(.primary)
@@ -225,8 +261,18 @@ struct RegressionInsightsView: View {
                     VStack(spacing: 0) {
                         ForEach(Array(resolvedRegressions), id: \.id) { regression in
                             HStack(spacing: 12) {
-                                Image(systemName: "checkmark.circle.fill")
-                                    .foregroundStyle(.green)
+                                Group {
+                                    if UIImage(named: "safe_food_token") != nil {
+                                        Image("safe_food_token")
+                                            .resizable()
+                                            .interpolation(.high)
+                                            .scaledToFit()
+                                            .frame(width: 18, height: 18)
+                                    } else {
+                                        Image(systemName: "checkmark.circle.fill")
+                                            .foregroundStyle(.green)
+                                    }
+                                }
 
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text(regression.foodName)
@@ -284,6 +330,14 @@ struct RegressionInsightsView: View {
         .padding(32)
         .background(Color(.secondarySystemGroupedBackground))
         .clipShape(.rect(cornerRadius: 14))
+    }
+
+    private func patternAsset(_ type: RegressionPatternType) -> String? {
+        switch type {
+        case .texture: "step_touch"
+        case .flavor: "step_taste"
+        case .temperature: "step_smell"
+        }
     }
 
     private func patternIcon(_ type: RegressionPatternType) -> String {
