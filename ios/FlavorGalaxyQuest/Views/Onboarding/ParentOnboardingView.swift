@@ -72,6 +72,11 @@ struct ParentOnboardingView: View {
                         .resizable()
                         .interpolation(.high)
                         .scaledToFit()
+                } else if UIImage(named: "default_avatar") != nil {
+                    Image("default_avatar")
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
                 } else {
                     Image(systemName: "sparkles")
                         .resizable()
@@ -112,6 +117,11 @@ struct ParentOnboardingView: View {
                         .scaledToFit()
                 } else if UIImage(named: ExplorerType.cosmo.imageName) != nil {
                     Image(ExplorerType.cosmo.imageName)
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                } else if UIImage(named: "default_avatar") != nil {
+                    Image("default_avatar")
                         .resizable()
                         .interpolation(.high)
                         .scaledToFit()
@@ -183,6 +193,12 @@ struct ParentOnboardingView: View {
                         .frame(width: 160, height: 160)
                 } else if UIImage(named: "planet_base_camp") != nil {
                     Image("planet_base_camp")
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(width: 120, height: 120)
+                } else if UIImage(named: "default_avatar") != nil {
+                    Image("default_avatar")
                         .resizable()
                         .interpolation(.high)
                         .scaledToFit()

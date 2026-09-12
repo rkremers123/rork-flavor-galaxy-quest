@@ -122,6 +122,7 @@ struct PaywallView: View {
     private var featuresSection: some View {
         VStack(spacing: 0) {
             featureRow(
+                assetMarks: ["safe_food_token", "cosmic_connector_star"],
                 icon: "link",
                 color: SpaceTheme.cosmicCyan,
                 title: "Bridge Food picks",
@@ -129,6 +130,7 @@ struct PaywallView: View {
             )
             Divider().overlay(.white.opacity(0.06)).padding(.leading, 52)
             featureRow(
+                assetMarks: ["level_gem", "badge_saturn"],
                 icon: "chart.bar.fill",
                 color: .purple,
                 title: "Sensory profile",
@@ -136,6 +138,7 @@ struct PaywallView: View {
             )
             Divider().overlay(.white.opacity(0.06)).padding(.leading, 52)
             featureRow(
+                assetMarks: ["step_look", "cosmetic_sensory_scanner", "cosmic_connector_star"],
                 icon: "magnifyingglass",
                 color: .orange,
                 title: "Gentle pattern notes",
@@ -143,6 +146,7 @@ struct PaywallView: View {
             )
             Divider().overlay(.white.opacity(0.06)).padding(.leading, 52)
             featureRow(
+                assetMarks: ["badge_saturn", "cosmetic_day7_badge", "star_dust_particle"],
                 icon: "doc.text.fill",
                 color: SpaceTheme.planetGreen,
                 title: "Progress summary",
@@ -159,15 +163,23 @@ struct PaywallView: View {
         )
     }
 
-    private func featureRow(icon: String, color: Color, title: String, subtitle: String) -> some View {
+    private func featureRow(assetMarks: [String] = [], icon: String, color: Color, title: String, subtitle: String) -> some View {
         HStack(spacing: 14) {
             ZStack {
                 Circle()
                     .fill(color.opacity(0.12))
                     .frame(width: 36, height: 36)
-                Image(systemName: icon)
-                    .font(.callout)
-                    .foregroundStyle(color)
+                if let mark = assetMarks.first(where: { UIImage(named: $0) != nil }) {
+                    Image(mark)
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(width: 20, height: 20)
+                } else {
+                    Image(systemName: icon)
+                        .font(.callout)
+                        .foregroundStyle(color)
+                }
             }
 
             VStack(alignment: .leading, spacing: 2) {

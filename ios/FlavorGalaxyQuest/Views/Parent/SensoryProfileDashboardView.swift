@@ -711,13 +711,30 @@ struct SensoryProfileDashboardView: View {
         Button {
             onExportPDF()
         } label: {
-            Label("Share progress summary", systemImage: "square.and.arrow.up")
-                .font(.subheadline.weight(.semibold))
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 14)
-                .background(Color.blue.opacity(0.12))
-                .foregroundStyle(.blue)
-                .clipShape(.rect(cornerRadius: 12))
+            HStack(spacing: 8) {
+                if UIImage(named: "badge_saturn") != nil {
+                    Image("badge_saturn")
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(width: 18, height: 18)
+                } else if UIImage(named: "level_gem") != nil {
+                    Image("level_gem")
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(width: 18, height: 18)
+                } else {
+                    Image(systemName: "square.and.arrow.up")
+                }
+                Text("Share progress summary")
+            }
+            .font(.subheadline.weight(.semibold))
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 14)
+            .background(Color.blue.opacity(0.12))
+            .foregroundStyle(.blue)
+            .clipShape(.rect(cornerRadius: 12))
         }
     }
 

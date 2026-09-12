@@ -370,9 +370,29 @@ struct SettingsScreen: View {
                     Circle()
                         .fill(SpaceTheme.cosmicCyan.opacity(0.12))
                         .frame(width: 40, height: 40)
-                    Image(systemName: "chart.bar.fill")
-                        .font(.callout)
-                        .foregroundStyle(SpaceTheme.cosmicCyan)
+                    if UIImage(named: "grownups_chip") != nil {
+                        Image("grownups_chip")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 22, height: 22)
+                    } else if UIImage(named: "badge_saturn") != nil {
+                        Image("badge_saturn")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 22, height: 22)
+                    } else if UIImage(named: "level_gem") != nil {
+                        Image("level_gem")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 22, height: 22)
+                    } else {
+                        Image(systemName: "chart.bar.fill")
+                            .font(.callout)
+                            .foregroundStyle(SpaceTheme.cosmicCyan)
+                    }
                 }
 
                 VStack(alignment: .leading, spacing: 2) {
