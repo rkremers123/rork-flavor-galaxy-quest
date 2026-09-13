@@ -256,14 +256,32 @@ struct ParentDashboardView: View {
                         ForEach(SensoryStep.allCases, id: \.self) { step in
                             let completed = progress?.completedSteps.contains(step) ?? false
                             let skipped = progress?.skippedSteps.contains(step) ?? false
+                            let stepColor = SpaceTheme.planetColor(hex: step.color)
 
                             VStack(spacing: 4) {
-                                Image(systemName: completed ? "checkmark.circle.fill" : skipped ? "arrow.uturn.right.circle" : "circle")
-                                    .font(.title3)
-                                    .foregroundStyle(completed ? .green : skipped ? .orange : .secondary)
+                                ZStack(alignment: .bottomTrailing) {
+                                    if completed {
+                                        StepMark(step: step, size: 18, tint: stepColor)
+                                        Image(systemName: "checkmark.circle.fill")
+                                            .font(.system(size: 9, weight: .bold))
+                                            .foregroundStyle(.green)
+                                            .background(Circle().fill(Color(.systemBackground)))
+                                            .offset(x: 3, y: 3)
+                                    } else if skipped {
+                                        StepMark(step: step, size: 16, tint: .orange.opacity(0.45))
+                                        Image(systemName: "arrow.uturn.right.circle")
+                                            .font(.system(size: 9, weight: .bold))
+                                            .foregroundStyle(.orange)
+                                            .background(Circle().fill(Color(.systemBackground)))
+                                            .offset(x: 3, y: 3)
+                                    } else {
+                                        StepMark(step: step, size: 16, tint: .secondary.opacity(0.55))
+                                    }
+                                }
+                                .frame(width: 22, height: 22)
                                 Text(step.label)
                                     .font(.caption2)
-                                    .foregroundStyle(.secondary)
+                                    .foregroundStyle(completed ? stepColor : .secondary)
                             }
                             .frame(maxWidth: .infinity)
                         }
@@ -272,8 +290,18 @@ struct ParentDashboardView: View {
                     if !viewModel.bridgeSuggestions.isEmpty {
                         let suggestion = viewModel.bridgeSuggestions[0]
                         HStack(spacing: 8) {
-                            Image(systemName: suggestion.bridgeType.icon)
-                                .foregroundStyle(.blue)
+                            Group {
+                                if UIImage(named: suggestion.bridgeType.markAssetName) != nil {
+                                    Image(suggestion.bridgeType.markAssetName)
+                                        .resizable()
+                                        .interpolation(.high)
+                                        .scaledToFit()
+                                        .frame(width: 16, height: 16)
+                                } else {
+                                    Image(systemName: suggestion.bridgeType.icon)
+                                        .foregroundStyle(.blue)
+                                }
+                            }
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("Next: \(suggestion.bridgeFood.name)")
                                     .font(.caption.weight(.semibold))

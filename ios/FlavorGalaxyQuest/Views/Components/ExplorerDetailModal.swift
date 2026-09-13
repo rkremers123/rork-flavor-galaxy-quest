@@ -81,12 +81,23 @@ struct ExplorerDetailModal: View {
                         showCosmetics = true
                     }
                 } label: {
-                    Label("Customize Explorer", systemImage: "paintbrush.fill")
-                        .font(.system(.subheadline, design: .rounded, weight: .semibold))
-                        .foregroundStyle(SpaceTheme.deepNavy)
-                        .padding(.horizontal, 24)
-                        .padding(.vertical, 12)
-                        .background(Capsule().fill(accentColor))
+                    HStack(spacing: 8) {
+                        if UIImage(named: "cosmetic_discovery_wand") != nil {
+                            Image("cosmetic_discovery_wand")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 18, height: 18)
+                        } else {
+                            Image(systemName: "paintbrush.fill")
+                        }
+                        Text("Customize Explorer")
+                    }
+                    .font(.system(.subheadline, design: .rounded, weight: .semibold))
+                    .foregroundStyle(SpaceTheme.deepNavy)
+                    .padding(.horizontal, 24)
+                    .padding(.vertical, 12)
+                    .background(Capsule().fill(accentColor))
                 }
 
                 Spacer()

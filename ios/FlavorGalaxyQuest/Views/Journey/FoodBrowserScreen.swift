@@ -223,9 +223,19 @@ struct FoodBrowserScreen: View {
     private var bridgeSuggestionsSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 6) {
-                Image(systemName: "arrow.triangle.branch")
-                    .font(.callout)
-                    .foregroundStyle(SpaceTheme.cosmicCyan)
+                Group {
+                    if UIImage(named: "cosmic_connector_star") != nil {
+                        Image("cosmic_connector_star")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 16, height: 16)
+                    } else {
+                        Image(systemName: "arrow.triangle.branch")
+                            .font(.callout)
+                            .foregroundStyle(SpaceTheme.cosmicCyan)
+                    }
+                }
                 Text("Bridge Suggestions")
                     .font(.system(.subheadline, design: .rounded, weight: .bold))
                     .foregroundStyle(.white)

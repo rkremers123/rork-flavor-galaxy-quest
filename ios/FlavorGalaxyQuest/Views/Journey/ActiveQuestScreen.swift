@@ -212,9 +212,19 @@ struct ActiveQuestScreen: View {
 
             if let bridge = viewModel.profile.activeBridges.first(where: { $0.bridgeFoodId == food.id }) {
                 HStack(spacing: 8) {
-                    Image(systemName: bridge.bridgeType.icon)
-                        .font(.caption)
-                        .foregroundStyle(SpaceTheme.cosmicCyan)
+                    Group {
+                        if UIImage(named: bridge.bridgeType.markAssetName) != nil {
+                            Image(bridge.bridgeType.markAssetName)
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 14, height: 14)
+                        } else {
+                            Image(systemName: bridge.bridgeType.icon)
+                                .font(.caption)
+                                .foregroundStyle(SpaceTheme.cosmicCyan)
+                        }
+                    }
                     Text("\(bridge.bridgeType.label) · Day \(bridge.daysActive + 1)")
                         .font(.system(.caption, design: .rounded, weight: .medium))
                         .foregroundStyle(SpaceTheme.cosmicCyan)

@@ -105,9 +105,19 @@ struct PlanetQuestView: View {
 
     private func bridgeInfoBanner(_ bridge: BridgeRecordModel) -> some View {
         HStack(spacing: 8) {
-            Image(systemName: bridge.bridgeType.icon)
-                .font(.caption)
-                .foregroundStyle(SpaceTheme.cosmicCyan)
+            Group {
+                if UIImage(named: bridge.bridgeType.markAssetName) != nil {
+                    Image(bridge.bridgeType.markAssetName)
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(width: 14, height: 14)
+                } else {
+                    Image(systemName: bridge.bridgeType.icon)
+                        .font(.caption)
+                        .foregroundStyle(SpaceTheme.cosmicCyan)
+                }
+            }
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(bridge.bridgeType.label)
