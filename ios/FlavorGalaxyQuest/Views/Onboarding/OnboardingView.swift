@@ -459,6 +459,11 @@ struct OnboardingView: View {
                                     Image(selectedExplorerType.imageName)
                                         .resizable()
                                         .scaledToFit()
+                                } else if UIImage(named: "default_avatar") != nil {
+                                    Image("default_avatar")
+                                        .resizable()
+                                        .interpolation(.high)
+                                        .scaledToFit()
                                 } else {
                                     Image(systemName: "sparkles")
                                         .resizable()
