@@ -255,6 +255,12 @@ struct CertificateView: View {
                 .interpolation(.high)
                 .scaledToFit()
                 .frame(height: size * 0.4)
+        } else if UIImage(named: "star_dust_particle") != nil {
+            Image("star_dust_particle")
+                .resizable()
+                .interpolation(.high)
+                .scaledToFit()
+                .frame(width: size * 0.7, height: size * 0.7)
         } else {
             Image(systemName: "sparkles")
                 .font(.system(size: size * 0.7, weight: .bold))

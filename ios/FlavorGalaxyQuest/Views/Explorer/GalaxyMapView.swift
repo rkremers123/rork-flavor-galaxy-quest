@@ -380,8 +380,18 @@ struct GalaxyMapView: View {
                 showCreateFood = true
             } label: {
                 HStack(spacing: 10) {
-                    Image(systemName: "plus.circle.fill")
-                        .font(.title3)
+                    Group {
+                        if UIImage(named: "food_custom_gem") != nil {
+                            Image("food_custom_gem")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 22, height: 22)
+                        } else {
+                            Image(systemName: "plus.circle.fill")
+                                .font(.title3)
+                        }
+                    }
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Create \"\(searchText)\"")
                             .font(.system(.subheadline, design: .rounded, weight: .bold))
@@ -414,9 +424,17 @@ struct GalaxyMapView: View {
                     Circle()
                         .fill(SpaceTheme.cosmicCyan.opacity(0.12))
                         .frame(width: 36, height: 36)
-                    Image(systemName: "plus")
-                        .font(.subheadline.bold())
-                        .foregroundStyle(SpaceTheme.cosmicCyan)
+                    if UIImage(named: "food_custom_gem") != nil {
+                        Image("food_custom_gem")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 18, height: 18)
+                    } else {
+                        Image(systemName: "plus")
+                            .font(.subheadline.bold())
+                            .foregroundStyle(SpaceTheme.cosmicCyan)
+                    }
                 }
 
                 VStack(alignment: .leading, spacing: 2) {

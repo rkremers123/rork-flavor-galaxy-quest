@@ -815,9 +815,17 @@ struct FoodBrowserScreen: View {
                     Circle()
                         .fill(SpaceTheme.cosmicCyan.opacity(0.12))
                         .frame(width: 44, height: 44)
-                    Image(systemName: "plus")
-                        .font(.headline)
-                        .foregroundStyle(SpaceTheme.cosmicCyan)
+                    if UIImage(named: "food_custom_gem") != nil {
+                        Image("food_custom_gem")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 22, height: 22)
+                    } else {
+                        Image(systemName: "plus")
+                            .font(.headline)
+                            .foregroundStyle(SpaceTheme.cosmicCyan)
+                    }
                 }
 
                 VStack(alignment: .leading, spacing: 2) {
