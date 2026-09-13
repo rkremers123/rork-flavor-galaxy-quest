@@ -19,6 +19,15 @@ enum FoodBrowserTab: String, CaseIterable {
         case .search: "magnifyingglass"
         }
     }
+
+    /// Prefer shipped chrome when present; SF `icon` stays the fallback.
+    var markAssetName: String? {
+        switch self {
+        case .recommended: "cosmic_connector_star"
+        case .allFoods: "empty_state_pantry"
+        case .search: nil
+        }
+    }
 }
 
 enum FoodSortMode: String, CaseIterable {
@@ -119,21 +128,31 @@ struct FoodBrowserScreen: View {
                             showCreateFood = true
                         }
                     } label: {
-                        Image(systemName: "plus")
-                            .font(.title2.weight(.semibold))
-                            .foregroundStyle(.white)
-                            .frame(width: 56, height: 56)
-                            .background(
-                                Circle()
-                                    .fill(
-                                        LinearGradient(
-                                            colors: [SpaceTheme.cosmicCyan, SpaceTheme.planetColor(hex: "667eea")],
-                                            startPoint: .topLeading,
-                                            endPoint: .bottomTrailing
-                                        )
+                        Group {
+                            if UIImage(named: "food_custom_gem") != nil {
+                                Image("food_custom_gem")
+                                    .resizable()
+                                    .interpolation(.high)
+                                    .scaledToFit()
+                                    .padding(14)
+                            } else {
+                                Image(systemName: "plus")
+                                    .font(.title2.weight(.semibold))
+                                    .foregroundStyle(.white)
+                            }
+                        }
+                        .frame(width: 56, height: 56)
+                        .background(
+                            Circle()
+                                .fill(
+                                    LinearGradient(
+                                        colors: [SpaceTheme.cosmicCyan, SpaceTheme.planetColor(hex: "667eea")],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
                                     )
-                                    .shadow(color: SpaceTheme.cosmicCyan.opacity(0.4), radius: 10, y: 4)
-                            )
+                                )
+                                .shadow(color: SpaceTheme.cosmicCyan.opacity(0.4), radius: 10, y: 4)
+                        )
                     }
                     .scaleEffect(fabScale)
                     .padding(.trailing, 20)
@@ -173,8 +192,18 @@ struct FoodBrowserScreen: View {
                     withAnimation(.spring(duration: 0.3)) { browserTab = tab }
                 } label: {
                     HStack(spacing: 5) {
-                        Image(systemName: tab.icon)
-                            .font(.caption2)
+                        Group {
+                            if let asset = tab.markAssetName, UIImage(named: asset) != nil {
+                                Image(asset)
+                                    .resizable()
+                                    .interpolation(.high)
+                                    .scaledToFit()
+                                    .frame(width: 12, height: 12)
+                            } else {
+                                Image(systemName: tab.icon)
+                                    .font(.caption2)
+                            }
+                        }
                         Text(tab.label)
                             .font(.system(.caption, design: .rounded, weight: .semibold))
                     }
@@ -741,8 +770,18 @@ struct FoodBrowserScreen: View {
                 showCreateFood = true
             } label: {
                 HStack(spacing: 10) {
-                    Image(systemName: "plus.circle.fill")
-                        .font(.title3)
+                    Group {
+                        if UIImage(named: "food_custom_gem") != nil {
+                            Image("food_custom_gem")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 22, height: 22)
+                        } else {
+                            Image(systemName: "plus.circle.fill")
+                                .font(.title3)
+                        }
+                    }
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Create \"\(searchText)\"")
                             .font(.system(.subheadline, design: .rounded, weight: .bold))
