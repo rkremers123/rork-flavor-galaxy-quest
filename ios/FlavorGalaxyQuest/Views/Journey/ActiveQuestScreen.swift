@@ -802,6 +802,12 @@ struct ActiveQuestScreen: View {
                                 .interpolation(.high)
                                 .scaledToFit()
                                 .frame(width: 64, height: 64)
+                        } else if UIImage(named: step.imageName) != nil {
+                            Image(step.imageName)
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 64, height: 64)
                         } else if UIImage(named: "badge_star_coin") != nil {
                             Image("badge_star_coin")
                                 .resizable()

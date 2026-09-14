@@ -179,9 +179,26 @@ struct FoodSearchView: View {
                 if let progress, !progress.completedStepValues.isEmpty {
                     HStack(spacing: 4) {
                         if progress.isComplete {
-                            Image(systemName: "checkmark.seal.fill")
-                                .font(.caption)
-                                .foregroundStyle(SpaceTheme.starGold)
+                            // Parity with PlanetView mastered mark.
+                            Group {
+                                if UIImage(named: "level_gem") != nil {
+                                    Image("level_gem")
+                                        .resizable()
+                                        .interpolation(.high)
+                                        .scaledToFit()
+                                        .frame(width: 14, height: 14)
+                                } else if UIImage(named: "badge_star_coin") != nil {
+                                    Image("badge_star_coin")
+                                        .resizable()
+                                        .interpolation(.high)
+                                        .scaledToFit()
+                                        .frame(width: 14, height: 14)
+                                } else {
+                                    Image(systemName: "checkmark.seal.fill")
+                                        .font(.caption)
+                                        .foregroundStyle(SpaceTheme.starGold)
+                                }
+                            }
                         } else {
                             Text("\(Int(progress.progressFraction * 100))%")
                                 .font(.system(.caption2, design: .rounded, weight: .bold))

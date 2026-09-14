@@ -319,8 +319,25 @@ struct SettingsScreen: View {
     private var parentSection: some View {
         VStack(spacing: 16) {
             HStack(spacing: 8) {
-                Image(systemName: "checkmark.shield.fill")
-                    .foregroundStyle(SpaceTheme.planetGreen)
+                Group {
+                    if UIImage(named: "grownups_chip") != nil {
+                        Image("grownups_chip")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 18, height: 18)
+                    } else if UIImage(named: "empty_state_pin") != nil {
+                        Image("empty_state_pin")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 18, height: 18)
+                            .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
+                    } else {
+                        Image(systemName: "checkmark.shield.fill")
+                            .foregroundStyle(SpaceTheme.planetGreen)
+                    }
+                }
                 Text("Parent Mode Active")
                     .font(.system(.subheadline, design: .rounded, weight: .bold))
                     .foregroundStyle(SpaceTheme.planetGreen)

@@ -444,6 +444,12 @@ struct PlanetQuestView: View {
                             .interpolation(.high)
                             .scaledToFit()
                             .frame(width: 72, height: 72)
+                    } else if let step = activeStep, UIImage(named: step.imageName) != nil {
+                        Image(step.imageName)
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 72, height: 72)
                     } else if UIImage(named: "badge_star_coin") != nil {
                         Image("badge_star_coin")
                             .resizable()
@@ -537,6 +543,18 @@ struct ParentVerificationSheet: View {
                 Group {
                     if step == .taste, UIImage(named: SensoryStep.ateImageName) != nil {
                         Image(SensoryStep.ateImageName)
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 48, height: 48)
+                    } else if UIImage(named: step.imageName) != nil {
+                        Image(step.imageName)
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 48, height: 48)
+                    } else if UIImage(named: "grownups_chip") != nil {
+                        Image("grownups_chip")
                             .resizable()
                             .interpolation(.high)
                             .scaledToFit()
