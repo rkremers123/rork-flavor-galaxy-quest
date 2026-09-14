@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct ExplorerDetailModal: View {
     let viewModel: AppViewModel
@@ -51,7 +52,8 @@ struct ExplorerDetailModal: View {
                         icon: "star.fill",
                         value: "Level \(profile.currentLevel.rawValue)",
                         label: profile.currentLevel.title,
-                        color: SpaceTheme.starGold
+                        color: SpaceTheme.starGold,
+                        assetMark: "level_gem"
                     )
 
                     if profile.currentStreak > 0 {
@@ -59,7 +61,8 @@ struct ExplorerDetailModal: View {
                             icon: "flame.fill",
                             value: "\(profile.currentStreak)",
                             label: "Day Streak",
-                            color: .orange
+                            color: .orange,
+                            assetMark: "cosmetic_day7_badge"
                         )
                     }
 
@@ -67,7 +70,8 @@ struct ExplorerDetailModal: View {
                         icon: "sparkles",
                         value: "\(profile.totalStarDust)",
                         label: "Star Dust",
-                        color: SpaceTheme.cosmicCyan
+                        color: SpaceTheme.cosmicCyan,
+                        assetMark: "star_dust_particle"
                     )
                 }
 
@@ -77,12 +81,23 @@ struct ExplorerDetailModal: View {
                         showCosmetics = true
                     }
                 } label: {
-                    Label("Customize Explorer", systemImage: "paintbrush.fill")
-                        .font(.system(.subheadline, design: .rounded, weight: .semibold))
-                        .foregroundStyle(SpaceTheme.deepNavy)
-                        .padding(.horizontal, 24)
-                        .padding(.vertical, 12)
-                        .background(Capsule().fill(accentColor))
+                    HStack(spacing: 8) {
+                        if UIImage(named: "cosmetic_discovery_wand") != nil {
+                            Image("cosmetic_discovery_wand")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 18, height: 18)
+                        } else {
+                            Image(systemName: "paintbrush.fill")
+                        }
+                        Text("Customize Explorer")
+                    }
+                    .font(.system(.subheadline, design: .rounded, weight: .semibold))
+                    .foregroundStyle(SpaceTheme.deepNavy)
+                    .padding(.horizontal, 24)
+                    .padding(.vertical, 12)
+                    .background(Capsule().fill(accentColor))
                 }
 
                 Spacer()
@@ -99,11 +114,21 @@ struct ExplorerDetailModal: View {
         }
     }
 
-    private func statPill(icon: String, value: String, label: String, color: Color) -> some View {
+    private func statPill(icon: String, value: String, label: String, color: Color, assetMark: String? = nil) -> some View {
         VStack(spacing: 4) {
-            Image(systemName: icon)
-                .font(.caption)
-                .foregroundStyle(color)
+            Group {
+                if let assetMark, UIImage(named: assetMark) != nil {
+                    Image(assetMark)
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(width: 14, height: 14)
+                } else {
+                    Image(systemName: icon)
+                        .font(.caption)
+                        .foregroundStyle(color)
+                }
+            }
             Text(value)
                 .font(.system(.subheadline, design: .rounded, weight: .bold))
                 .foregroundStyle(.white)

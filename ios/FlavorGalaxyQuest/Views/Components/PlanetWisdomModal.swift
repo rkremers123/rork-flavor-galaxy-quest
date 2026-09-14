@@ -1,9 +1,12 @@
 import SwiftUI
+import UIKit
 
 struct PlanetWisdom {
     let kidMessage: String
     let parentNote: String
-    let emoji: String
+    /// Ladder / chrome asset preferred when planet art is missing (no emoji).
+    let markAssetName: String?
+    let systemImage: String
 
     static func wisdom(for planet: JourneyPlanet) -> PlanetWisdom {
         switch planet {
@@ -11,49 +14,57 @@ struct PlanetWisdom {
             return PlanetWisdom(
                 kidMessage: "You have a safe place to start. That's powerful! Your journey begins here.",
                 parentNote: "Sensory regulation starts with safety. A calm, low-pressure environment helps kids explore without anxiety.",
-                emoji: "🏕"
+                markAssetName: "planet_base_camp",
+                systemImage: "house.fill"
             )
         case .sensoryGrove:
             return PlanetWisdom(
                 kidMessage: "Looking is your superpower! You're learning with your eyes. That's exactly right.",
                 parentNote: "The LOOK phase builds visual familiarity with food. No pressure to touch or taste — seeing is progress.",
-                emoji: "👀"
+                markAssetName: "step_look",
+                systemImage: "eye.fill"
             )
         case .flavorMountains:
             return PlanetWisdom(
                 kidMessage: "You touched it! That's brave! Your hands are explorers — and they just learned something new.",
                 parentNote: "The TOUCH phase develops tactile tolerance. Touching food is a major milestone. You're rewiring sensory comfort.",
-                emoji: "🤝"
+                markAssetName: "step_touch",
+                systemImage: "hand.raised.fill"
             )
         case .crystalCaves:
             return PlanetWisdom(
                 kidMessage: "Your nose knows! Smelling helps your tongue get ready for the next adventure.",
                 parentNote: "The SMELL phase primes the olfactory system. Smell and taste are deeply connected — your child is building taste tolerance.",
-                emoji: "👃"
+                markAssetName: "step_smell",
+                systemImage: "nose.fill"
             )
         case .tasteOcean:
             return PlanetWisdom(
                 kidMessage: "You tasted it! That's huge courage. Your tongue just did something amazing.",
                 parentNote: "The TASTE/LICK phase is the first real oral input. This is the biggest milestone — celebrate this hard.",
-                emoji: "💪"
+                markAssetName: "step_lick",
+                systemImage: "mouth.fill"
             )
         case .stardustFields:
             return PlanetWisdom(
                 kidMessage: "You swallowed it! You did it. You're a sensory master now — and you should feel so proud.",
                 parentNote: "The SWALLOW phase is full acceptance. The food moved from tasting to consuming. This is neurological integration.",
-                emoji: "🌊"
+                markAssetName: SensoryStep.ateImageName,
+                systemImage: "fork.knife"
             )
         case .nebulaRidge:
             return PlanetWisdom(
                 kidMessage: "Look at all the flavors you've tried! You're not picky — you're an adventurer. And adventurers are brave.",
                 parentNote: "Multiple foods means reduced selectivity. Variety shows expanded sensory preferences. Your child's world just got bigger.",
-                emoji: "🌴"
+                markAssetName: "cosmic_connector_star",
+                systemImage: "sparkles"
             )
         case .harvestFestival:
             return PlanetWisdom(
                 kidMessage: "You did it all. You're a Galaxy Master now. Print your certificate and show the world what you conquered!",
-                parentNote: "Completion of the SOS protocol represents a major neurological shift. Picky eating patterns have been rewired. This is real progress.",
-                emoji: "🌟"
+                parentNote: "Finishing the dinner-quest ladder is a real shift. Looking counted the whole way. Celebrate this with them — and keep the pressure low.",
+                markAssetName: "badge_saturn",
+                systemImage: "rosette"
             )
         }
     }
@@ -133,18 +144,46 @@ struct PlanetWisdomModal: View {
                 )
                 .frame(width: 180, height: 180)
 
-            Text(wisdom.emoji)
-                .font(.system(size: 72))
+            Group {
+                if UIImage(named: planet.imageName) != nil {
+                    Image(planet.imageName)
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(width: 96, height: 96)
+                } else if let mark = wisdom.markAssetName, UIImage(named: mark) != nil {
+                    Image(mark)
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(width: 96, height: 96)
+                } else {
+                    Image(systemName: wisdom.systemImage)
+                        .font(.system(size: 56, weight: .semibold))
+                        .foregroundStyle(.white.opacity(0.9))
+                }
+            }
 
             ForEach(0..<6, id: \.self) { i in
                 let angle = Double(i) * 60
-                Image(systemName: "sparkle")
-                    .font(.system(size: 10))
-                    .foregroundStyle(planetColor.opacity(0.5))
-                    .offset(y: -80)
-                    .rotationEffect(.degrees(angle))
-                    .scaleEffect(appeared ? 1.0 : 0.0)
-                    .animation(.spring(response: 0.4, dampingFraction: 0.5).delay(0.3 + Double(i) * 0.06), value: appeared)
+                Group {
+                    if UIImage(named: "star_dust_particle") != nil {
+                        Image("star_dust_particle")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 12, height: 12)
+                            .opacity(0.7)
+                    } else {
+                        Image(systemName: "sparkle")
+                            .font(.system(size: 10))
+                            .foregroundStyle(planetColor.opacity(0.5))
+                    }
+                }
+                .offset(y: -80)
+                .rotationEffect(.degrees(angle))
+                .scaleEffect(appeared ? 1.0 : 0.0)
+                .animation(.spring(response: 0.4, dampingFraction: 0.5).delay(0.3 + Double(i) * 0.06), value: appeared)
             }
         }
     }

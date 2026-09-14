@@ -1,6 +1,8 @@
 import SwiftUI
+import UIKit
 
 struct WarpTransitionView: View {
+    var explorerType: ExplorerType = .nova
     @State private var phase: CGFloat = 0
     @State private var streaks: [(angle: Double, length: CGFloat, offset: CGFloat)] = []
 
@@ -41,9 +43,33 @@ struct WarpTransitionView: View {
             }
 
             VStack(spacing: 16) {
-                Text("🚀")
-                    .font(.system(size: 60))
-                    .scaleEffect(phase > 0.5 ? 1.2 : 0.8)
+                Group {
+                    if UIImage(named: explorerType.boardImageName) != nil {
+                        Image(explorerType.boardImageName)
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFill()
+                            .frame(width: 72, height: 72)
+                            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                    } else if UIImage(named: explorerType.imageName) != nil {
+                        Image(explorerType.imageName)
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 72, height: 72)
+                    } else if UIImage(named: "default_avatar") != nil {
+                        Image("default_avatar")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 72, height: 72)
+                    } else {
+                        Image(systemName: "sparkles")
+                            .font(.system(size: 44, weight: .bold))
+                            .foregroundStyle(.white.opacity(0.9))
+                    }
+                }
+                .scaleEffect(phase > 0.5 ? 1.2 : 0.8)
 
                 Text("Warp Speed!")
                     .font(.system(.title, design: .rounded, weight: .bold))

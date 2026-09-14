@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct PlanetQuestView: View {
     let food: FoodItem
@@ -83,8 +84,7 @@ struct PlanetQuestView: View {
                     )
                     .frame(width: 120, height: 120)
 
-                Text(food.emoji)
-                    .font(.system(size: 56))
+                FoodIcon(food: food, size: 56)
             }
 
             Text("Planet \(food.name)")
@@ -105,9 +105,19 @@ struct PlanetQuestView: View {
 
     private func bridgeInfoBanner(_ bridge: BridgeRecordModel) -> some View {
         HStack(spacing: 8) {
-            Image(systemName: bridge.bridgeType.icon)
-                .font(.caption)
-                .foregroundStyle(SpaceTheme.cosmicCyan)
+            Group {
+                if UIImage(named: bridge.bridgeType.markAssetName) != nil {
+                    Image(bridge.bridgeType.markAssetName)
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(width: 14, height: 14)
+                } else {
+                    Image(systemName: bridge.bridgeType.icon)
+                        .font(.caption)
+                        .foregroundStyle(SpaceTheme.cosmicCyan)
+                }
+            }
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(bridge.bridgeType.label)
@@ -210,19 +220,28 @@ struct PlanetQuestView: View {
                                     )
 
                                 if isCompleted {
-                                    Image(systemName: "checkmark")
-                                        .font(.headline.bold())
-                                        .foregroundStyle(SpaceTheme.planetColor(hex: step.color))
+                                    ZStack(alignment: .bottomTrailing) {
+                                        StepMark(
+                                            step: step,
+                                            size: 22,
+                                            tint: SpaceTheme.planetColor(hex: step.color)
+                                        )
+                                        Image(systemName: "checkmark.circle.fill")
+                                            .font(.system(size: 12, weight: .bold))
+                                            .foregroundStyle(SpaceTheme.planetColor(hex: step.color))
+                                            .background(Circle().fill(SpaceTheme.deepNavy))
+                                            .offset(x: 5, y: 5)
+                                    }
                                 } else if isSkipped {
                                     Image(systemName: "arrow.uturn.right")
                                         .font(.caption.bold())
                                         .foregroundStyle(.white.opacity(0.4))
                                 } else {
-                                    Image(systemName: step.icon)
-                                        .font(.callout)
-                                        .foregroundStyle(
-                                            isAvailable ? .white : .white.opacity(0.3)
-                                        )
+                                    StepMark(
+                                        step: step,
+                                        size: 18,
+                                        tint: isAvailable ? .white : .white.opacity(0.3)
+                                    )
                                 }
                             }
 
@@ -272,8 +291,24 @@ struct PlanetQuestView: View {
 
             if step.isHighStakes && showShield {
                 HStack(spacing: 8) {
-                    Image(systemName: "shield.checkered")
-                        .foregroundStyle(SpaceTheme.cosmicCyan)
+                    Group {
+                        if UIImage(named: "safe_food_token") != nil {
+                            Image("safe_food_token")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 16, height: 16)
+                        } else if UIImage(named: "badge_saturn") != nil {
+                            Image("badge_saturn")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 16, height: 16)
+                        } else {
+                            Image(systemName: "shield.checkered")
+                                .foregroundStyle(SpaceTheme.cosmicCyan)
+                        }
+                    }
                     Text("Shield Active! It's okay to spit it out.")
                         .font(.system(.caption, design: .rounded, weight: .medium))
                         .foregroundStyle(SpaceTheme.cosmicCyan)
@@ -290,7 +325,21 @@ struct PlanetQuestView: View {
                     completeCurrentStep(step)
                 } label: {
                     HStack(spacing: 8) {
-                        Image(systemName: "sparkles")
+                        if UIImage(named: "star_dust_particle") != nil {
+                            Image("star_dust_particle")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 16, height: 16)
+                        } else if UIImage(named: "badge_star_coin") != nil {
+                            Image("badge_star_coin")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 16, height: 16)
+                        } else {
+                            Image(systemName: "sparkles")
+                        }
                         Text("Mission Complete!")
                     }
                     .font(.system(.headline, design: .rounded, weight: .bold))
@@ -320,8 +369,16 @@ struct PlanetQuestView: View {
             }
 
             HStack(spacing: 4) {
-                Image(systemName: "sparkles")
-                    .font(.caption2)
+                if UIImage(named: "star_dust_particle") != nil {
+                    Image("star_dust_particle")
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(width: 10, height: 10)
+                } else {
+                    Image(systemName: "sparkles")
+                        .font(.caption2)
+                }
                 Text("+\(step.starDustReward) Star Dust")
                     .font(.system(.caption, design: .rounded, weight: .semibold))
             }
@@ -341,8 +398,25 @@ struct PlanetQuestView: View {
 
     private var completedCard: some View {
         VStack(spacing: 16) {
-            Text("🎉")
-                .font(.system(size: 48))
+            Group {
+                if UIImage(named: "level_gem") != nil {
+                    Image("level_gem")
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(width: 56, height: 56)
+                } else if UIImage(named: "badge_saturn") != nil {
+                    Image("badge_saturn")
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(width: 56, height: 56)
+                } else {
+                    Image(systemName: "sparkles")
+                        .font(.system(size: 40, weight: .bold))
+                        .foregroundStyle(SpaceTheme.starGold)
+                }
+            }
 
             Text("Planet Colonized!")
                 .font(.system(.title3, design: .rounded, weight: .bold))
@@ -379,8 +453,37 @@ struct PlanetQuestView: View {
                 .onTapGesture { showCompletion = false }
 
             VStack(spacing: 20) {
-                Text("⭐️")
-                    .font(.system(size: 64))
+                Group {
+                    if activeStep == .taste, UIImage(named: SensoryStep.ateImageName) != nil {
+                        Image(SensoryStep.ateImageName)
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 72, height: 72)
+                    } else if let step = activeStep, UIImage(named: step.imageName) != nil {
+                        Image(step.imageName)
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 72, height: 72)
+                    } else if UIImage(named: "badge_star_coin") != nil {
+                        Image("badge_star_coin")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 72, height: 72)
+                    } else if UIImage(named: "star_dust_particle") != nil {
+                        Image("star_dust_particle")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 72, height: 72)
+                    } else {
+                        Image(systemName: "sparkles")
+                            .font(.system(size: 56))
+                            .foregroundStyle(SpaceTheme.starGold)
+                    }
+                }
 
                 Text("Amazing!")
                     .font(.system(.title, design: .rounded, weight: .bold))
@@ -453,9 +556,31 @@ struct ParentVerificationSheet: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 24) {
-                Image(systemName: "checkmark.shield.fill")
-                    .font(.system(size: 40))
-                    .foregroundStyle(.green)
+                Group {
+                    if step == .taste, UIImage(named: SensoryStep.ateImageName) != nil {
+                        Image(SensoryStep.ateImageName)
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 48, height: 48)
+                    } else if UIImage(named: step.imageName) != nil {
+                        Image(step.imageName)
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 48, height: 48)
+                    } else if UIImage(named: "grownups_chip") != nil {
+                        Image("grownups_chip")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 48, height: 48)
+                    } else {
+                        Image(systemName: "checkmark.shield.fill")
+                            .font(.system(size: 40))
+                            .foregroundStyle(.green)
+                    }
+                }
 
                 Text("Parent Check-In")
                     .font(.title3.bold())
@@ -466,11 +591,21 @@ struct ParentVerificationSheet: View {
                     .multilineTextAlignment(.center)
 
                 VStack(spacing: 12) {
-                    verificationButton("Swallowed a bite!", icon: "star.fill", color: .green) {
+                    verificationButton(
+                        "Swallowed a bite!",
+                        icon: "star.fill",
+                        assetName: SensoryStep.ateImageName,
+                        color: .green
+                    ) {
                         onVerify(.swallowed)
                     }
 
-                    verificationButton("Just a lick", icon: "hand.thumbsup.fill", color: .blue) {
+                    verificationButton(
+                        "Just a lick",
+                        icon: "hand.thumbsup.fill",
+                        assetName: SensoryStep.lick.imageName,
+                        color: .blue
+                    ) {
                         onVerify(.lickOnly)
                     }
 
@@ -492,12 +627,28 @@ struct ParentVerificationSheet: View {
         }
     }
 
-    private func verificationButton(_ title: String, icon: String, color: Color, action: @escaping () -> Void) -> some View {
+    private func verificationButton(
+        _ title: String,
+        icon: String,
+        assetName: String? = nil,
+        color: Color,
+        action: @escaping () -> Void
+    ) -> some View {
         Button(action: action) {
             HStack(spacing: 12) {
-                Image(systemName: icon)
-                    .foregroundStyle(color)
-                    .frame(width: 24)
+                Group {
+                    if let assetName, UIImage(named: assetName) != nil {
+                        Image(assetName)
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 24, height: 24)
+                    } else {
+                        Image(systemName: icon)
+                            .foregroundStyle(color)
+                            .frame(width: 24)
+                    }
+                }
                 Text(title)
                     .font(.subheadline.weight(.medium))
                 Spacer()

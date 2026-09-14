@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 /// First-run parent beats for Sensory Galaxy.
 /// ContentView already wires:
@@ -38,9 +39,9 @@ struct ParentOnboardingView: View {
     private var beatStack: some View {
         ZStack {
             switch currentBeat {
-            case 0: explorerBeat
-            case 1: phasesBeat
-            default: progressBeat
+            case 0: patternsBeat
+            case 1: bridgeBeat
+            default: celebrateBeat
             }
         }
         .id(currentBeat)
@@ -54,25 +55,46 @@ struct ParentOnboardingView: View {
         .padding(.horizontal, 24)
     }
 
-    // MARK: - Beat 0 — explorer
+    // MARK: - Beat 0 — Identify Patterns
 
-    private var explorerBeat: some View {
+    private var patternsBeat: some View {
         VStack(spacing: 20) {
             Spacer()
 
-            Image("explorer_nova")
-                .resizable()
-                .scaledToFit()
+            Group {
+                if UIImage(named: ExplorerType.star.boardImageName) != nil {
+                    Image(ExplorerType.star.boardImageName)
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                } else if UIImage(named: ExplorerType.star.imageName) != nil {
+                    Image(ExplorerType.star.imageName)
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                } else if UIImage(named: "default_avatar") != nil {
+                    Image("default_avatar")
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                } else {
+                    Image(systemName: "sparkles")
+                        .resizable()
+                        .scaledToFit()
+                        .foregroundStyle(SGColor.glow)
+                        .padding(36)
+                }
+            }
                 .frame(width: 160, height: 160)
                 .scaleEffect(appeared ? 1 : 0.86)
                 .opacity(appeared ? 1 : 0)
 
-            Text("They're not picky.\nThey're an explorer.")
+            Text("Identify Patterns")
                 .font(SGFont.display(32))
                 .foregroundStyle(SGColor.textPrimary)
                 .multilineTextAlignment(.center)
 
-            Text("Sensory Galaxy turns gentle food steps into a space journey.")
+            Text("Log what your child explores. Look, touch, smell, lick, or a taste all count. The app reads textures, flavors, temperatures, and colors they already go for. You see the sensory patterns they trust, and where they stall.")
                 .font(SGFont.body())
                 .foregroundStyle(SGColor.textSecondary)
                 .multilineTextAlignment(.center)
@@ -81,18 +103,46 @@ struct ParentOnboardingView: View {
         }
     }
 
-    // MARK: - Beat 1 — five SOS phases
+    // MARK: - Beat 1 — Bridge Foods
 
-    private var phasesBeat: some View {
+    private var bridgeBeat: some View {
         VStack(spacing: 20) {
             Spacer()
 
-            Text("Five gentle phases.\nNo pressure.")
+            Group {
+                if UIImage(named: ExplorerType.cosmo.boardImageName) != nil {
+                    Image(ExplorerType.cosmo.boardImageName)
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                } else if UIImage(named: ExplorerType.cosmo.imageName) != nil {
+                    Image(ExplorerType.cosmo.imageName)
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                } else if UIImage(named: "default_avatar") != nil {
+                    Image("default_avatar")
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                } else {
+                    Image(systemName: "sparkles")
+                        .resizable()
+                        .scaledToFit()
+                        .foregroundStyle(SGColor.glow)
+                        .padding(36)
+                }
+            }
+                .frame(width: 160, height: 160)
+                .scaleEffect(appeared ? 1 : 0.86)
+                .opacity(appeared ? 1 : 0)
+
+            Text("Bridge Foods")
                 .font(SGFont.display(32))
                 .foregroundStyle(SGColor.textPrimary)
                 .multilineTextAlignment(.center)
 
-            Text("We use the SOS approach. Each phase can take days.")
+            Text("The app finds bridge foods: a food they already enjoy, plus one new sensory element. If they like crunchy salty crackers, try crunchy salty pretzels. If nothing is that close, it does not invent a pick.")
                 .font(SGFont.body())
                 .foregroundStyle(SGColor.textSecondary)
                 .multilineTextAlignment(.center)
@@ -105,9 +155,7 @@ struct ParentOnboardingView: View {
                                 Circle()
                                     .fill(SpaceTheme.planetColor(hex: step.color).opacity(0.22))
                                     .frame(width: 44, height: 44)
-                                Image(systemName: step.icon)
-                                    .font(.system(size: 16, weight: .semibold))
-                                    .foregroundStyle(SpaceTheme.planetColor(hex: step.color))
+                                StepMark(step: step, size: 26)
                             }
                             Text(step.label.uppercased())
                                 .font(SGFont.caption())
@@ -130,25 +178,65 @@ struct ParentOnboardingView: View {
         }
     }
 
-    // MARK: - Beat 2 — grown-up view
+    // MARK: - Beat 2 — Celebrate Progress
 
-    private var progressBeat: some View {
+    private var celebrateBeat: some View {
         VStack(spacing: 20) {
             Spacer()
 
-            Text("You'll see\nthe progress.")
+            Group {
+                if UIImage(named: ExplorerType.orbit.boardImageName) != nil {
+                    Image(ExplorerType.orbit.boardImageName)
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(width: 160, height: 160)
+                } else if UIImage(named: "planet_base_camp") != nil {
+                    Image("planet_base_camp")
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(width: 120, height: 120)
+                } else if UIImage(named: "default_avatar") != nil {
+                    Image("default_avatar")
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(width: 120, height: 120)
+                } else {
+                    Image(systemName: "sparkles")
+                        .font(.system(size: 56))
+                        .foregroundStyle(SGColor.glow)
+                }
+            }
+            .scaleEffect(appeared ? 1 : 0.86)
+            .opacity(appeared ? 1 : 0)
+
+            HStack(spacing: 14) {
+                ForEach(["star_dust_particle", "cosmetic_day7_badge", "badge_star_coin"], id: \.self) { name in
+                    if UIImage(named: name) != nil {
+                        Image(name)
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 36, height: 36)
+                    }
+                }
+            }
+
+            Text("Celebrate Progress")
                 .font(SGFont.display(32))
                 .foregroundStyle(SGColor.textPrimary)
                 .multilineTextAlignment(.center)
 
-            Text("A grown-up view tracks patterns and next foods.")
+            Text("Your child earns star dust, badges, and streaks. You unlock a parent log with a PIN and see what they actually did. Mealtimes can shift from battles to celebrating how brave they’re being.")
                 .font(SGFont.body())
                 .foregroundStyle(SGColor.textSecondary)
                 .multilineTextAlignment(.center)
 
             SGCard(padding: 16) {
                 VStack(alignment: .leading, spacing: 14) {
-                    Text("COMMAND VIEW")
+                    Text("BASE CAMP")
                         .font(SGFont.caption())
                         .tracking(0.8)
                         .foregroundStyle(SGColor.glow)
@@ -164,7 +252,7 @@ struct ParentOnboardingView: View {
                     }
                     .frame(maxWidth: .infinity)
 
-                    Text("Base Camp is ready. The rest of the galaxy waits.")
+                    Text("Star dust, badges, streaks. Looking still counts.")
                         .font(SGFont.caption())
                         .foregroundStyle(SGColor.textSecondary)
                 }

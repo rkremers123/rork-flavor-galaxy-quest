@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 enum FoodBrowserTab: String, CaseIterable {
     case recommended, allFoods, search
@@ -16,6 +17,15 @@ enum FoodBrowserTab: String, CaseIterable {
         case .recommended: "sparkles"
         case .allFoods: "globe.americas.fill"
         case .search: "magnifyingglass"
+        }
+    }
+
+    /// Prefer shipped chrome when present; SF `icon` stays the fallback.
+    var markAssetName: String? {
+        switch self {
+        case .recommended: "cosmic_connector_star"
+        case .allFoods: "empty_state_pantry"
+        case .search: nil
         }
     }
 }
@@ -118,21 +128,31 @@ struct FoodBrowserScreen: View {
                             showCreateFood = true
                         }
                     } label: {
-                        Image(systemName: "plus")
-                            .font(.title2.weight(.semibold))
-                            .foregroundStyle(.white)
-                            .frame(width: 56, height: 56)
-                            .background(
-                                Circle()
-                                    .fill(
-                                        LinearGradient(
-                                            colors: [SpaceTheme.cosmicCyan, SpaceTheme.planetColor(hex: "667eea")],
-                                            startPoint: .topLeading,
-                                            endPoint: .bottomTrailing
-                                        )
+                        Group {
+                            if UIImage(named: "food_custom_gem") != nil {
+                                Image("food_custom_gem")
+                                    .resizable()
+                                    .interpolation(.high)
+                                    .scaledToFit()
+                                    .padding(14)
+                            } else {
+                                Image(systemName: "plus")
+                                    .font(.title2.weight(.semibold))
+                                    .foregroundStyle(.white)
+                            }
+                        }
+                        .frame(width: 56, height: 56)
+                        .background(
+                            Circle()
+                                .fill(
+                                    LinearGradient(
+                                        colors: [SpaceTheme.cosmicCyan, SpaceTheme.planetColor(hex: "667eea")],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
                                     )
-                                    .shadow(color: SpaceTheme.cosmicCyan.opacity(0.4), radius: 10, y: 4)
-                            )
+                                )
+                                .shadow(color: SpaceTheme.cosmicCyan.opacity(0.4), radius: 10, y: 4)
+                        )
                     }
                     .scaleEffect(fabScale)
                     .padding(.trailing, 20)
@@ -172,8 +192,18 @@ struct FoodBrowserScreen: View {
                     withAnimation(.spring(duration: 0.3)) { browserTab = tab }
                 } label: {
                     HStack(spacing: 5) {
-                        Image(systemName: tab.icon)
-                            .font(.caption2)
+                        Group {
+                            if let asset = tab.markAssetName, UIImage(named: asset) != nil {
+                                Image(asset)
+                                    .resizable()
+                                    .interpolation(.high)
+                                    .scaledToFit()
+                                    .frame(width: 12, height: 12)
+                            } else {
+                                Image(systemName: tab.icon)
+                                    .font(.caption2)
+                            }
+                        }
                         Text(tab.label)
                             .font(.system(.caption, design: .rounded, weight: .semibold))
                     }
@@ -222,9 +252,19 @@ struct FoodBrowserScreen: View {
     private var bridgeSuggestionsSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 6) {
-                Image(systemName: "arrow.triangle.branch")
-                    .font(.callout)
-                    .foregroundStyle(SpaceTheme.cosmicCyan)
+                Group {
+                    if UIImage(named: "cosmic_connector_star") != nil {
+                        Image("cosmic_connector_star")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 16, height: 16)
+                    } else {
+                        Image(systemName: "arrow.triangle.branch")
+                            .font(.callout)
+                            .foregroundStyle(SpaceTheme.cosmicCyan)
+                    }
+                }
                 Text("Bridge Suggestions")
                     .font(.system(.subheadline, design: .rounded, weight: .bold))
                     .foregroundStyle(.white)
@@ -239,8 +279,7 @@ struct FoodBrowserScreen: View {
                             Circle()
                                 .fill(SpaceTheme.planetColor(hex: suggestion.bridgeFood.planetColorHex).opacity(0.2))
                                 .frame(width: 44, height: 44)
-                            Text(suggestion.bridgeFood.emoji)
-                                .font(.title3)
+                            FoodIcon(food: suggestion.bridgeFood, size: 22)
                         }
 
                         VStack(alignment: .leading, spacing: 3) {
@@ -283,9 +322,18 @@ struct FoodBrowserScreen: View {
 
     private var recommendationEmptyState: some View {
         VStack(spacing: 12) {
-            Image(systemName: "sparkle.magnifyingglass")
-                .font(.largeTitle)
-                .foregroundStyle(.white.opacity(0.2))
+            if UIImage(named: "cosmic_connector_star") != nil {
+                Image("cosmic_connector_star")
+                    .resizable()
+                    .interpolation(.high)
+                    .scaledToFit()
+                    .frame(width: 48, height: 48)
+                    .opacity(0.55)
+            } else {
+                Image(systemName: "sparkle.magnifyingglass")
+                    .font(.largeTitle)
+                    .foregroundStyle(.white.opacity(0.2))
+            }
             Text("Complete a few food quests to unlock recommendations")
                 .font(.system(.subheadline, design: .rounded))
                 .foregroundStyle(.white.opacity(0.4))
@@ -301,15 +349,31 @@ struct FoodBrowserScreen: View {
 
     private var upgradeCard: some View {
         VStack(spacing: 16) {
-            Image(systemName: "brain.head.profile.fill")
-                .font(.largeTitle)
-                .foregroundStyle(SpaceTheme.nebulaPink)
+            Group {
+                if UIImage(named: "safe_food_token") != nil {
+                    Image("safe_food_token")
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(width: 48, height: 48)
+                } else if UIImage(named: "level_gem") != nil {
+                    Image("level_gem")
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(width: 48, height: 48)
+                } else {
+                    Image(systemName: "link")
+                        .font(.largeTitle)
+                        .foregroundStyle(SpaceTheme.nebulaPink)
+                }
+            }
 
-            Text("Smart Recommendations")
+            Text("Bridge Food picks")
                 .font(.system(.headline, design: .rounded, weight: .bold))
                 .foregroundStyle(.white)
 
-            Text("Get personalized food suggestions based on your child's sensory profile.")
+            Text("Matcher suggestions near foods already on the plate — not AI, not a medical device.")
                 .font(.system(.caption, design: .rounded))
                 .foregroundStyle(.white.opacity(0.5))
                 .multilineTextAlignment(.center)
@@ -427,10 +491,20 @@ struct FoodBrowserScreen: View {
                     PlanetView(food: food, progress: progress)
 
                     if customFoodIds.contains(food.id) {
-                        Text("✦")
-                            .font(.system(size: 8, weight: .bold))
-                            .foregroundStyle(SpaceTheme.cosmicCyan)
-                            .offset(x: 28, y: -28)
+                        Group {
+                            if UIImage(named: "food_custom_gem") != nil {
+                                Image("food_custom_gem")
+                                    .resizable()
+                                    .interpolation(.high)
+                                    .scaledToFit()
+                                    .frame(width: 14, height: 14)
+                            } else {
+                                Image(systemName: "diamond.fill")
+                                    .font(.system(size: 8, weight: .bold))
+                                    .foregroundStyle(SpaceTheme.cosmicCyan)
+                            }
+                        }
+                        .offset(x: 28, y: -28)
                     }
                 }
 
@@ -575,8 +649,7 @@ struct FoodBrowserScreen: View {
                     Circle()
                         .fill(SpaceTheme.planetColor(hex: food.planetColorHex).opacity(0.2))
                         .frame(width: 44, height: 44)
-                    Text(food.emoji)
-                        .font(.title3)
+                    FoodIcon(food: food, size: 22)
                 }
 
                 VStack(alignment: .leading, spacing: 3) {
@@ -596,8 +669,10 @@ struct FoodBrowserScreen: View {
                     }
 
                     HStack(spacing: 6) {
-                        Text(food.color.emoji)
-                            .font(.system(size: 10))
+                        Circle()
+                            .fill(SpaceTheme.planetColor(hex: food.color.hex))
+                            .frame(width: 8, height: 8)
+                            .overlay(Circle().stroke(.white.opacity(0.25), lineWidth: 0.5))
                         Text(food.foodGroup.label)
                             .font(.system(.caption2, design: .rounded, weight: .medium))
                             .foregroundStyle(.white.opacity(0.5))
@@ -659,11 +734,35 @@ struct FoodBrowserScreen: View {
         VStack(spacing: 20) {
             Spacer().frame(height: 30)
 
-            Image(systemName: "magnifyingglass")
-                .font(.system(size: 36))
-                .foregroundStyle(.white.opacity(0.2))
+            Group {
+                if !viewModel.profile.excludedAllergens.isEmpty,
+                   UIImage(named: "empty_state_allergen") != nil {
+                    Image("empty_state_allergen")
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(maxWidth: 240)
+                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                } else if UIImage(named: "empty_state_pantry") != nil {
+                    Image("empty_state_pantry")
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(maxWidth: 240)
+                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                } else {
+                    Image(systemName: "magnifyingglass")
+                        .font(.system(size: 36))
+                        .foregroundStyle(.white.opacity(0.2))
+                }
+            }
 
-            Text("No foods found for \"\(searchText)\"")
+            Text(
+                !viewModel.profile.excludedAllergens.isEmpty
+                    ? "No safe matches for \"\(searchText)\" with your allergen filters"
+                    : "No foods found for \"\(searchText)\""
+            )
+                
                 .font(.system(.subheadline, design: .rounded, weight: .medium))
                 .foregroundStyle(.white.opacity(0.5))
 
@@ -671,8 +770,18 @@ struct FoodBrowserScreen: View {
                 showCreateFood = true
             } label: {
                 HStack(spacing: 10) {
-                    Image(systemName: "plus.circle.fill")
-                        .font(.title3)
+                    Group {
+                        if UIImage(named: "food_custom_gem") != nil {
+                            Image("food_custom_gem")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 22, height: 22)
+                        } else {
+                            Image(systemName: "plus.circle.fill")
+                                .font(.title3)
+                        }
+                    }
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Create \"\(searchText)\"")
                             .font(.system(.subheadline, design: .rounded, weight: .bold))
@@ -706,9 +815,17 @@ struct FoodBrowserScreen: View {
                     Circle()
                         .fill(SpaceTheme.cosmicCyan.opacity(0.12))
                         .frame(width: 44, height: 44)
-                    Image(systemName: "plus")
-                        .font(.headline)
-                        .foregroundStyle(SpaceTheme.cosmicCyan)
+                    if UIImage(named: "food_custom_gem") != nil {
+                        Image("food_custom_gem")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 22, height: 22)
+                    } else {
+                        Image(systemName: "plus")
+                            .font(.headline)
+                            .foregroundStyle(SpaceTheme.cosmicCyan)
+                    }
                 }
 
                 VStack(alignment: .leading, spacing: 2) {

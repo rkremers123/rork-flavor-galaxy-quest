@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct CalendarProgressView: View {
     let viewModel: AppViewModel
@@ -176,9 +177,17 @@ struct CalendarProgressView: View {
                     .foregroundStyle(.white.opacity(0.4))
             }
             HStack(spacing: 6) {
-                Image(systemName: "star.fill")
-                    .font(.system(size: 7))
-                    .foregroundStyle(SpaceTheme.starGold)
+                if UIImage(named: "star_dust_particle") != nil {
+                    Image("star_dust_particle")
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(width: 8, height: 8)
+                } else {
+                    Image(systemName: "star.fill")
+                        .font(.system(size: 7))
+                        .foregroundStyle(SpaceTheme.starGold)
+                }
                 Text("Milestone")
                     .font(.system(.caption2, design: .rounded))
                     .foregroundStyle(.white.opacity(0.4))
@@ -262,10 +271,20 @@ struct CalendarDayCellContent: View {
                 .frame(width: 8, height: 8)
                 .offset(y: 12)
         case .milestone:
-            Image(systemName: "star.fill")
-                .font(.system(size: 7))
-                .foregroundStyle(SpaceTheme.starGold)
-                .offset(y: 12)
+            Group {
+                if UIImage(named: "star_dust_particle") != nil {
+                    Image("star_dust_particle")
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(width: 8, height: 8)
+                } else {
+                    Image(systemName: "star.fill")
+                        .font(.system(size: 7))
+                        .foregroundStyle(SpaceTheme.starGold)
+                }
+            }
+            .offset(y: 12)
         case .none:
             EmptyView()
         }
@@ -284,8 +303,7 @@ struct DayFoodRow: View {
 
     var body: some View {
         HStack(spacing: 8) {
-            Text(food.emoji)
-                .font(.caption)
+            FoodIcon(food: food, size: 16)
             Text(food.name)
                 .font(.system(.caption, design: .rounded, weight: .medium))
                 .foregroundStyle(.white)

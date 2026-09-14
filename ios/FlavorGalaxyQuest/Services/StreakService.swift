@@ -24,6 +24,16 @@ nonisolated enum StreakMilestone: Int, CaseIterable, Sendable {
         }
     }
 
+    /// Illustrated mark when the xcasset exists; emoji otherwise.
+    var imageName: String {
+        switch self {
+        case .threeDays: return "star_dust_particle"
+        case .oneWeek: return "cosmetic_day7_badge"
+        case .twoWeeks: return "cosmetic_week2_badge"
+        case .oneMonth: return "cosmetic_month1_badge"
+        }
+    }
+
     var message: String {
         switch self {
         case .threeDays: return "Three days in a row! You're building a habit!"

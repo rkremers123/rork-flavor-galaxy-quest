@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct FoodSearchView: View {
     let viewModel: AppViewModel
@@ -144,8 +145,7 @@ struct FoodSearchView: View {
                     Circle()
                         .fill(SpaceTheme.planetColor(hex: food.planetColorHex).opacity(0.2))
                         .frame(width: 44, height: 44)
-                    Text(food.emoji)
-                        .font(.title3)
+                    FoodIcon(food: food, size: 22)
                 }
 
                 VStack(alignment: .leading, spacing: 3) {
@@ -179,9 +179,26 @@ struct FoodSearchView: View {
                 if let progress, !progress.completedStepValues.isEmpty {
                     HStack(spacing: 4) {
                         if progress.isComplete {
-                            Image(systemName: "checkmark.seal.fill")
-                                .font(.caption)
-                                .foregroundStyle(SpaceTheme.starGold)
+                            // Parity with PlanetView mastered mark.
+                            Group {
+                                if UIImage(named: "level_gem") != nil {
+                                    Image("level_gem")
+                                        .resizable()
+                                        .interpolation(.high)
+                                        .scaledToFit()
+                                        .frame(width: 14, height: 14)
+                                } else if UIImage(named: "badge_star_coin") != nil {
+                                    Image("badge_star_coin")
+                                        .resizable()
+                                        .interpolation(.high)
+                                        .scaledToFit()
+                                        .frame(width: 14, height: 14)
+                                } else {
+                                    Image(systemName: "checkmark.seal.fill")
+                                        .font(.caption)
+                                        .foregroundStyle(SpaceTheme.starGold)
+                                }
+                            }
                         } else {
                             Text("\(Int(progress.progressFraction * 100))%")
                                 .font(.system(.caption2, design: .rounded, weight: .bold))
@@ -213,9 +230,28 @@ struct FoodSearchView: View {
         VStack(spacing: 20) {
             Spacer().frame(height: 40)
 
-            Image(systemName: "magnifyingglass")
-                .font(.system(size: 36))
-                .foregroundStyle(.white.opacity(0.2))
+            Group {
+                if !viewModel.profile.excludedAllergens.isEmpty,
+                   UIImage(named: "empty_state_allergen") != nil {
+                    Image("empty_state_allergen")
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(maxWidth: 240)
+                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                } else if UIImage(named: "empty_state_pantry") != nil {
+                    Image("empty_state_pantry")
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(maxWidth: 240)
+                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                } else {
+                    Image(systemName: "magnifyingglass")
+                        .font(.system(size: 36))
+                        .foregroundStyle(.white.opacity(0.2))
+                }
+            }
 
             Text("No foods found for \"\(searchText)\"")
                 .font(.system(.subheadline, design: .rounded, weight: .medium))
@@ -225,8 +261,18 @@ struct FoodSearchView: View {
                 showCreateFood = true
             } label: {
                 HStack(spacing: 10) {
-                    Image(systemName: "plus.circle.fill")
-                        .font(.title3)
+                    Group {
+                        if UIImage(named: "food_custom_gem") != nil {
+                            Image("food_custom_gem")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 22, height: 22)
+                        } else {
+                            Image(systemName: "plus.circle.fill")
+                                .font(.title3)
+                        }
+                    }
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Create \"\(searchText)\"")
                             .font(.system(.subheadline, design: .rounded, weight: .bold))
@@ -260,9 +306,17 @@ struct FoodSearchView: View {
                     Circle()
                         .fill(SpaceTheme.cosmicCyan.opacity(0.12))
                         .frame(width: 44, height: 44)
-                    Image(systemName: "plus")
-                        .font(.headline)
-                        .foregroundStyle(SpaceTheme.cosmicCyan)
+                    if UIImage(named: "food_custom_gem") != nil {
+                        Image("food_custom_gem")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 22, height: 22)
+                    } else {
+                        Image(systemName: "plus")
+                            .font(.headline)
+                            .foregroundStyle(SpaceTheme.cosmicCyan)
+                    }
                 }
 
                 VStack(alignment: .leading, spacing: 2) {

@@ -25,6 +25,16 @@ nonisolated enum BridgeType: String, Codable, CaseIterable, Sendable, Hashable {
         }
     }
 
+    /// Illustrated chrome for bridge chips when the xcasset exists.
+    var markAssetName: String {
+        switch self {
+        case .brand: "cosmic_connector_star"
+        case .visual: "step_look"
+        case .texture: "step_touch"
+        case .flavor: "step_smell"
+        }
+    }
+
     var priority: Int {
         switch self {
         case .brand: 0

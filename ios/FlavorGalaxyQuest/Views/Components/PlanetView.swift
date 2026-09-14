@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct PlanetView: View {
     let food: FoodItem
@@ -62,18 +63,33 @@ struct PlanetView: View {
                             )
                     }
                     .overlay {
-                        Text(food.emoji)
-                            .font(.title)
+                        FoodIcon(food: food, size: 28)
                             .opacity(completedSteps.isEmpty ? 0.3 : 1.0)
                     }
                     .shadow(color: planetColor.opacity(glowOpacity), radius: 8)
 
                 if progress?.isComplete ?? false {
-                    Image(systemName: "checkmark.seal.fill")
-                        .font(.caption)
-                        .foregroundStyle(progress?.isPreCompleted ?? false ? SpaceTheme.planetGreen : SpaceTheme.starGold)
-                        .offset(x: 24, y: -24)
-                        .transition(.scale.combined(with: .opacity))
+                    Group {
+                        if UIImage(named: "level_gem") != nil {
+                            Image("level_gem")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 16, height: 16)
+                        } else if UIImage(named: "badge_star_coin") != nil {
+                            Image("badge_star_coin")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 16, height: 16)
+                        } else {
+                            Image(systemName: "checkmark.seal.fill")
+                                .font(.caption)
+                                .foregroundStyle(progress?.isPreCompleted ?? false ? SpaceTheme.planetGreen : SpaceTheme.starGold)
+                        }
+                    }
+                    .offset(x: 24, y: -24)
+                    .transition(.scale.combined(with: .opacity))
                 }
 
                 if !completedSteps.isEmpty && !(progress?.isComplete ?? false) {

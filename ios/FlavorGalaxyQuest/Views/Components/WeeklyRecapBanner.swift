@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct WeeklyRecapBanner: View {
     let viewModel: AppViewModel
@@ -30,9 +31,25 @@ struct WeeklyRecapBanner: View {
         VStack(spacing: 14) {
             HStack {
                 HStack(spacing: 8) {
-                    Image(systemName: "chart.line.uptrend.xyaxis")
-                        .font(.callout)
-                        .foregroundStyle(SpaceTheme.cosmicCyan)
+                    Group {
+                        if UIImage(named: "badge_saturn") != nil {
+                            Image("badge_saturn")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 18, height: 18)
+                        } else if UIImage(named: "level_gem") != nil {
+                            Image("level_gem")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 18, height: 18)
+                        } else {
+                            Image(systemName: "chart.line.uptrend.xyaxis")
+                                .font(.callout)
+                                .foregroundStyle(SpaceTheme.cosmicCyan)
+                        }
+                    }
                     Text("Weekly Recap")
                         .font(.system(.subheadline, design: .rounded, weight: .bold))
                         .foregroundStyle(.white)
@@ -50,13 +67,31 @@ struct WeeklyRecapBanner: View {
             }
 
             HStack(spacing: 16) {
-                recapStat(value: "\(weeklyStats.foodsLogged)", label: "Foods", icon: "fork.knife", color: SpaceTheme.cosmicCyan)
-                recapStat(value: "\(weeklyStats.phasesProgressed)", label: "Steps", icon: "stairs", color: SpaceTheme.planetGreen)
-                recapStat(value: "🔥 \(weeklyStats.currentStreak)", label: "Streak", icon: nil, color: .orange)
+                recapStat(
+                    value: "\(weeklyStats.foodsLogged)",
+                    label: "Foods",
+                    asset: "safe_food_token",
+                    systemIcon: "fork.knife",
+                    color: SpaceTheme.cosmicCyan
+                )
+                recapStat(
+                    value: "\(weeklyStats.phasesProgressed)",
+                    label: "Steps",
+                    asset: "step_look",
+                    systemIcon: "stairs",
+                    color: SpaceTheme.planetGreen
+                )
+                recapStat(
+                    value: "\(weeklyStats.currentStreak)",
+                    label: "Streak",
+                    asset: "cosmetic_day7_badge",
+                    systemIcon: "flame.fill",
+                    color: .orange
+                )
             }
 
             if weeklyStats.foodsLogged > 0 {
-                Text("Great week, \(viewModel.profile.explorerDisplayName)! Keep exploring! 🚀")
+                Text("Great week, \(viewModel.profile.explorerDisplayName)! Keep exploring!")
                     .font(.system(.caption, design: .rounded, weight: .medium))
                     .foregroundStyle(.white.opacity(0.6))
             } else {
@@ -76,12 +111,26 @@ struct WeeklyRecapBanner: View {
         )
     }
 
-    private func recapStat(value: String, label: String, icon: String?, color: Color) -> some View {
+    private func recapStat(
+        value: String,
+        label: String,
+        asset: String?,
+        systemIcon: String?,
+        color: Color
+    ) -> some View {
         VStack(spacing: 4) {
-            if let icon {
-                Image(systemName: icon)
-                    .font(.caption2)
-                    .foregroundStyle(color)
+            Group {
+                if let asset, UIImage(named: asset) != nil {
+                    Image(asset)
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(width: 18, height: 18)
+                } else if let systemIcon {
+                    Image(systemName: systemIcon)
+                        .font(.caption2)
+                        .foregroundStyle(color)
+                }
             }
             Text(value)
                 .font(.system(.headline, design: .rounded, weight: .bold))
