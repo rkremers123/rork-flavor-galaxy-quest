@@ -720,9 +720,25 @@ struct ParentGateSheet: View {
                                 .frame(width: 80, height: 80)
                                 .rotationEffect(.degrees(-90))
 
-                            Image(systemName: "hand.tap.fill")
-                                .font(.title2)
-                                .foregroundStyle(.secondary)
+                            Group {
+                                if UIImage(named: "grownups_chip") != nil {
+                                    Image("grownups_chip")
+                                        .resizable()
+                                        .interpolation(.high)
+                                        .scaledToFit()
+                                        .frame(width: 28, height: 28)
+                                } else if UIImage(named: "empty_state_pin") != nil {
+                                    Image("empty_state_pin")
+                                        .resizable()
+                                        .interpolation(.high)
+                                        .scaledToFit()
+                                        .frame(width: 28, height: 28)
+                                } else {
+                                    Image(systemName: "hand.tap.fill")
+                                        .font(.title2)
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
                         }
                         .gesture(
                             LongPressGesture(minimumDuration: 3)

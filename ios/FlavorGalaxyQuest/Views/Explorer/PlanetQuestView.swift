@@ -291,8 +291,24 @@ struct PlanetQuestView: View {
 
             if step.isHighStakes && showShield {
                 HStack(spacing: 8) {
-                    Image(systemName: "shield.checkered")
-                        .foregroundStyle(SpaceTheme.cosmicCyan)
+                    Group {
+                        if UIImage(named: "safe_food_token") != nil {
+                            Image("safe_food_token")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 16, height: 16)
+                        } else if UIImage(named: "badge_saturn") != nil {
+                            Image("badge_saturn")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 16, height: 16)
+                        } else {
+                            Image(systemName: "shield.checkered")
+                                .foregroundStyle(SpaceTheme.cosmicCyan)
+                        }
+                    }
                     Text("Shield Active! It's okay to spit it out.")
                         .font(.system(.caption, design: .rounded, weight: .medium))
                         .foregroundStyle(SpaceTheme.cosmicCyan)

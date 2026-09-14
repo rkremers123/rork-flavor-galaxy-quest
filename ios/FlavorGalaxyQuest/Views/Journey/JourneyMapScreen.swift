@@ -170,8 +170,15 @@ struct JourneyMapScreen: View {
         VStack {
             HStack(spacing: 12) {
                 Group {
-                    if UIImage(named: "star_dust_particle") != nil {
-                        Image("star_dust_particle")
+                    if UIImage(named: "cosmetic_day7_badge") != nil {
+                        Image("cosmetic_day7_badge")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 28, height: 28)
+                            .opacity(0.9)
+                    } else if UIImage(named: "empty_state_allergen") != nil {
+                        Image("empty_state_allergen")
                             .resizable()
                             .interpolation(.high)
                             .scaledToFit()

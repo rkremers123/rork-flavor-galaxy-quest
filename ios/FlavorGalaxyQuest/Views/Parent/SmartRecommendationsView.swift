@@ -151,8 +151,18 @@ struct SmartRecommendationsView: View {
         HStack {
             Toggle(isOn: $filterByConfidence) {
                 HStack(spacing: 6) {
-                    Image(systemName: "slider.horizontal.3")
-                        .font(.caption)
+                    Group {
+                        if UIImage(named: "cosmetic_sensory_scanner") != nil {
+                            Image("cosmetic_sensory_scanner")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 12, height: 12)
+                        } else {
+                            Image(systemName: "slider.horizontal.3")
+                                .font(.caption)
+                        }
+                    }
                     Text("High confidence only")
                         .font(.caption.weight(.medium))
                 }
