@@ -506,17 +506,45 @@ struct JourneyMapScreen: View {
                     .shadow(color: isLocked ? .clear : planetColor.opacity(0.5), radius: 12)
 
                 if isCompleted {
-                    Image(systemName: "checkmark.circle.fill")
-                        .font(.callout)
-                        .foregroundStyle(SpaceTheme.planetGreen)
-                        .background(Circle().fill(SpaceTheme.deepNavy).padding(-3))
-                        .offset(x: planetSize / 2 - 6, y: -(planetSize / 2 - 6))
+                    Group {
+                        if UIImage(named: "level_gem") != nil {
+                            Image("level_gem")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 18, height: 18)
+                        } else if UIImage(named: "badge_star_coin") != nil {
+                            Image("badge_star_coin")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 18, height: 18)
+                        } else {
+                            Image(systemName: "checkmark.circle.fill")
+                                .font(.callout)
+                                .foregroundStyle(SpaceTheme.planetGreen)
+                        }
+                    }
+                    .background(Circle().fill(SpaceTheme.deepNavy).padding(-3))
+                    .offset(x: planetSize / 2 - 6, y: -(planetSize / 2 - 6))
                 }
 
                 if isLocked {
-                    Image(systemName: "lock.fill")
-                        .font(.system(size: 18))
-                        .foregroundStyle(.white.opacity(0.25))
+                    Group {
+                        if UIImage(named: "empty_state_no_quest") != nil {
+                            Image("empty_state_no_quest")
+                                .resizable()
+                                .interpolation(.high)
+                                .scaledToFit()
+                                .frame(width: 22, height: 22)
+                                .clipShape(Circle())
+                                .opacity(0.85)
+                        } else {
+                            Image(systemName: "lock.fill")
+                                .font(.system(size: 18))
+                                .foregroundStyle(.white.opacity(0.25))
+                        }
+                    }
                 }
             }
 
@@ -775,8 +803,22 @@ struct PlanetDetailSheet: View {
 
             if isCompleted {
                 HStack(spacing: 6) {
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundStyle(SpaceTheme.planetGreen)
+                    if UIImage(named: "level_gem") != nil {
+                        Image("level_gem")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 16, height: 16)
+                    } else if UIImage(named: "badge_star_coin") != nil {
+                        Image("badge_star_coin")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 16, height: 16)
+                    } else {
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundStyle(SpaceTheme.planetGreen)
+                    }
                     Text("Complete!")
                         .foregroundStyle(SpaceTheme.planetGreen)
                 }
@@ -818,9 +860,28 @@ struct PlanetDetailSheet: View {
 
     private var lockedMessage: some View {
         VStack(spacing: 16) {
-            Image(systemName: "lock.fill")
-                .font(.system(size: 36))
-                .foregroundStyle(.white.opacity(0.15))
+            Group {
+                if UIImage(named: "empty_state_no_quest") != nil {
+                    Image("empty_state_no_quest")
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(maxWidth: 160)
+                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                        .opacity(0.85)
+                } else if UIImage(named: "planet_base_camp") != nil {
+                    Image("planet_base_camp")
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(width: 56, height: 56)
+                        .opacity(0.55)
+                } else {
+                    Image(systemName: "lock.fill")
+                        .font(.system(size: 36))
+                        .foregroundStyle(.white.opacity(0.15))
+                }
+            }
 
             let required = DynamicDifficultyService.foodsRequiredForPlanet(planet, distribution: viewModel.planetDistribution)
             let remaining = required - viewModel.activeExploredFoodsCount
@@ -921,9 +982,25 @@ struct PlanetDetailSheet: View {
                         Spacer()
 
                         if progress?.isComplete ?? false {
-                            Image(systemName: "checkmark.circle.fill")
-                                .font(.title3)
-                                .foregroundStyle(SpaceTheme.planetGreen)
+                            Group {
+                                if UIImage(named: "level_gem") != nil {
+                                    Image("level_gem")
+                                        .resizable()
+                                        .interpolation(.high)
+                                        .scaledToFit()
+                                        .frame(width: 22, height: 22)
+                                } else if UIImage(named: "badge_star_coin") != nil {
+                                    Image("badge_star_coin")
+                                        .resizable()
+                                        .interpolation(.high)
+                                        .scaledToFit()
+                                        .frame(width: 22, height: 22)
+                                } else {
+                                    Image(systemName: "checkmark.circle.fill")
+                                        .font(.title3)
+                                        .foregroundStyle(SpaceTheme.planetGreen)
+                                }
+                            }
                         } else {
                             ProgressRing(progress: progress?.progressFraction ?? 0)
                                 .frame(width: 28, height: 28)

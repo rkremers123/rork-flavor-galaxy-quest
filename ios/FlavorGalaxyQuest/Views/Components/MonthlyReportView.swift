@@ -135,13 +135,13 @@ struct MonthlyReportView: View {
                 .tracking(1)
 
             if !monthStats.topTextures.isEmpty {
-                reportRow(icon: "waveform", label: "Textures", value: monthStats.topTextures.joined(separator: ", "))
+                reportRow(icon: "waveform", label: "Textures", value: monthStats.topTextures.joined(separator: ", "), assetMark: "step_touch")
             }
             if !monthStats.topFlavors.isEmpty {
-                reportRow(icon: "drop.fill", label: "Flavors", value: monthStats.topFlavors.joined(separator: ", "))
+                reportRow(icon: "drop.fill", label: "Flavors", value: monthStats.topFlavors.joined(separator: ", "), assetMark: "step_taste")
             }
             if !monthStats.topTemperatures.isEmpty {
-                reportRow(icon: "thermometer.medium", label: "Temperature", value: monthStats.topTemperatures.joined(separator: ", "))
+                reportRow(icon: "thermometer.medium", label: "Temperature", value: monthStats.topTemperatures.joined(separator: ", "), assetMark: "step_smell")
             }
         }
     }
@@ -246,12 +246,22 @@ struct MonthlyReportView: View {
         )
     }
 
-    private func reportRow(icon: String, label: String, value: String) -> some View {
+    private func reportRow(icon: String, label: String, value: String, assetMark: String? = nil) -> some View {
         HStack(spacing: 8) {
-            Image(systemName: icon)
-                .font(.caption2)
-                .foregroundStyle(SpaceTheme.cosmicCyan)
-                .frame(width: 16)
+            Group {
+                if let assetMark, UIImage(named: assetMark) != nil {
+                    Image(assetMark)
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(width: 14, height: 14)
+                } else {
+                    Image(systemName: icon)
+                        .font(.caption2)
+                        .foregroundStyle(SpaceTheme.cosmicCyan)
+                }
+            }
+            .frame(width: 16)
             Text(label)
                 .font(.system(.caption, design: .rounded, weight: .semibold))
                 .foregroundStyle(.white.opacity(0.5))

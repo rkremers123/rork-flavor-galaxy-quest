@@ -85,8 +85,16 @@ struct ParentDashboardView: View {
                         withAnimation(.spring(duration: 0.3)) { selectedTab = tab }
                     } label: {
                         HStack(spacing: 5) {
-                            Image(systemName: tab.icon)
-                                .font(.caption)
+                            if UIImage(named: tab.markAssetName) != nil {
+                                Image(tab.markAssetName)
+                                    .resizable()
+                                    .interpolation(.high)
+                                    .scaledToFit()
+                                    .frame(width: 12, height: 12)
+                            } else {
+                                Image(systemName: tab.icon)
+                                    .font(.caption)
+                            }
                             Text(tab.label)
                                 .font(.subheadline.weight(.medium))
                             if tab.isPremium && !viewModel.subscription.hasAccess {
@@ -817,8 +825,23 @@ struct ParentDashboardView: View {
                 showPaywall = true
             } label: {
                 HStack(spacing: 8) {
-                    Image(systemName: "lock.open.fill")
-                        .font(.subheadline)
+                    if UIImage(named: "empty_state_trial_ended") != nil {
+                        Image("empty_state_trial_ended")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 16, height: 16)
+                            .clipShape(RoundedRectangle(cornerRadius: 3, style: .continuous))
+                    } else if UIImage(named: "badge_saturn") != nil {
+                        Image("badge_saturn")
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFit()
+                            .frame(width: 16, height: 16)
+                    } else {
+                        Image(systemName: "lock.open.fill")
+                            .font(.subheadline)
+                    }
                     Text(Config.billingConfigured ? "Unlock with Free Trial" : "See Premium Plans")
                         .font(.subheadline.weight(.semibold))
                 }
@@ -1254,6 +1277,19 @@ enum ParentTab: CaseIterable {
         case .analytics: "chart.xyaxis.line"
         case .recommendations: "link"
         case .settings: "gearshape.fill"
+        }
+    }
+
+    /// Shipped chrome when present; SF `icon` stays the fallback.
+    var markAssetName: String {
+        switch self {
+        case .overview: "badge_saturn"
+        case .progress: "cosmetic_day7_badge"
+        case .foodLibrary: "safe_food_token"
+        case .regressions: "empty_state_allergen"
+        case .analytics: "star_dust_particle"
+        case .recommendations: "cosmic_connector_star"
+        case .settings: "grownups_chip"
         }
     }
 
