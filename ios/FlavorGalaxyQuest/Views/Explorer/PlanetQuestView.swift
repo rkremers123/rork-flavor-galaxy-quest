@@ -92,9 +92,9 @@ struct PlanetQuestView: View {
                 .foregroundStyle(.white)
 
             HStack(spacing: 16) {
-                infoTag(food.texture.label, icon: "waveform")
-                infoTag(food.flavor.label, icon: "drop.fill")
-                infoTag(food.aroma.label, icon: "wind")
+                infoTag(food.texture.label, icon: "waveform", assetMark: "step_touch")
+                infoTag(food.flavor.label, icon: "drop.fill", assetMark: "step_taste")
+                infoTag(food.aroma.label, icon: "wind", assetMark: "step_smell")
             }
 
             if let bridge = viewModel.profile.activeBridges.first(where: { $0.bridgeFoodId == food.id }) {
@@ -147,10 +147,18 @@ struct PlanetQuestView: View {
         )
     }
 
-    private func infoTag(_ text: String, icon: String) -> some View {
+    private func infoTag(_ text: String, icon: String, assetMark: String? = nil) -> some View {
         HStack(spacing: 4) {
-            Image(systemName: icon)
-                .font(.caption2)
+            if let assetMark, UIImage(named: assetMark) != nil {
+                Image(assetMark)
+                    .resizable()
+                    .interpolation(.high)
+                    .scaledToFit()
+                    .frame(width: 10, height: 10)
+            } else {
+                Image(systemName: icon)
+                    .font(.caption2)
+            }
             Text(text)
                 .font(.system(.caption2, design: .rounded, weight: .medium))
         }

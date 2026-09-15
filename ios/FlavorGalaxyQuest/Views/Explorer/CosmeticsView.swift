@@ -156,13 +156,23 @@ struct CosmeticsView: View {
                         .opacity(isUnlocked ? 1.0 : 0.3)
 
                     if !isUnlocked {
-                        Image(systemName: "lock.fill")
-                            .font(.system(size: 10))
-                            .foregroundStyle(.white.opacity(0.6))
-                            .padding(3)
-                            .background(.black.opacity(0.5))
-                            .clipShape(Circle())
-                            .offset(x: 16, y: 16)
+                        Group {
+                            if UIImage(named: "empty_state_pin") != nil {
+                                Image("empty_state_pin")
+                                    .resizable()
+                                    .interpolation(.high)
+                                    .scaledToFit()
+                                    .frame(width: 12, height: 12)
+                            } else {
+                                Image(systemName: "lock.fill")
+                                    .font(.system(size: 10))
+                                    .foregroundStyle(.white.opacity(0.6))
+                            }
+                        }
+                        .padding(3)
+                        .background(.black.opacity(0.5))
+                        .clipShape(Circle())
+                        .offset(x: 16, y: 16)
                     }
 
                     if isEquipped {

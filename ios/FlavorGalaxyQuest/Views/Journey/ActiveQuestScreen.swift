@@ -268,9 +268,9 @@ struct ActiveQuestScreen: View {
 
     private func sensoryProfilePills(_ food: FoodItem) -> some View {
         HStack(spacing: 10) {
-            sensoryPill(food.texture.label, icon: "waveform")
-            sensoryPill(food.flavor.label, icon: "drop.fill")
-            sensoryPill(food.temperature.label, icon: "thermometer.medium")
+            sensoryPill(food.texture.label, icon: "waveform", assetMark: "step_touch")
+            sensoryPill(food.flavor.label, icon: "drop.fill", assetMark: "step_taste")
+            sensoryPill(food.temperature.label, icon: "thermometer.medium", assetMark: "step_smell")
         }
     }
 
@@ -660,9 +660,15 @@ struct ActiveQuestScreen: View {
         }
     }
 
-    private func sensoryPill(_ text: String, icon: String?) -> some View {
+    private func sensoryPill(_ text: String, icon: String?, assetMark: String? = nil) -> some View {
         HStack(spacing: 4) {
-            if let icon {
+            if let assetMark, UIImage(named: assetMark) != nil {
+                Image(assetMark)
+                    .resizable()
+                    .interpolation(.high)
+                    .scaledToFit()
+                    .frame(width: 10, height: 10)
+            } else if let icon {
                 Image(systemName: icon)
                     .font(.caption2)
             }

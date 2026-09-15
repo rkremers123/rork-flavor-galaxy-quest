@@ -132,10 +132,10 @@ struct FoodProfileModal: View {
                 .foregroundStyle(.white.opacity(0.6))
 
             VStack(spacing: 10) {
-                sensoryRow(systemImage: "hand.raised.fill", label: "Texture", value: food.texture.label)
-                sensoryRow(systemImage: "takeoutbag.and.cup.and.straw", label: "Flavor", value: food.flavor.label)
-                sensoryRow(systemImage: "thermometer.medium", label: "Temperature", value: food.temperature.label)
-                sensoryRow(systemImage: "nose.fill", label: "Aroma", value: food.aroma.label)
+                sensoryRow(systemImage: "hand.raised.fill", label: "Texture", value: food.texture.label, assetMark: "step_touch")
+                sensoryRow(systemImage: "takeoutbag.and.cup.and.straw", label: "Flavor", value: food.flavor.label, assetMark: "step_taste")
+                sensoryRow(systemImage: "thermometer.medium", label: "Temperature", value: food.temperature.label, assetMark: "step_smell")
+                sensoryRow(systemImage: "nose.fill", label: "Aroma", value: food.aroma.label, assetMark: "step_smell")
             }
             .padding(14)
             .background(
@@ -145,12 +145,22 @@ struct FoodProfileModal: View {
         }
     }
 
-    private func sensoryRow(systemImage: String, label: String, value: String) -> some View {
+    private func sensoryRow(systemImage: String, label: String, value: String, assetMark: String? = nil) -> some View {
         HStack {
-            Image(systemName: systemImage)
-                .font(.callout)
-                .foregroundStyle(SpaceTheme.cosmicCyan)
-                .frame(width: 22, alignment: .center)
+            Group {
+                if let assetMark, UIImage(named: assetMark) != nil {
+                    Image(assetMark)
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .frame(width: 18, height: 18)
+                } else {
+                    Image(systemName: systemImage)
+                        .font(.callout)
+                        .foregroundStyle(SpaceTheme.cosmicCyan)
+                }
+            }
+            .frame(width: 22, alignment: .center)
             Text(label)
                 .font(.system(.caption, design: .rounded, weight: .medium))
                 .foregroundStyle(.white.opacity(0.5))
